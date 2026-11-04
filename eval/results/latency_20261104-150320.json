@@ -1,0 +1,73 @@
+{
+ "environment": "ursim (ursim@::1)",
+ "trials": {
+  "ui_button": [
+   {
+    "ok": false,
+    "error": "motion did not start"
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 213.6,
+    "ack_ms": 208.6,
+    "halt_ms": 206.6,
+    "robot_moving_after": false
+   }
+  ],
+  "transcript_text": [
+   {
+    "ok": true,
+    "client_ms": 3.3,
+    "ack_ms": 208.6,
+    "halt_ms": 206.6
+   },
+   {
+    "ok": false,
+    "error": "motion did not start"
+   }
+  ]
+ },
+ "stop": {
+  "UI STOP (pulsante → ack robot)": {
+   "n": 1,
+   "median_ms": 208.6,
+   "max_ms": 208.6
+  },
+  "UI STOP (pulsante → robot fermo, RTDE)": {
+   "n": 1,
+   "median_ms": 206.6,
+   "max_ms": 206.6
+  },
+  "UI STOP (round-trip HTTP client)": {
+   "n": 1,
+   "median_ms": 213.6,
+   "max_ms": 213.6
+  },
+  "STOP da trascrizione testo (→ robot fermo)": {
+   "n": 1,
+   "median_ms": 206.6,
+   "max_ms": 206.6
+  }
+ },
+ "execution": {
+  "robot_execution_ms": {
+   "n": 3,
+   "median_ms": 765.0,
+   "max_ms": 766.0,
+   "last_ms": 766.0
+  },
+  "request_to_completion_ms": {
+   "n": 3,
+   "median_ms": 767.4,
+   "max_ms": 768.1,
+   "last_ms": 768.1
+  },
+  "confirmation_response_ms": {
+   "n": 3,
+   "median_ms": 0.7,
+   "max_ms": 0.9,
+   "last_ms": 0.9
+  }
+ },
+ "measured_at": "2026-11-04 15:03"
+}

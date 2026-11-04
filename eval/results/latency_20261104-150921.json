@@ -1,0 +1,284 @@
+{
+ "environment": "ursim (ursim@::1)",
+ "trials": {
+  "ui_button": [
+   {
+    "ok": true,
+    "client_rtt_ms": 227.0,
+    "ack_ms": 18.9,
+    "halt_ms": 220.2,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 181.7,
+    "ack_ms": 15.2,
+    "halt_ms": 177.2,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 275.8,
+    "ack_ms": 18.6,
+    "halt_ms": 270.8,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 190.9,
+    "ack_ms": 15.6,
+    "halt_ms": 187.5,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 240.6,
+    "ack_ms": 19.4,
+    "halt_ms": 236.5,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 285.4,
+    "ack_ms": 12.5,
+    "halt_ms": 280.8,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 274.2,
+    "ack_ms": 11.7,
+    "halt_ms": 270.9,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 195.9,
+    "ack_ms": 16.7,
+    "halt_ms": 190.8,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 272.4,
+    "ack_ms": 14.0,
+    "halt_ms": 268.7,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 186.2,
+    "ack_ms": 13.8,
+    "halt_ms": 183.0,
+    "robot_moving_after": false
+   }
+  ],
+  "transcript_text": [
+   {
+    "ok": true,
+    "client_ms": 274.7,
+    "ack_ms": 21.2,
+    "halt_ms": 253.9
+   },
+   {
+    "ok": true,
+    "client_ms": 226.2,
+    "ack_ms": 14.0,
+    "halt_ms": 202.6
+   },
+   {
+    "ok": true,
+    "client_ms": 225.5,
+    "ack_ms": 24.7,
+    "halt_ms": 216.0
+   },
+   {
+    "ok": true,
+    "client_ms": 208.2,
+    "ack_ms": 14.9,
+    "halt_ms": 193.4
+   },
+   {
+    "ok": true,
+    "client_ms": 278.8,
+    "ack_ms": 17.8,
+    "halt_ms": 261.3
+   },
+   {
+    "ok": true,
+    "client_ms": 205.9,
+    "ack_ms": 19.0,
+    "halt_ms": 199.6
+   },
+   {
+    "ok": true,
+    "client_ms": 250.8,
+    "ack_ms": 17.7,
+    "halt_ms": 238.1
+   },
+   {
+    "ok": true,
+    "client_ms": 225.8,
+    "ack_ms": 13.3,
+    "halt_ms": 204.6
+   },
+   {
+    "ok": true,
+    "client_ms": 234.6,
+    "ack_ms": 22.6,
+    "halt_ms": 225.7
+   },
+   {
+    "ok": true,
+    "client_ms": 232.0,
+    "ack_ms": 18.0,
+    "halt_ms": 215.7
+   }
+  ],
+  "spoken": [
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 1391.7,
+    "ack_ms": 15.6,
+    "halt_ms": 264.4
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 718.3,
+    "ack_ms": 15.6,
+    "halt_ms": 264.4
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 803.8,
+    "ack_ms": 8.7,
+    "halt_ms": 387.4
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 831.9,
+    "ack_ms": 16.6,
+    "halt_ms": 301.5
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 886.2,
+    "ack_ms": 28.3,
+    "halt_ms": 373.8
+   },
+   {
+    "ok": true,
+    "source": "grok_tool:grok",
+    "speech_end_to_stop_ms": 1160.0,
+    "ack_ms": 17.1,
+    "halt_ms": 326.9
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 837.7,
+    "ack_ms": 31.8,
+    "halt_ms": 338.5
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 739.3,
+    "ack_ms": 30.6,
+    "halt_ms": 345.9
+   },
+   {
+    "ok": true,
+    "source": "grok_tool:grok",
+    "speech_end_to_stop_ms": 1102.9,
+    "ack_ms": 26.7,
+    "halt_ms": 376.8
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 875.9,
+    "ack_ms": 24.0,
+    "halt_ms": 279.4
+   }
+  ]
+ },
+ "stop": {
+  "UI STOP (pulsante → ack robot)": {
+   "n": 10,
+   "median_ms": 15.4,
+   "max_ms": 19.4
+  },
+  "UI STOP (pulsante → robot fermo, RTDE)": {
+   "n": 10,
+   "median_ms": 228.3,
+   "max_ms": 280.8
+  },
+  "UI STOP (round-trip HTTP client)": {
+   "n": 10,
+   "median_ms": 233.8,
+   "max_ms": 285.4
+  },
+  "STOP da trascrizione testo (→ robot fermo)": {
+   "n": 10,
+   "median_ms": 215.8,
+   "max_ms": 261.3
+  },
+  "STOP vocale (fine parlato → STOP, end-to-end)": {
+   "n": 10,
+   "median_ms": 856.8,
+   "max_ms": 1391.7
+  },
+  "STOP vocale (→ robot fermo dopo richiesta)": {
+   "n": 10,
+   "median_ms": 332.7,
+   "max_ms": 387.4
+  },
+  "server: fine parlato → trascrizione con «stop»": {
+   "n": 20,
+   "median_ms": 456.9,
+   "max_ms": 1032.7
+  },
+  "server: fine parlato → tool stop di Grok": {
+   "n": 20,
+   "median_ms": 471.9,
+   "max_ms": 1038.4
+  }
+ },
+ "stop_sources_first": {
+  "transcript:voice": 8,
+  "grok_tool:grok": 2
+ },
+ "execution": {
+  "robot_execution_ms": {
+   "n": 73,
+   "median_ms": 974.0,
+   "max_ms": 4279.0,
+   "last_ms": 2795.0
+  },
+  "request_to_completion_ms": {
+   "n": 73,
+   "median_ms": 976.7,
+   "max_ms": 4282.1,
+   "last_ms": 2796.6
+  },
+  "confirmation_response_ms": {
+   "n": 73,
+   "median_ms": 0.9,
+   "max_ms": 2.1,
+   "last_ms": 1.1
+  },
+  "intent_processing_ms": {
+   "n": 1,
+   "median_ms": 2723.1,
+   "max_ms": 2723.1,
+   "last_ms": 2723.1
+  }
+ },
+ "measured_at": "2026-11-04 15:09"
+}

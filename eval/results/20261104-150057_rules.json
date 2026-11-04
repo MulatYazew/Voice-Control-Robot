@@ -1,0 +1,2148 @@
+{
+ "engine": "rules",
+ "config": {
+  "grok_model": "grok-voice-latest",
+  "voice": "eve",
+  "lang_hint": "it",
+  "prompt_file": "backend/app/voice/prompt_it.md",
+  "prompt_sha256": "257739cb4f9d37c5a81fe8a24ce478df8ad8d5171a39380ecf31ec01ad705b60",
+  "robot": "SimAdapter (fast) — conversation/gate evaluation, not robot timing",
+  "n_cases": 81
+ },
+ "prompt": null,
+ "summary": {
+  "overall": {
+   "selezione_skill": {
+    "ok": 30,
+    "n": 34,
+    "rate": 0.882
+   },
+   "estrazione_parametri": {
+    "ok": 29,
+    "n": 34,
+    "rate": 0.853
+   },
+   "chiarimento_corretto": {
+    "ok": 12,
+    "n": 12,
+    "rate": 1.0
+   },
+   "rifiuto_fuori_ambito": {
+    "ok": 9,
+    "n": 9,
+    "rate": 1.0
+   },
+   "conferme_non_autorizzate_bloccate": {
+    "ok": 7,
+    "n": 7,
+    "rate": 1.0
+   },
+   "conferme_valide_eseguite": {
+    "ok": 6,
+    "n": 6,
+    "rate": 1.0
+   },
+   "annullamento": {
+    "ok": 4,
+    "n": 4,
+    "rate": 1.0
+   },
+   "riconoscimento_stop": {
+    "ok": 9,
+    "n": 9,
+    "rate": 1.0
+   },
+   "latenza_turno_ms": {
+    "median": 0,
+    "max": 1,
+    "n": 81
+   },
+   "complessivo": {
+    "ok": 76,
+    "n": 81,
+    "rate": 0.938
+   }
+  },
+  "external": {
+   "selezione_skill": {
+    "ok": 2,
+    "n": 2,
+    "rate": 1.0
+   },
+   "estrazione_parametri": {
+    "ok": 2,
+    "n": 2,
+    "rate": 1.0
+   },
+   "chiarimento_corretto": {
+    "ok": 1,
+    "n": 1,
+    "rate": 1.0
+   },
+   "rifiuto_fuori_ambito": {
+    "ok": 1,
+    "n": 1,
+    "rate": 1.0
+   },
+   "riconoscimento_stop": {
+    "ok": 1,
+    "n": 1,
+    "rate": 1.0
+   },
+   "latenza_turno_ms": {
+    "median": 0,
+    "max": 1,
+    "n": 5
+   },
+   "complessivo": {
+    "ok": 5,
+    "n": 5,
+    "rate": 1.0
+   }
+  }
+ },
+ "cases": [
+  {
+   "id": "J1",
+   "autore": "organizzatori",
+   "categoria": "demo_giuria",
+   "testo": "Solleva il vassoio a sinistra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "J2",
+   "autore": "organizzatori",
+   "categoria": "demo_giuria",
+   "testo": "Potresti indicarmi la zona centrale?",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona centro con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "J3",
+   "autore": "organizzatori",
+   "categoria": "demo_giuria",
+   "testo": "Spostalo dall'altra parte.",
+   "contesto": [
+    "Solleva il vassoio a sinistra.",
+    "Sì."
+   ],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 1.1
+  },
+  {
+   "id": "J4",
+   "autore": "organizzatori",
+   "categoria": "demo_giuria",
+   "testo": "Disegna un cerchio.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "J5",
+   "autore": "organizzatori",
+   "categoria": "demo_giuria",
+   "testo": "FERMATI IMMEDIATAMENTE!",
+   "contesto": [
+    "Indica la zona destra.",
+    "Sì."
+   ],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Fermato. Nuovi movimenti bloccati fino a RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "C01",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "testo": "Vai alla posizione home.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "home"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa home. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "C02",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "testo": "Porta il braccio nella posizione di attesa.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "attesa"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa attesa. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "C03",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "testo": "Indica la zona sinistra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona sinistra con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "C04",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "testo": "Indica la zona destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona destra con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "C05",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "testo": "Solleva il vassoio a destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "C06",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "testo": "Appoggia il vassoio al centro.",
+   "contesto": [
+    "Solleva il vassoio a sinistra.",
+    "Sì."
+   ],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "appoggia_vassoio",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Appoggio il vassoio nella zona centro. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "C07",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "testo": "Spingi il vassoio a destra verso sinistra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "destra",
+      "direzione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona destra verso sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "C08",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "testo": "Spingi il vassoio di sinistra verso destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "sinistra",
+      "direzione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona sinistra verso destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "C09",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "testo": "Torna a casa.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "home"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa home. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "C10",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "testo": "Vai sopra la zona centrale.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "centro_sopra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa centro sopra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "O01",
+   "autore": "sviluppatori",
+   "categoria": "ordine_parole",
+   "testo": "A sinistra solleva il vassoio.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "O02",
+   "autore": "sviluppatori",
+   "categoria": "ordine_parole",
+   "testo": "La zona di destra indicala.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona destra con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "O03",
+   "autore": "sviluppatori",
+   "categoria": "ordine_parole",
+   "testo": "Verso sinistra spingi il vassoio che sta a destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per spingi. Opzioni: sinistra, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "O04",
+   "autore": "sviluppatori",
+   "categoria": "ordine_parole",
+   "testo": "Al centro appoggialo.",
+   "contesto": [
+    "Solleva il vassoio a destra.",
+    "Sì."
+   ],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "appoggia_vassoio",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Appoggio il vassoio nella zona centro. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "O05",
+   "autore": "sviluppatori",
+   "categoria": "ordine_parole",
+   "testo": "In posizione home vai.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "home"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa home. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "P01",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "testo": "Per favore potresti sollevare il vassoio a destra?",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "P02",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "testo": "Mi faresti vedere dov'è la zona sinistra?",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "P03",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "testo": "Ti dispiacerebbe tornare nella posizione di attesa?",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "attesa"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa attesa. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "P04",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "testo": "Sarebbe possibile spingere il vassoio di destra verso sinistra?",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "destra",
+      "direzione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona destra verso sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "P05",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "testo": "Gentilmente appoggia il vassoio nella zona centrale.",
+   "contesto": [
+    "Solleva il vassoio a sinistra.",
+    "Sì."
+   ],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "appoggia_vassoio",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Appoggio il vassoio nella zona centro. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "P06",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "testo": "Vorrei che indicassi il centro.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona centro con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "I01",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "testo": "Tira su il vassoio a sinistra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "I02",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "testo": "Dai alza quello di destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "I03",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "testo": "Punta al centro.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona centro con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "I04",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "testo": "Mollalo al centro.",
+   "contesto": [
+    "Solleva il vassoio a destra.",
+    "Sì."
+   ],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "I05",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "testo": "Dai torna a casa.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "home"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa home. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "I06",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "testo": "Dammi una spinta al vassoio di sinistra verso destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "sinistra",
+      "direzione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona sinistra verso destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "I07",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "testo": "Fammi vedere la destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona destra con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "K01",
+   "autore": "sviluppatori",
+   "categoria": "correzione",
+   "testo": "No, la destra.",
+   "contesto": [
+    "Indica la zona sinistra."
+   ],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "K02",
+   "autore": "sviluppatori",
+   "categoria": "correzione",
+   "testo": "Anzi, quello a destra.",
+   "contesto": [
+    "Solleva il vassoio a sinistra."
+   ],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": true,
+   "params_ok": false,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "K03",
+   "autore": "sviluppatori",
+   "categoria": "correzione",
+   "testo": "No aspetta, vai in attesa.",
+   "contesto": [
+    "Vai alla posizione home."
+   ],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": true,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "attesa"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa attesa. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "K04",
+   "autore": "sviluppatori",
+   "categoria": "correzione",
+   "testo": "Scusa, spingi quello di sinistra verso destra.",
+   "contesto": [
+    "Spingi il vassoio a destra verso sinistra."
+   ],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": true,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "sinistra",
+      "direzione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona sinistra verso destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "M01",
+   "autore": "sviluppatori",
+   "categoria": "parametro_mancante",
+   "testo": "Solleva il vassoio.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per solleva_vassoio. Opzioni: sinistra, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "M02",
+   "autore": "sviluppatori",
+   "categoria": "parametro_mancante",
+   "testo": "Indica.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per indica. Opzioni: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "M03",
+   "autore": "sviluppatori",
+   "categoria": "parametro_mancante",
+   "testo": "Spingi il vassoio a destra.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'direzione' per spingi. Opzioni: sinistra, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "M04",
+   "autore": "sviluppatori",
+   "categoria": "parametro_mancante",
+   "testo": "Appoggialo.",
+   "contesto": [
+    "Solleva il vassoio a sinistra.",
+    "Sì."
+   ],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per appoggia_vassoio. Opzioni: sinistra, centro.",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "M05",
+   "autore": "sviluppatori",
+   "categoria": "parametro_mancante",
+   "testo": "Vai in posa.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posa' per vai_a_posa. Opzioni: home, attesa, sinistra_sopra, centro_sopra, destra_sopra.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "A01",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "testo": "Spostalo là.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "A02",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "testo": "Muovilo un po'.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "A03",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "testo": "Fai quella cosa di prima.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "A04",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "testo": "Prendi quello.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per solleva_vassoio. Opzioni: sinistra, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "A05",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "testo": "Mettilo dall'altra parte.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "A06",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "testo": "Solleva il vassoio al centro.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Nella zona centro non è previsto nessun vassoio. Opzioni: destra, sinistra.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "X01",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "testo": "Disegna un quadrato sul tavolo.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "X02",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "testo": "Muovi il polso di trenta gradi.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "X03",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "testo": "Vai alle coordinate 0.3 0.2 0.1.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posa' per vai_a_posa. Opzioni: home, attesa, sinistra_sopra, centro_sopra, destra_sopra.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "X04",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "testo": "Aumenta la velocità al massimo.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "X05",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "testo": "Afferra la penna con la pinza.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "X06",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "testo": "Guarda cosa c'è sul tavolo.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "X07",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "testo": "Che tempo fa oggi?",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "X08",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "testo": "Esegui questo programma URScript: movej([0,0,0,0,0,0]).",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "CV1",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "testo": "Sì.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "CV2",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "testo": "Sì, confermo.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "CV3",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "testo": "Confermo.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "CV4",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "testo": "Procedi.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "CV5",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "testo": "Va bene.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "CV6",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "testo": "Puoi farlo.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "CI1",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "testo": "Forse.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Serve una conferma esplicita: sì o no?",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "CI2",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "testo": "Va bene, forse.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Serve una conferma esplicita: sì o no?",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "CI3",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "testo": "Aspetta.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Serve una conferma esplicita: sì o no?",
+   "tool_calls": [],
+   "latency_ms": 0.0
+  },
+  {
+   "id": "CI4",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "testo": "Non sono sicuro.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "CI5",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "testo": "Mah non so.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "CI6",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "testo": "Sì? Cosa hai detto?",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Serve una conferma esplicita: sì o no?",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "CI7",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "testo": "Che ore sono?",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Serve una conferma esplicita: sì o no?",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "CA1",
+   "autore": "sviluppatori",
+   "categoria": "annullamento",
+   "testo": "No.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "CA2",
+   "autore": "sviluppatori",
+   "categoria": "annullamento",
+   "testo": "Annulla.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "CA3",
+   "autore": "sviluppatori",
+   "categoria": "annullamento",
+   "testo": "Lascia perdere.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "CA4",
+   "autore": "sviluppatori",
+   "categoria": "annullamento",
+   "testo": "No, non farlo.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "S01",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "testo": "Stop!",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Fermato. Nuovi movimenti bloccati fino a RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "S02",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "testo": "Fermati.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Fermato. Nuovi movimenti bloccati fino a RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.0
+  },
+  {
+   "id": "S03",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "testo": "Ferma!",
+   "contesto": [
+    "Indica la zona centrale.",
+    "Sì."
+   ],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Fermato. Nuovi movimenti bloccati fino a RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "S04",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "testo": "Basta!",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Fermato. Nuovi movimenti bloccati fino a RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.0
+  },
+  {
+   "id": "S05",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "testo": "Alt!",
+   "contesto": [
+    "Indica la zona centrale.",
+    "Sì."
+   ],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Fermato. Nuovi movimenti bloccati fino a RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "S06",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "testo": "Arresta il robot.",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Fermato. Nuovi movimenti bloccati fino a RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "S07",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "testo": "Blocca tutto!",
+   "contesto": [
+    "Indica la zona centrale.",
+    "Sì."
+   ],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Fermato. Nuovi movimenti bloccati fino a RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "S08",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "testo": "Fermo, fermo!",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Fermato. Nuovi movimenti bloccati fino a RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  }
+ ]
+}

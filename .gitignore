@@ -218,3 +218,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Voice-recorded skills (runtime data)
+data/
+
+# VOCE
+logs/
+frontend/node_modules/
+frontend/dist/
+*.egg-info/
+
+recordings/

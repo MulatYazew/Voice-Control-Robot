@@ -1,0 +1,57 @@
+# Robot / work-cell configuration for VOCE.
+# Everything marked UNKNOWN must be verified during the supervised hardware slot
+# and recorded in PROJECT_STATUS.md. Do not fill values in by guessing.
+
+robot:
+  name: "Arm 3"
+  vendor: "Universal Robots"
+  model: UNKNOWN            # e.g. UR5e — verify on the teach pendant (About)
+  polyscope_version: UNKNOWN # verify on the teach pendant (About)
+
+# ROBOT_MODE env var overrides this. sim | ursim | real
+default_mode: ursim
+
+connections:
+  ursim:
+    # "::1" (IPv6 loopback) on purpose: on the dev Mac, UR's URSim.app (Lima) holds 127.0.0.1:30001-30004,
+    # which silently diverted RTDE/URScript to a second, powered-off simulator. Docker also listens on [::].
+    # Override with URSIM_HOST if needed.
+    host: "::1"
+  real:
+    host: null              # MUST be set explicitly (and real.enabled: true) to allow real mode
+    enabled: false
+  ports:                    # official UR client interfaces
+    dashboard: 29999
+    secondary: 30002        # accepts URScript programs
+    rtde: 30004             # state feedback (actual_q, actual_qd, runtime_state, ...)
+  connect_timeout_s: 3.0
+
+workspace:
+  zones: [sinistra, centro, destra]        # subject to verification
+  push_directions: [sinistra, destra]      # subject to verification
+  # Tray positions are ASSUMED (no camera). Initial assumption at startup:
+  trays_assumed_at: [sinistra, destra]
+
+tool:
+  description: "Printed tool attachment with fork, pusher and indicating tip (no gripper)"
+  # TCP offsets [x, y, z, rx, ry, rz] in m / rad relative to the flange.
+  # null = UNKNOWN. Motion uses recorded joint targets, so offsets are not required to move,
+  # but they must be measured before any Cartesian feature is added.
+  tcp_offsets:
+    forca: null
+    spintore: null
+    punta: null
+
+motion:
+  # Joint-space speed/acceleration (rad/s, rad/s^2) and linear (m/s, m/s^2).
+  ursim: {joint_speed: 0.8, joint_accel: 0.8, linear_speed: 0.15, linear_accel: 0.5}
+  sim:   {joint_speed: 0.8, joint_accel: 0.8, linear_speed: 0.15, linear_accel: 0.5}
+  real:  {joint_speed: 0.25, joint_accel: 0.3, linear_speed: 0.05, linear_accel: 0.2}  # conservative
+  stop_decel: 3.0               # rad/s^2 used by stopj()
+  joint_tolerance_rad: 0.01     # actual_q vs target to accept "arrived"
+  moving_speed_eps: 0.005       # |actual_qd| below this = not moving
+
+safety:
+  confirmation_ttl_s: 20
+  execution_timeout_margin_s: 5
+  stop_on_voice_loss: true      # voice channel lost while moving -> STOP (fail-safe; STOP button still works)

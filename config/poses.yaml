@@ -1,0 +1,128 @@
+# Named poses (joint targets, radians: base, shoulder, elbow, wrist1, wrist2, wrist3).
+#
+# !! ALL VALUES BELOW ARE URSim PLACEHOLDERS generated from one formula (base angle per zone).
+# !! They are NOT recorded from the real Arm 3. Real mode refuses any pose with verificata_reale: false.
+# Record real poses with:  python scripts/record_pose.py <name> --mode real   (jog the robot there first)
+#
+# selezionabile: true -> may be requested by voice through vai_a_posa.
+poses:
+  home:
+    joints: [0.0, -1.5708, 0.0, -1.5708, 0.0, 0.0]
+    selezionabile: true
+    alias: [casa, riposo, posizione iniziale, iniziale]
+    fonte: placeholder_ursim
+    verificata_reale: false
+  attesa:
+    joints: [-1.5708, -1.6, 1.6, -1.5708, -1.5708, 0.0]
+    selezionabile: true
+    alias: [sicura, posizione di attesa, parcheggio]
+    fonte: placeholder_ursim
+    verificata_reale: false
+  sinistra_sopra:
+    joints: [-1.0708, -1.9, 1.9, -1.57, -1.5708, 0.0]
+    selezionabile: true
+    alias: [sopra sinistra, sopra la zona sinistra, zona sinistra]
+    fonte: placeholder_ursim
+    verificata_reale: false
+  sinistra_presa:
+    joints: [-1.0708, -1.7, 2.05, -1.92, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  sinistra_indica:
+    joints: [-1.0708, -1.75, 1.95, -1.77, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  sinistra_spinta_sinistra_inizio:
+    joints: [-1.1908, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  sinistra_spinta_sinistra_fine:
+    joints: [-0.9908, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  sinistra_spinta_destra_inizio:
+    joints: [-0.9508, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  sinistra_spinta_destra_fine:
+    joints: [-1.1508, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  centro_sopra:
+    joints: [-1.5708, -1.9, 1.9, -1.57, -1.5708, 0.0]
+    selezionabile: true
+    alias: [sopra centro, sopra la zona centro, zona centro]
+    fonte: placeholder_ursim
+    verificata_reale: false
+  centro_presa:
+    joints: [-1.5708, -1.7, 2.05, -1.92, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  centro_indica:
+    joints: [-1.5708, -1.75, 1.95, -1.77, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  centro_spinta_sinistra_inizio:
+    joints: [-1.6908, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  centro_spinta_sinistra_fine:
+    joints: [-1.4908, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  centro_spinta_destra_inizio:
+    joints: [-1.4508, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  centro_spinta_destra_fine:
+    joints: [-1.6508, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  destra_sopra:
+    joints: [-2.0708, -1.9, 1.9, -1.57, -1.5708, 0.0]
+    selezionabile: true
+    alias: [sopra destra, sopra la zona destra, zona destra]
+    fonte: placeholder_ursim
+    verificata_reale: false
+  destra_presa:
+    joints: [-2.0708, -1.7, 2.05, -1.92, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  destra_indica:
+    joints: [-2.0708, -1.75, 1.95, -1.77, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  destra_spinta_sinistra_inizio:
+    joints: [-2.1908, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  destra_spinta_sinistra_fine:
+    joints: [-1.9908, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  destra_spinta_destra_inizio:
+    joints: [-1.9508, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  destra_spinta_destra_fine:
+    joints: [-2.1508, -1.7, 2.0, -1.87, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false

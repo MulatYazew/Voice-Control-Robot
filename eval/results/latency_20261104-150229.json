@@ -1,0 +1,60 @@
+{
+ "environment": "ursim (ursim@::1)",
+ "trials": {
+  "ui_button": [
+   {
+    "ok": false,
+    "error": "motion did not start"
+   },
+   {
+    "ok": false,
+    "error": "motion did not start"
+   }
+  ],
+  "transcript_text": [
+   {
+    "ok": false,
+    "error": "motion did not start"
+   },
+   {
+    "ok": false,
+    "error": "motion did not start"
+   }
+  ]
+ },
+ "stop": {
+  "UI STOP (pulsante → ack robot)": {
+   "n": 0
+  },
+  "UI STOP (pulsante → robot fermo, RTDE)": {
+   "n": 0
+  },
+  "UI STOP (round-trip HTTP client)": {
+   "n": 0
+  },
+  "STOP da trascrizione testo (→ robot fermo)": {
+   "n": 0
+  }
+ },
+ "execution": {
+  "robot_execution_ms": {
+   "n": 4,
+   "median_ms": 4594.5,
+   "max_ms": 4608.0,
+   "last_ms": 4608.0
+  },
+  "request_to_completion_ms": {
+   "n": 4,
+   "median_ms": 4597.5,
+   "max_ms": 4610.7,
+   "last_ms": 4610.7
+  },
+  "confirmation_response_ms": {
+   "n": 4,
+   "median_ms": 1.1,
+   "max_ms": 1.4,
+   "last_ms": 1.3
+  }
+ },
+ "measured_at": "2026-11-04 15:02"
+}

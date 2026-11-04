@@ -1,0 +1,215 @@
+"""Deterministic skill registry loaded from config/skills.yaml + config/poses.yaml.
+
+Grok (or the text-mode rules) can only *name* a skill and parameter values.
+This module decides whether that is valid, and turns it into a fixed motion
+sequence over recorded joint targets. It never accepts poses or joints from
+the conversation.
+"""
+
+from __future__ import annotations
+
+import re
+import unicodedata
+from dataclasses import dataclass, field
+from typing import Any
+
+from ..config import Settings
+from .world import WorldModel
+
+# result codes (Italian, as required by the spec)
+SKILL_SCONOSCIUTA = "skill_sconosciuta"
+RICHIESTA_AMBIGUA = "richiesta_ambigua"
+PRECONDIZIONE = "precondizione_non_soddisfatta"
+POSA_NON_VERIFICATA = "posa_non_verificata"
+
+
+class SkillError(Exception):
+    def __init__(self, code: str, message: str, *, param: str | None = None, options: list[str] | None = None):
+        super().__init__(message)
+        self.code, self.param, self.options = code, param, options or []
+
+    def to_dict(self) -> dict[str, Any]:
+        d: dict[str, Any] = {"ok": False, "esito": self.code, "messaggio": str(self)}
+        if self.param:
+            d["parametro"] = self.param
+        if self.options:
+            d["opzioni_valide"] = self.options
+        return d
+
+
+def norm(s: Any) -> str:
+    t = unicodedata.normalize("NFKD", str(s).lower())
+    t = "".join(c for c in t if not unicodedata.combining(c))
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9_ ]", " ", t)).strip()
+
+
+ZONE_ALIASES = {
+    "sinistra": ["sinistra", "a sinistra", "zona sinistra", "sx", "left", "izquierda", "gauche", "links"],
+    "centro": ["centro", "centrale", "al centro", "zona centrale", "zona centro", "in mezzo", "mezzo", "center", "centre",
+               "middle", "central"],
+    "destra": ["destra", "a destra", "zona destra", "dx", "right", "derecha", "droite", "rechts"],
+}
+
+
+@dataclass(frozen=True)
+class MotionStep:
+    move: str                       # movej | movel | wait
+    pose: str | None = None
+    joints: tuple[float, ...] | None = None
+    speed: float = 0.0
+    accel: float = 0.0
+    seconds: float = 0.0
+
+    def public(self) -> dict[str, Any]:
+        return {"move": self.move, "posa": self.pose, "secondi": self.seconds or None}
+
+
+@dataclass
+class Skill:
+    id: str
+    descrizione: str
+    strumento: str | None
+    parametri: dict[str, str]           # name -> tipo
+    precondizioni: list[str]
+    sequenza: list[dict[str, Any]]
+    timeout_s: float
+    conferma: str
+    risultato: str
+    in_caso_di_errore: str = "fault"
+
+
+@dataclass
+class ValidatedAction:
+    skill: str
+    params: dict[str, str]
+    motion: list[MotionStep]
+    timeout_s: float
+    conferma: str
+    risultato: str
+    strumento: str | None = None
+    extra: dict[str, Any] = field(default_factory=dict)
+
+    def public(self) -> dict[str, Any]:
+        return {"skill": self.skill, "parametri": self.params, "strumento": self.strumento,
+                "conferma": self.conferma, "sequenza": [m.public() for m in self.motion], "timeout_s": self.timeout_s}
+
+
+class Registry:
+    def __init__(self, settings: Settings) -> None:
+        self.s = settings
+        self.skills: dict[str, Skill] = {}
+        for sid, raw in settings.skills.items():
+            self.skills[sid] = Skill(
+                id=sid, descrizione=raw["descrizione"], strumento=raw.get("strumento"),
+                parametri={k: v["tipo"] for k, v in (raw.get("parametri") or {}).items()},
+                precondizioni=list(raw.get("precondizioni") or []), sequenza=list(raw["sequenza"]),
+                timeout_s=float(raw.get("timeout_s", 30)), conferma=raw["conferma"], risultato=raw["risultato"],
+                in_caso_di_errore=raw.get("in_caso_di_errore", "fault"))
+
+    # ------------------------------------------------------------ domains ---
+    def selectable_poses(self) -> list[str]:
+        return [k for k, v in self.s.poses.items() if v.get("selezionabile")]
+
+    def domain(self, tipo: str) -> list[str]:
+        if tipo == "zona":
+            return self.s.zones
+        if tipo == "direzione":
+            return self.s.directions
+        if tipo == "posa":
+            return self.selectable_poses()
+        raise ValueError(tipo)
+
+    def normalize(self, tipo: str, value: Any) -> str | None:
+        """Map a spoken/typed value onto a canonical configured value, or None."""
+        if value is None:
+            return None
+        n = norm(value).replace("_", " ")
+        if not n:
+            return None
+        if tipo in ("zona", "direzione"):
+            dom = self.domain(tipo)
+            for canon, aliases in ZONE_ALIASES.items():
+                if canon in dom and (n == canon or n in aliases):
+                    return canon
+            return n if n in dom else None
+        if tipo == "posa":
+            for k in self.selectable_poses():
+                if n == norm(k).replace("_", " ") or n in [norm(a) for a in self.s.poses[k].get("alias", [])]:
+                    return k
+            return None
+        return None
+
+    def catalogue(self) -> dict[str, Any]:
+        return {sid: {"descrizione": sk.descrizione, "strumento": sk.strumento,
+                      "parametri": {p: self.domain(t) for p, t in sk.parametri.items()}}
+                for sid, sk in self.skills.items()}
+
+    # --------------------------------------------------------- validation ---
+    def validate(self, skill_id: Any, params: dict[str, Any] | None, world: WorldModel) -> ValidatedAction:
+        sid = norm(skill_id).replace(" ", "_")
+        if sid not in self.skills:
+            raise SkillError(SKILL_SCONOSCIUTA, f"Abilità '{skill_id}' non disponibile.", options=list(self.skills))
+        sk = self.skills[sid]
+        params = dict(params or {})
+        unknown = [k for k in params if k not in sk.parametri]
+        for k in unknown:  # ignore empty extras the model sometimes adds, reject real ones
+            if params[k] not in (None, ""):
+                raise SkillError(RICHIESTA_AMBIGUA, f"Parametro '{k}' non previsto per {sid}.", param=k,
+                                 options=list(sk.parametri))
+        resolved: dict[str, str] = {}
+        for pname, tipo in sk.parametri.items():
+            raw = params.get(pname)
+            options = self._options(sid, pname, tipo, world)
+            if raw in (None, ""):
+                raise SkillError(RICHIESTA_AMBIGUA, f"Manca il parametro '{pname}' per {sid}.", param=pname, options=options)
+            val = self.normalize(tipo, raw)
+            if val is None:
+                raise SkillError(RICHIESTA_AMBIGUA, f"Valore '{raw}' non valido per '{pname}'.", param=pname, options=options)
+            resolved[pname] = val
+        self._check_preconditions(sk, resolved, world)
+        motion = self.motion(sk, resolved)
+        fmt = {k: v.replace("_", " ") for k, v in resolved.items()}
+        return ValidatedAction(skill=sid, params=resolved, motion=motion, timeout_s=sk.timeout_s,
+                               conferma=sk.conferma.format(**fmt), risultato=sk.risultato.format(**fmt),
+                               strumento=sk.strumento)
+
+    def _options(self, sid: str, pname: str, tipo: str, world: WorldModel) -> list[str]:
+        dom = self.domain(tipo)
+        sk = self.skills[sid]
+        if pname == "posizione":
+            if "vassoio_presunto_in_zona" in sk.precondizioni:
+                return [z for z in dom if z in world.trays_at]
+            if "zona_libera" in sk.precondizioni:
+                return [z for z in dom if z not in world.trays_at]
+        return dom
+
+    def _check_preconditions(self, sk: Skill, p: dict[str, str], world: WorldModel) -> None:
+        for pc in sk.precondizioni:
+            if pc == "forca_libera" and world.holding_tray:
+                raise SkillError(PRECONDIZIONE, "C'è già un vassoio sulla forca: va prima appoggiato.",
+                                 options=[z for z in self.s.zones if z not in world.trays_at])
+            if pc == "vassoio_sulla_forca" and not world.holding_tray:
+                raise SkillError(PRECONDIZIONE, "Non c'è nessun vassoio sulla forca.")
+            if pc == "vassoio_presunto_in_zona" and p["posizione"] not in world.trays_at:
+                raise SkillError(PRECONDIZIONE, f"Nella zona {p['posizione']} non è previsto nessun vassoio.",
+                                 param="posizione", options=sorted(world.trays_at))
+            if pc == "zona_libera" and p["posizione"] in world.trays_at:
+                raise SkillError(PRECONDIZIONE, f"La zona {p['posizione']} è già occupata.", param="posizione",
+                                 options=[z for z in self.s.zones if z not in world.trays_at])
+
+    def motion(self, sk: Skill, p: dict[str, str]) -> list[MotionStep]:
+        m = self.s.motion
+        out: list[MotionStep] = []
+        for st in sk.sequenza:
+            if st["move"] == "wait":
+                out.append(MotionStep("wait", seconds=float(st.get("secondi", 1.0))))
+                continue
+            name = st["posa"].format(**p)
+            pose = self.s.poses[name]  # existence checked at config load
+            if self.s.mode == "real" and not pose.get("verificata_reale"):
+                raise SkillError(POSA_NON_VERIFICATA, f"La posa {name} non è stata registrata sul robot reale.")
+            lin = st["move"] == "movel"
+            out.append(MotionStep(st["move"], name, tuple(float(x) for x in pose["joints"]),
+                                  m["linear_speed"] if lin else m["joint_speed"],
+                                  m["linear_accel"] if lin else m["joint_accel"]))
+        return out

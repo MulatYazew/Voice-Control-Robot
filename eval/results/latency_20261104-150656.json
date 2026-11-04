@@ -1,0 +1,270 @@
+{
+ "environment": "ursim (ursim@::1)",
+ "trials": {
+  "ui_button": [
+   {
+    "ok": true,
+    "client_rtt_ms": 222.0,
+    "ack_ms": 17.9,
+    "halt_ms": 218.1,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 178.7,
+    "ack_ms": 17.4,
+    "halt_ms": 173.6,
+    "robot_moving_after": false
+   },
+   {
+    "ok": false,
+    "error": "motion did not start"
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 266.6,
+    "ack_ms": 23.2,
+    "halt_ms": 260.8,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 214.7,
+    "ack_ms": 18.0,
+    "halt_ms": 209.1,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 223.1,
+    "ack_ms": 18.2,
+    "halt_ms": 217.8,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 187.9,
+    "ack_ms": 12.6,
+    "halt_ms": 182.5,
+    "robot_moving_after": false
+   },
+   {
+    "ok": false,
+    "error": "motion did not start"
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 272.3,
+    "ack_ms": 17.8,
+    "halt_ms": 267.0,
+    "robot_moving_after": false
+   },
+   {
+    "ok": true,
+    "client_rtt_ms": 198.3,
+    "ack_ms": 13.8,
+    "halt_ms": 193.4,
+    "robot_moving_after": false
+   }
+  ],
+  "transcript_text": [
+   {
+    "ok": false,
+    "error": "motion did not start"
+   },
+   {
+    "ok": true,
+    "client_ms": 270.2,
+    "ack_ms": 18.9,
+    "halt_ms": 255.5
+   },
+   {
+    "ok": true,
+    "client_ms": 206.2,
+    "ack_ms": 13.3,
+    "halt_ms": 199.7
+   },
+   {
+    "ok": false,
+    "error": "motion did not start"
+   },
+   {
+    "ok": true,
+    "client_ms": 255.9,
+    "ack_ms": 16.7,
+    "halt_ms": 229.3
+   },
+   {
+    "ok": false,
+    "error": "motion did not start"
+   },
+   {
+    "ok": true,
+    "client_ms": 226.7,
+    "ack_ms": 16.7,
+    "halt_ms": 220.4
+   },
+   {
+    "ok": true,
+    "client_ms": 211.0,
+    "ack_ms": 22.5,
+    "halt_ms": 186.5
+   },
+   {
+    "ok": false,
+    "error": "motion did not start"
+   },
+   {
+    "ok": true,
+    "client_ms": 270.3,
+    "ack_ms": 25.1,
+    "halt_ms": 261.4
+   }
+  ],
+  "spoken": [
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 801.3,
+    "ack_ms": 25.1,
+    "halt_ms": 261.4
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 736.9,
+    "ack_ms": 37.0,
+    "halt_ms": 387.6
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 782.1,
+    "ack_ms": 17.6,
+    "halt_ms": 376.2
+   },
+   {
+    "ok": true,
+    "source": "grok_tool:grok",
+    "speech_end_to_stop_ms": 927.6,
+    "ack_ms": 31.6,
+    "halt_ms": 345.8
+   },
+   {
+    "ok": true,
+    "source": "grok_tool:grok",
+    "speech_end_to_stop_ms": 722.5,
+    "ack_ms": 41.5,
+    "halt_ms": 358.2
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 852.9,
+    "ack_ms": 35.5,
+    "halt_ms": 379.4
+   },
+   {
+    "ok": true,
+    "source": "grok_tool:grok",
+    "speech_end_to_stop_ms": 933.5,
+    "ack_ms": 29.9,
+    "halt_ms": 277.6
+   },
+   {
+    "ok": true,
+    "source": "grok_tool:grok",
+    "speech_end_to_stop_ms": 967.9,
+    "ack_ms": 46.1,
+    "halt_ms": 380.0
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 1313.4,
+    "ack_ms": 42.0,
+    "halt_ms": 305.4
+   },
+   {
+    "ok": true,
+    "source": "transcript:voice",
+    "speech_end_to_stop_ms": 1017.7,
+    "ack_ms": 27.1,
+    "halt_ms": 239.1
+   }
+  ]
+ },
+ "stop": {
+  "UI STOP (pulsante → ack robot)": {
+   "n": 8,
+   "median_ms": 17.9,
+   "max_ms": 23.2
+  },
+  "UI STOP (pulsante → robot fermo, RTDE)": {
+   "n": 8,
+   "median_ms": 213.4,
+   "max_ms": 267.0
+  },
+  "UI STOP (round-trip HTTP client)": {
+   "n": 8,
+   "median_ms": 218.3,
+   "max_ms": 272.3
+  },
+  "STOP da trascrizione testo (→ robot fermo)": {
+   "n": 6,
+   "median_ms": 224.9,
+   "max_ms": 261.4
+  },
+  "STOP vocale (fine parlato → STOP, end-to-end)": {
+   "n": 10,
+   "median_ms": 890.2,
+   "max_ms": 1313.4
+  },
+  "STOP vocale (→ robot fermo dopo richiesta)": {
+   "n": 10,
+   "median_ms": 352.0,
+   "max_ms": 387.6
+  },
+  "server: fine parlato → trascrizione con «stop»": {
+   "n": 10,
+   "median_ms": 473.5,
+   "max_ms": 572.1
+  },
+  "server: fine parlato → tool stop di Grok": {
+   "n": 10,
+   "median_ms": 478.7,
+   "max_ms": 575.6
+  }
+ },
+ "stop_sources_first": {
+  "transcript:voice": 6,
+  "grok_tool:grok": 4
+ },
+ "execution": {
+  "robot_execution_ms": {
+   "n": 35,
+   "median_ms": 982.0,
+   "max_ms": 4251.0,
+   "last_ms": 2726.0
+  },
+  "request_to_completion_ms": {
+   "n": 35,
+   "median_ms": 984.4,
+   "max_ms": 4253.8,
+   "last_ms": 2732.1
+  },
+  "confirmation_response_ms": {
+   "n": 35,
+   "median_ms": 1.0,
+   "max_ms": 2.1,
+   "last_ms": 1.4
+  },
+  "intent_processing_ms": {
+   "n": 1,
+   "median_ms": 2723.1,
+   "max_ms": 2723.1,
+   "last_ms": 2723.1
+  }
+ },
+ "measured_at": "2026-11-04 15:06"
+}

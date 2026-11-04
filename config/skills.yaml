@@ -1,0 +1,80 @@
+# Deterministic skill registry. Grok can only *propose* these, with these parameters.
+# Motion sequences reference named poses in config/poses.yaml ({posizione}/{direzione} are
+# substituted with validated parameter values). The sequences are the team's assumed
+# structure and must be checked against the real cell (see PROJECT_STATUS.md).
+
+skills:
+  vai_a_posa:
+    descrizione: "Porta il braccio in una posa predefinita."
+    strumento: null
+    parametri:
+      posa: {tipo: posa}                 # allowed values = selectable poses in poses.yaml
+    precondizioni: []
+    sequenza:
+      - {move: movej, posa: "{posa}"}
+    timeout_s: 30
+    conferma: "Porto il braccio nella posa {posa}. Confermi?"
+    risultato: "Il braccio è nella posa {posa}."
+    in_caso_di_errore: fault
+
+  indica:
+    descrizione: "Indica una zona con la punta, senza toccare nulla."
+    strumento: punta
+    parametri:
+      posizione: {tipo: zona}
+    precondizioni: []
+    sequenza:
+      - {move: movej, posa: "{posizione}_sopra"}
+      - {move: movel, posa: "{posizione}_indica"}
+      - {move: wait, secondi: 1.0}
+      - {move: movel, posa: "{posizione}_sopra"}
+    timeout_s: 40
+    conferma: "Indico la zona {posizione} con la punta. Confermi?"
+    risultato: "Ho indicato la zona {posizione}."
+    in_caso_di_errore: fault
+
+  solleva_vassoio:
+    descrizione: "Solleva con la forca il vassoio che si presume sia nella zona indicata."
+    strumento: forca
+    parametri:
+      posizione: {tipo: zona}
+    precondizioni: [forca_libera, vassoio_presunto_in_zona]
+    sequenza:
+      - {move: movej, posa: "{posizione}_sopra"}
+      - {move: movel, posa: "{posizione}_presa"}
+      - {move: movel, posa: "{posizione}_sopra"}
+    timeout_s: 45
+    conferma: "Sollevo con la forca il vassoio nella zona {posizione}. Confermi?"
+    risultato: "Sequenza di sollevamento completata nella zona {posizione}."
+    in_caso_di_errore: fault
+
+  appoggia_vassoio:
+    descrizione: "Appoggia il vassoio portato sulla forca nella zona indicata."
+    strumento: forca
+    parametri:
+      posizione: {tipo: zona}
+    precondizioni: [vassoio_sulla_forca, zona_libera]
+    sequenza:
+      - {move: movej, posa: "{posizione}_sopra"}
+      - {move: movel, posa: "{posizione}_presa"}
+      - {move: movel, posa: "{posizione}_sopra"}
+    timeout_s: 45
+    conferma: "Appoggio il vassoio nella zona {posizione}. Confermi?"
+    risultato: "Sequenza di appoggio completata nella zona {posizione}."
+    in_caso_di_errore: fault
+
+  spingi:
+    descrizione: "Spinge con lo spintore il vassoio nella zona indicata, verso una direzione."
+    strumento: spintore
+    parametri:
+      posizione: {tipo: zona}
+      direzione: {tipo: direzione}
+    precondizioni: [forca_libera, vassoio_presunto_in_zona]
+    sequenza:
+      - {move: movej, posa: "{posizione}_spinta_{direzione}_inizio"}
+      - {move: movel, posa: "{posizione}_spinta_{direzione}_fine"}
+      - {move: movel, posa: "{posizione}_sopra"}
+    timeout_s: 45
+    conferma: "Spingo il vassoio nella zona {posizione} verso {direzione}. Confermi?"
+    risultato: "Spinta completata nella zona {posizione} verso {direzione}."
+    in_caso_di_errore: fault
