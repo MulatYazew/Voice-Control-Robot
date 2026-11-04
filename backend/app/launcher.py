@@ -69,7 +69,10 @@ def start(mode: str = "ursim", *, open_browser: bool = True, port: int | None = 
             settings.port = port
         url = f"http://{'localhost' if settings.host in ('127.0.0.1', '0.0.0.0') else settings.host}:{settings.port}"
         if _port_busy(settings.host, settings.port):
-            raise RuntimeError(f"Port {settings.port} already in use (another VOCE instance?). Stop it first.")
+            raise RuntimeError(
+                f"Port {settings.port} is already in use: VOCE is probably already running in another terminal "
+                f"or notebook (open {url}). Stop it there (Ctrl+C or handle.stop()), or in a terminal run: "
+                f"pkill -f app.launcher — then run this cell again.")
         for w in settings.warnings:
             print("⚠️ ", w)
         if not (FRONTEND_DIST / "index.html").exists():
