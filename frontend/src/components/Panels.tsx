@@ -90,7 +90,7 @@ export function StopBar({ status, onStopped }: { status: Status | null; onStoppe
         <button className="reset" onClick={reset}>RIPRISTINA</button>
       )}
       <button className="stop" onClick={() => doStop("button")} title="Barra spaziatrice">
-        STOP <small>spazio</small>
+        STOP · FERMA · 停止 · 止まれ · አቁም <small>spazio</small>
       </button>
       {msg && <div className="stop-msg">{msg}</div>}
       <div className="disclaimer">STOP software: non è un arresto di emergenza certificato. Usare il pulsante di emergenza fisico del robot.</div>
@@ -124,6 +124,24 @@ export function EvalPanel() {
           </table>
         </div>
       ))}
+      {engines.map((e) => {
+        const by = data.summary[e]?.by_language;
+        if (!by) return null;
+        return (
+          <div key={`lang-${e}`}>
+            <h3>Per lingua · {e}</h3>
+            <table>
+              <thead><tr><th>Lingua</th><th>casi</th><th>corretti</th></tr></thead>
+              <tbody>
+                {Object.entries(by as Record<string, any>).map(([l, block]) => {
+                  const c = block?.complessivo;
+                  return <tr key={l}><td>{l}</td><td>{c?.n ?? "—"}</td><td>{c ? `${(c.rate * 100).toFixed(0)}% (${c.ok}/${c.n})` : "—"}</td></tr>;
+                })}
+              </tbody>
+            </table>
+          </div>
+        );
+      })}
       {data.latency && (
         <>
           <h3>Latenze STOP <span className="sub">{data.latency.environment}</span></h3>

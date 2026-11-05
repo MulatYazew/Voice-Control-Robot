@@ -19,15 +19,16 @@ export interface Store {
   lastReport: { kind: string; text: string; ts: number } | null;
   textMode: boolean;
   execStart: number | null;
+  voiceLang: string;
 }
 
 const initial: Store = {
   conn: "connecting", status: null, config: null, layout: null, catalogue: null, voice: "off", voiceDetail: "",
   speaking: false, awaitingReply: false, chat: [], joints: null, progress: null, lastTool: null, lastReport: null,
-  textMode: false, execStart: null,
+  textMode: false, execStart: null, voiceLang: "auto",
 };
 
-type Action = { t: "event"; ev: any } | { t: "conn"; c: Store["conn"] } | { t: "textMode"; on: boolean };
+type Action = { t: "event"; ev: any } | { t: "conn"; c: Store["conn"] } | { t: "textMode"; on: boolean } | { t: "voiceLang"; lang: string };
 
 let seq = 0;
 const line = (l: Omit<ChatLine, "id" | "ts">, ts?: number): ChatLine => ({ ...l, id: `l${++seq}`, ts: ts ?? Date.now() / 1000 });
@@ -35,6 +36,7 @@ const line = (l: Omit<ChatLine, "id" | "ts">, ts?: number): ChatLine => ({ ...l,
 function reducer(s: Store, a: Action): Store {
   if (a.t === "conn") return { ...s, conn: a.c };
   if (a.t === "textMode") return { ...s, textMode: a.on };
+  if (a.t === "voiceLang") return { ...s, voiceLang: a.lang };
   const ev = a.ev;
   switch (ev.type) {
     case "hello":
@@ -61,29 +63,29 @@ function reducer(s: Store, a: Action): Store {
         const chat = [...s.chat];
         const last = chat[chat.length - 1];
         if (last && last.role === "user" && !last.final) chat[chat.length - 1] = { ...last, text: ev.text, final: !!ev.final };
-        else if (!(ev.replay && chat.some((c) => c.ts === ev.ts))) chat.push(line({ role: "user", text: ev.text, final: !!ev.final, source: ev.source }, ev.ts));
+        else if (!(ev.replay && chat.some((c) => c.ts === ev.ts))) chat.push(line({ role: "user", text: ev.text, final: !!ev.final, source: ev.source, lang: s.voiceLang }, ev.ts));
         return { ...s, chat: chat.slice(-120), awaitingReply: true };
       }
       const chat = [...s.chat];
       const last = chat[chat.length - 1];
       if (last && last.role === "assistant" && !last.final) chat[chat.length - 1] = { ...last, text: last.text + ev.delta };
-      else chat.push(line({ role: "assistant", text: ev.delta, final: false, source: ev.mode }));
+      else chat.push(line({ role: "assistant", text: ev.delta, final: false, source: ev.mode, lang: s.voiceLang }));
       return { ...s, chat: chat.slice(-120), awaitingReply: false };
     }
     case "assistant_done": {
       const chat = [...s.chat];
       const last = chat[chat.length - 1];
       if (last && last.role === "assistant" && !last.final) chat[chat.length - 1] = { ...last, text: ev.text, final: true };
-      else chat.push(line({ role: "assistant", text: ev.text, final: true, source: ev.mode }, ev.ts));
+      else chat.push(line({ role: "assistant", text: ev.text, final: true, source: ev.mode, lang: s.voiceLang }, ev.ts));
       return { ...s, chat: chat.slice(-120), awaitingReply: false };
     }
     case "tool":
       return { ...s, lastTool: { name: ev.name, result: ev.result, ts: ev.ts } };
     case "report":
       return { ...s, lastReport: { kind: ev.kind, text: ev.text, ts: ev.ts },
-               chat: [...s.chat, line({ role: "system", text: ev.text, final: true, kind: ev.kind }, ev.ts)].slice(-120) };
+               chat: [...s.chat, line({ role: "system", text: ev.text, final: true, kind: ev.kind, lang: s.voiceLang }, ev.ts)].slice(-120) };
     case "stop":
-      return { ...s, chat: [...s.chat, line({ role: "system", text: `STOP ← ${ev.source}`, final: true, kind: "stop" }, ev.ts)] };
+      return { ...s, chat: [...s.chat, line({ role: "system", text: `STOP ← ${ev.source}`, final: true, kind: "stop", lang: s.voiceLang }, ev.ts)] };
     default:
       return s;
   }
@@ -117,5 +119,6 @@ export function useVoce() {
     return () => stream.stop();
   }, []);
   const setTextMode = useCallback((on: boolean) => dispatch({ t: "textMode", on }), []);
-  return useMemo(() => ({ store, setTextMode }), [store, setTextMode]);
+  const setVoiceLang = useCallback((lang: string) => dispatch({ t: "voiceLang", lang }), []);
+  return useMemo(() => ({ store, setTextMode, setVoiceLang }), [store, setTextMode, setVoiceLang]);
 }

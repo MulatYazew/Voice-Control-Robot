@@ -36,7 +36,8 @@ class GrokSession:
     MAX_RECONNECTS = 5
 
     def __init__(self, settings: Settings, gate: Gate, bus: EventBus, metrics: Metrics, *, client=None,
-                 mode: str = "voice") -> None:
+                 mode: str = "voice", lang: str = "auto") -> None:
+        self.lang = lang                  # it | en | zh | ja | am | auto (voice language, not the UI language)
         self.s, self.gate, self.bus, self.metrics = settings, gate, bus, metrics
         self.client = client              # FastAPI WebSocket (voice) or None (text)
         self.mode = mode                  # voice | text
@@ -93,15 +94,42 @@ class GrokSession:
             await self.request_response()
 
     def session_update(self) -> dict[str, Any]:
+        from ..safety.phrases import LANGS, load_lexicon
         terms = ["stop", "fermati", "ferma", "basta", "alt", "blocca tutto", "vassoio", "sinistra", "centro", "destra",
-                 "solleva", "appoggia", "spingi", "indica", "confermo", "annulla", "procedi"]
+                 "solleva", "appoggia", "spingi", "indica", "confermo", "annulla", "procedi",
+                 "left", "right", "centre", "center", "lift", "push", "point", "confirm", "cancel", "yes", "stop now"]
         for name in self.gate.reg.selectable_poses():   # pose names + aliases ("home" was heard as "ON")
             terms += [name.replace("_", " ")] + list(self.s.poses[name].get("alias", []))
-        tr: dict[str, Any] = {"keyterms": list(dict.fromkeys(t[:50] for t in terms))[:100]}
-        if self.s.lang_hint:
-            tr["language_hint"] = self.s.lang_hint
+        lex = load_lexicon()
+        wanted = [self.lang] if self.lang in LANGS else list(LANGS)
+        for key in ("stop", "affirm", "zones"):
+            block = lex.get(key) or {}
+            if key == "zones":
+                for per_lang in block.values():
+                    for lang in wanted:
+                        terms.extend(per_lang.get(lang) or [])
+            else:
+                for lang in wanted:
+                    terms.extend(block.get(lang) or [])
+        try:
+            from ..perception.catalog import Catalog
+            terms.extend(Catalog(self.s.data_dir / "catalog").keyterms())
+        except Exception:
+            pass
+        tr: dict[str, Any] = {"keyterms": list(dict.fromkeys(t[:50] for t in terms if t))[:100]}
+        # Amharic is not in the official STT language list: never send it as a hint.
+        if self.lang in ("it", "en", "zh", "ja"):
+            tr["language_hint"] = self.lang
+        pref = {
+            "it": "\nLingua preferita dall'operatore (selettore voce): italiano.",
+            "en": "\nOperator's preferred language (voice selector): English. Reply in English unless the operator switches.",
+            "zh": "\n操作员的语音语言：中文（普通话）。用中文回答。",
+            "ja": "\nオペレーターの音声言語：日本語。日本語で答えてください。",
+            "am": "\nየድምጽ ቋንቋ፡ አማርኛ። በአማርኛ መልስ። This language is experimental.",
+            "auto": "",
+        }.get(self.lang, "")
         return {"type": "session.update", "session": {
-            "instructions": build_prompt(self.s, self.gate),
+            "instructions": build_prompt(self.s, self.gate) + pref,
             "voice": self.s.xai_voice,
             "turn_detection": {"type": "server_vad"},
             "audio": {"input": {"format": {"type": "audio/pcm", "rate": 24000}, "transcription": tr},
@@ -112,7 +140,8 @@ class GrokSession:
     # ------------------------------------------------------- gate hooks ---
     async def _on_report(self, ev: dict[str, Any]) -> None:
         if self.xai is not None:
-            await self.inject(f"[RAPPORTO SISTEMA — non è l'operatore] {ev['text']} Riferiscilo in una o due frasi.")
+            await self.inject(f"[RAPPORTO SISTEMA — non è l'operatore] {ev['text']} (EN: {ev.get('text_en', ev['text'])}) "
+                              "Riferiscilo in una o due frasi, nella lingua dell'operatore.")
 
     async def _watch_bus(self) -> None:
         q = self.bus.subscribe()
@@ -139,6 +168,11 @@ class GrokSession:
             self._intent_measured = True
         if name == "stop" and self.t_speech_end:
             self.metrics.record("grok_stop_tool_ms", (now - self.t_speech_end) * 1000)
+        lingua = str(args.get("lingua") or "").lower()
+        if lingua in ("it", "en", "zh", "ja", "am"):
+            self.gate.operator_lang = lingua
+        elif self.lang in ("it", "en", "zh", "ja", "am"):
+            self.gate.operator_lang = self.lang
         result = await dispatch(self.gate, name, args, source="grok" if self.mode == "voice" else "grok_text")
         self.tool_calls.append({"name": name, "args": args, "result": result})
         log_event(log, f"tool {name}", args=args, result={k: result.get(k) for k in ("ok", "esito", "action_id")})

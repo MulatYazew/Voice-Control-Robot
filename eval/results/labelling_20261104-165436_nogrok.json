@@ -1,0 +1,1044 @@
+{
+ "generated_at": "2026-11-04 16:54",
+ "dataset": "synthetic (rendered, fictional brands)",
+ "grok": false,
+ "operator_tolerances": {
+  "position_pct": 4.0,
+  "angle_deg": 3.0
+ },
+ "dev": {
+  "n_cases": 36,
+  "n_products": 3,
+  "false_acceptance_rate": {
+   "value": 0.037037037037037035,
+   "count": 1,
+   "of": 27
+  },
+  "false_rejection_rate": {
+   "value": 0.0,
+   "count": 0,
+   "of": 9
+  },
+  "compliant_sent_to_review": {
+   "count": 4,
+   "of": 9
+  },
+  "review_required_rate": {
+   "value": 0.4722222222222222
+  },
+  "exact_decision_accuracy": {
+   "value": 0.5833333333333334
+  },
+  "sorting_accuracy": {
+   "value": 0.8611111111111112,
+   "note": "accept iff truly compliant; reject/hold otherwise"
+  },
+  "defect_detection": {
+   "precision": 0.4,
+   "recall": 0.3333333333333333,
+   "tp": 2,
+   "fp": 3,
+   "fn": 4
+  },
+  "spec_extraction": {
+   "label_count_ok": 0.6666666666666666,
+   "faces_ok": 0.6666666666666666,
+   "product_name_ok": 0.0,
+   "brand_ok": 0.0,
+   "kind_ok": 0.0,
+   "inci_exact": 0.0,
+   "legal_exact": 0.0
+  },
+  "spec_position_error_pct_max": 0.34,
+  "sheet_verification_accuracy": 0.6666666666666666,
+  "median_inspection_s": 0.33
+ },
+ "heldout": {
+  "n_cases": 12,
+  "n_products": 1,
+  "false_acceptance_rate": {
+   "value": 0.0,
+   "count": 0,
+   "of": 9
+  },
+  "false_rejection_rate": {
+   "value": 0.0,
+   "count": 0,
+   "of": 3
+  },
+  "compliant_sent_to_review": {
+   "count": 3,
+   "of": 3
+  },
+  "review_required_rate": {
+   "value": 0.8333333333333334
+  },
+  "exact_decision_accuracy": {
+   "value": 0.25
+  },
+  "sorting_accuracy": {
+   "value": 0.75,
+   "note": "accept iff truly compliant; reject/hold otherwise"
+  },
+  "defect_detection": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "tp": 0,
+   "fp": 1,
+   "fn": 2
+  },
+  "spec_extraction": {
+   "label_count_ok": 0.0,
+   "faces_ok": 0.0,
+   "product_name_ok": 0.0,
+   "brand_ok": 0.0,
+   "kind_ok": 0.0,
+   "inci_exact": 0.0,
+   "legal_exact": 0.0
+  },
+  "spec_position_error_pct_max": 0.18,
+  "sheet_verification_accuracy": 1.0,
+  "median_inspection_s": 0.29
+ },
+ "all": {
+  "n_cases": 48,
+  "n_products": 4,
+  "false_acceptance_rate": {
+   "value": 0.027777777777777776,
+   "count": 1,
+   "of": 36
+  },
+  "false_rejection_rate": {
+   "value": 0.0,
+   "count": 0,
+   "of": 12
+  },
+  "compliant_sent_to_review": {
+   "count": 7,
+   "of": 12
+  },
+  "review_required_rate": {
+   "value": 0.5625
+  },
+  "exact_decision_accuracy": {
+   "value": 0.5
+  },
+  "sorting_accuracy": {
+   "value": 0.8333333333333334,
+   "note": "accept iff truly compliant; reject/hold otherwise"
+  },
+  "defect_detection": {
+   "precision": 0.3333333333333333,
+   "recall": 0.25,
+   "tp": 2,
+   "fp": 4,
+   "fn": 6
+  },
+  "spec_extraction": {
+   "label_count_ok": 0.5,
+   "faces_ok": 0.5,
+   "product_name_ok": 0.0,
+   "brand_ok": 0.0,
+   "kind_ok": 0.0,
+   "inci_exact": 0.0,
+   "legal_exact": 0.0
+  },
+  "spec_position_error_pct_max": 0.34,
+  "sheet_verification_accuracy": 0.75,
+  "median_inspection_s": 0.325
+ },
+ "products": [
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "spec": {
+    "label_count_ok": false,
+    "faces_ok": false,
+    "product_name_ok": false,
+    "brand_ok": false,
+    "kind_ok": false,
+    "inci_exact": false,
+    "legal_exact": false,
+    "position_error_pct_max": 0.14,
+    "uncertain_fields": {
+     "back": [
+      "kind"
+     ]
+    }
+   },
+   "sheets": {
+    "sheet": {
+     "expected": "MATCH",
+     "got": "REVIEW_REQUIRED",
+     "ok": false
+    },
+    "sheet_wrong_product": {
+     "expected": "MISMATCH",
+     "got": "MISMATCH",
+     "ok": true
+    },
+    "sheet_missing_back": {
+     "expected": "MISMATCH",
+     "got": "MISMATCH",
+     "ok": true
+    }
+   },
+   "learn_seconds": 0.4,
+   "grok_meta": null
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "spec": {
+    "label_count_ok": true,
+    "faces_ok": true,
+    "product_name_ok": false,
+    "brand_ok": false,
+    "kind_ok": false,
+    "inci_exact": false,
+    "legal_exact": false,
+    "position_error_pct_max": 0.34,
+    "uncertain_fields": {
+     "front": [
+      "kind"
+     ],
+     "back": [
+      "kind"
+     ]
+    }
+   },
+   "sheets": {
+    "sheet": {
+     "expected": "MATCH",
+     "got": "REVIEW_REQUIRED",
+     "ok": false
+    },
+    "sheet_wrong_product": {
+     "expected": "MISMATCH",
+     "got": "MISMATCH",
+     "ok": true
+    },
+    "sheet_missing_back": {
+     "expected": "MISMATCH",
+     "got": "MISMATCH",
+     "ok": true
+    }
+   },
+   "learn_seconds": 0.5,
+   "grok_meta": null
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "spec": {
+    "label_count_ok": true,
+    "faces_ok": true,
+    "product_name_ok": false,
+    "brand_ok": false,
+    "kind_ok": false,
+    "inci_exact": false,
+    "legal_exact": false,
+    "position_error_pct_max": 0.19,
+    "uncertain_fields": {
+     "front": [
+      "kind"
+     ],
+     "back": [
+      "kind"
+     ]
+    }
+   },
+   "sheets": {
+    "sheet": {
+     "expected": "MATCH",
+     "got": "REVIEW_REQUIRED",
+     "ok": false
+    },
+    "sheet_wrong_product": {
+     "expected": "MISMATCH",
+     "got": "MISMATCH",
+     "ok": true
+    },
+    "sheet_missing_back": {
+     "expected": "MISMATCH",
+     "got": "MISMATCH",
+     "ok": true
+    }
+   },
+   "learn_seconds": 0.4,
+   "grok_meta": null
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "spec": {
+    "label_count_ok": false,
+    "faces_ok": false,
+    "product_name_ok": false,
+    "brand_ok": false,
+    "kind_ok": false,
+    "inci_exact": false,
+    "legal_exact": false,
+    "position_error_pct_max": 0.18,
+    "uncertain_fields": {
+     "back": [
+      "kind"
+     ]
+    }
+   },
+   "sheets": {
+    "sheet": {
+     "expected": "MATCH",
+     "got": "MATCH",
+     "ok": true
+    },
+    "sheet_wrong_product": {
+     "expected": "MISMATCH",
+     "got": "MISMATCH",
+     "ok": true
+    },
+    "sheet_missing_back": {
+     "expected": "MISMATCH",
+     "got": "MISMATCH",
+     "ok": true
+    }
+   },
+   "learn_seconds": 0.3,
+   "grok_meta": null
+  }
+ ],
+ "cases": [
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "correct_1",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.31
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "correct_2",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.32
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "correct_3",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.32
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "crooked",
+   "defect": "crooked",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.33
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "shifted",
+   "defect": "misaligned",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "image_quality",
+    "misaligned"
+   ],
+   "explanation_it": "Prodotto non conforme: qualità immagine insufficiente (blurred); etichetta back spostata di 12.2% (tolleranza 4.0%).",
+   "explanation_en": "Non-compliant product: insufficient image quality (blurred); label back displaced by 12.2% (tolerance 4.0%).",
+   "grok": null,
+   "seconds": 0.33
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "creased",
+   "defect": "crease",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.32
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "bubbled",
+   "defect": "bubble",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.32
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "wrong_inci",
+   "defect": "wrong_text",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "defect",
+    "image_quality",
+    "wrong_text"
+   ],
+   "explanation_it": "Prodotto non conforme: qualità immagine insufficiente (blurred); etichetta back: testo INCI/legale diverso dal modello (mancano/missing ['TOCOPHEROL'], presenti/found ['TOCOPHERYL ACETATE']); etichetta back: difetto visibile (bolla/bubble, piega/crease, area 2.77%).",
+   "explanation_en": "Non-compliant product: insufficient image quality (blurred); label back: INCI/legal text differs from the model (mancano/missing ['TOCOPHEROL'], presenti/found ['TOCOPHERYL ACETATE']); label back: visible defect (bolla/bubble, piega/crease, area 2.77%).",
+   "grok": null,
+   "seconds": 0.33
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "wrong_label",
+   "defect": "wrong_label",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.33
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "missing_back",
+   "defect": "missing",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.07
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "swapped",
+   "defect": "wrong_face",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality",
+    "unexpected_label"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); faccia front: etichetta non prevista dal modello.",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); face front: label not in the model.",
+   "grok": null,
+   "seconds": 0.08
+  },
+  {
+   "product": "fiordaliso_olio_corpo",
+   "split": "dev",
+   "case": "blurred",
+   "defect": "image_quality",
+   "expected": "REVIEW_REQUIRED",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.07
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "correct_1",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "COMPLIANT",
+   "codes": [
+    "ok"
+   ],
+   "explanation_it": "Prodotto conforme al modello.",
+   "explanation_en": "Compliant product: matches the model.",
+   "grok": null,
+   "seconds": 0.44
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "correct_2",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "COMPLIANT",
+   "codes": [
+    "ok"
+   ],
+   "explanation_it": "Prodotto conforme al modello.",
+   "explanation_en": "Compliant product: matches the model.",
+   "grok": null,
+   "seconds": 0.47
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "correct_3",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "COMPLIANT",
+   "codes": [
+    "ok"
+   ],
+   "explanation_it": "Prodotto conforme al modello.",
+   "explanation_en": "Compliant product: matches the model.",
+   "grok": null,
+   "seconds": 0.48
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "crooked",
+   "defect": "crooked",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "crooked"
+   ],
+   "explanation_it": "Prodotto non conforme: etichetta front storta di 10.6° (tolleranza 3.0°).",
+   "explanation_en": "Non-compliant product: label front crooked by 10.6° (tolerance 3.0°).",
+   "grok": null,
+   "seconds": 0.45
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "shifted",
+   "defect": "misaligned",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "misaligned"
+   ],
+   "explanation_it": "Prodotto non conforme: etichetta back spostata di 12.2% (tolleranza 4.0%).",
+   "explanation_en": "Non-compliant product: label back displaced by 12.2% (tolerance 4.0%).",
+   "grok": null,
+   "seconds": 0.47
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "creased",
+   "defect": "crease",
+   "expected": "NON_COMPLIANT",
+   "decision": "COMPLIANT",
+   "codes": [
+    "ok"
+   ],
+   "explanation_it": "Prodotto conforme al modello.",
+   "explanation_en": "Compliant product: matches the model.",
+   "grok": null,
+   "seconds": 0.5
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "bubbled",
+   "defect": "bubble",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "defect"
+   ],
+   "explanation_it": "Prodotto non conforme: etichetta front: difetto visibile (bolla/bubble, danno/damage, area 0.73%).",
+   "explanation_en": "Non-compliant product: label front: visible defect (bolla/bubble, danno/damage, area 0.73%).",
+   "grok": null,
+   "seconds": 0.45
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "wrong_inci",
+   "defect": "wrong_text",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "defect",
+    "wrong_text"
+   ],
+   "explanation_it": "Prodotto non conforme: etichetta back: testo INCI/legale diverso dal modello (mancano/missing ['GLYCERIN'], presenti/found ['BUTYLENE GLYCOL']); etichetta back: difetto visibile (bolla/bubble, piega/crease, danno/damage, area 1.37%).",
+   "explanation_en": "Non-compliant product: label back: INCI/legal text differs from the model (mancano/missing ['GLYCERIN'], presenti/found ['BUTYLENE GLYCOL']); label back: visible defect (bolla/bubble, piega/crease, danno/damage, area 1.37%).",
+   "grok": null,
+   "seconds": 0.5
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "wrong_label",
+   "defect": "wrong_label",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "wrong_label"
+   ],
+   "explanation_it": "Prodotto non conforme: etichetta front errata: il testo non corrisponde al modello («Crema Viso Idratante» 50%, «ATELIER LUMEN» 100%).",
+   "explanation_en": "Non-compliant product: label front is wrong: text does not match the model («Crema Viso Idratante» 50%, «ATELIER LUMEN» 100%).",
+   "grok": null,
+   "seconds": 0.46
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "missing_back",
+   "defect": "missing",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.22
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "swapped",
+   "defect": "wrong_face",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "wrong_face"
+   ],
+   "explanation_it": "Prodotto non conforme: sulla faccia front c'è l'etichetta back invece di front; sulla faccia back c'è l'etichetta front invece di back.",
+   "explanation_en": "Non-compliant product: face front carries label back instead of front; face back carries label front instead of back.",
+   "grok": null,
+   "seconds": 0.7
+  },
+  {
+   "product": "lumen_crema_viso",
+   "split": "dev",
+   "case": "blurred",
+   "defect": "image_quality",
+   "expected": "REVIEW_REQUIRED",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.06
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "correct_1",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "COMPLIANT",
+   "codes": [
+    "ok"
+   ],
+   "explanation_it": "Prodotto conforme al modello.",
+   "explanation_en": "Compliant product: matches the model.",
+   "grok": null,
+   "seconds": 0.47
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "correct_2",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "COMPLIANT",
+   "codes": [
+    "ok"
+   ],
+   "explanation_it": "Prodotto conforme al modello.",
+   "explanation_en": "Compliant product: matches the model.",
+   "grok": null,
+   "seconds": 0.48
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "correct_3",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.33
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "crooked",
+   "defect": "crooked",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "crooked"
+   ],
+   "explanation_it": "Prodotto non conforme: etichetta front storta di 9.0° (tolleranza 3.0°).",
+   "explanation_en": "Non-compliant product: label front crooked by 9.0° (tolerance 3.0°).",
+   "grok": null,
+   "seconds": 0.52
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "shifted",
+   "defect": "misaligned",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "misaligned"
+   ],
+   "explanation_it": "Prodotto non conforme: etichetta back spostata di 12.3% (tolleranza 4.0%).",
+   "explanation_en": "Non-compliant product: label back displaced by 12.3% (tolerance 4.0%).",
+   "grok": null,
+   "seconds": 0.5
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "creased",
+   "defect": "crease",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality",
+    "text_uncertain"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); etichetta back: testo non verificato con certezza (mancano/missing ['SODIUM BENZOATE'], presenti/found ['SODIUM-BENZOATE']).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); label back: text could not be verified with certainty (mancano/missing ['SODIUM BENZOATE'], presenti/found ['SODIUM-BENZOATE']).",
+   "grok": null,
+   "seconds": 0.33
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "bubbled",
+   "defect": "bubble",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "defect"
+   ],
+   "explanation_it": "Prodotto non conforme: etichetta front: difetto visibile (bolla/bubble, area 0.51%).",
+   "explanation_en": "Non-compliant product: label front: visible defect (bolla/bubble, area 0.51%).",
+   "grok": null,
+   "seconds": 0.49
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "wrong_inci",
+   "defect": "wrong_text",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "defect",
+    "wrong_text"
+   ],
+   "explanation_it": "Prodotto non conforme: etichetta back: testo INCI/legale diverso dal modello (mancano/missing ['NIACINAMIDE'], presenti/found ['ASCORBIC ACID']); etichetta back: difetto visibile (piega/crease, area 2.18%).",
+   "explanation_en": "Non-compliant product: label back: INCI/legal text differs from the model (mancano/missing ['NIACINAMIDE'], presenti/found ['ASCORBIC ACID']); label back: visible defect (piega/crease, area 2.18%).",
+   "grok": null,
+   "seconds": 0.49
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "wrong_label",
+   "defect": "wrong_label",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.33
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "missing_back",
+   "defect": "missing",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.07
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "swapped",
+   "defect": "wrong_face",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "wrong_face"
+   ],
+   "explanation_it": "Prodotto non conforme: sulla faccia front c'è l'etichetta back invece di front; sulla faccia back c'è l'etichetta front invece di back.",
+   "explanation_en": "Non-compliant product: face front carries label back instead of front; face back carries label front instead of back.",
+   "grok": null,
+   "seconds": 0.64
+  },
+  {
+   "product": "lumen_siero_notte",
+   "split": "dev",
+   "case": "blurred",
+   "defect": "image_quality",
+   "expected": "REVIEW_REQUIRED",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.06
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "correct_1",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.29
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "correct_2",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.28
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "correct_3",
+   "defect": null,
+   "expected": "COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.29
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "crooked",
+   "defect": "crooked",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.29
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "shifted",
+   "defect": "misaligned",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "image_quality",
+    "misaligned"
+   ],
+   "explanation_it": "Prodotto non conforme: qualità immagine insufficiente (blurred); etichetta back spostata di 12.8% (tolleranza 4.0%).",
+   "explanation_en": "Non-compliant product: insufficient image quality (blurred); label back displaced by 12.8% (tolerance 4.0%).",
+   "grok": null,
+   "seconds": 0.31
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "creased",
+   "defect": "crease",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality",
+    "text_uncertain"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); etichetta back: testo non verificato con certezza (mancano/missing ['POTASSIUM SORBATE'], presenti/found ['POTASSTUM_ _ SORBATE']).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); label back: text could not be verified with certainty (mancano/missing ['POTASSIUM SORBATE'], presenti/found ['POTASSTUM_ _ SORBATE']).",
+   "grok": null,
+   "seconds": 0.29
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "bubbled",
+   "defect": "bubble",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.28
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "wrong_inci",
+   "defect": "wrong_text",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "codes": [
+    "defect",
+    "image_quality",
+    "wrong_text"
+   ],
+   "explanation_it": "Prodotto non conforme: qualità immagine insufficiente (blurred); etichetta back: testo INCI/legale diverso dal modello (mancano/missing ['GLYCERIN'], presenti/found ['BUTYLENE GLYCOL']); etichetta back: difetto visibile (piega/crease, area 6.66%).",
+   "explanation_en": "Non-compliant product: insufficient image quality (blurred); label back: INCI/legal text differs from the model (mancano/missing ['GLYCERIN'], presenti/found ['BUTYLENE GLYCOL']); label back: visible defect (piega/crease, area 6.66%).",
+   "grok": null,
+   "seconds": 0.3
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "wrong_label",
+   "defect": "wrong_label",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.3
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "missing_back",
+   "defect": "missing",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.07
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "swapped",
+   "defect": "wrong_face",
+   "expected": "NON_COMPLIANT",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality",
+    "unexpected_label"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); faccia front: etichetta non prevista dal modello.",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); face front: label not in the model.",
+   "grok": null,
+   "seconds": 0.08
+  },
+  {
+   "product": "nebbia_tonico_rosa",
+   "split": "heldout",
+   "case": "blurred",
+   "defect": "image_quality",
+   "expected": "REVIEW_REQUIRED",
+   "decision": "REVIEW_REQUIRED",
+   "codes": [
+    "image_quality"
+   ],
+   "explanation_it": "Revisione richiesta, il prodotto non viene accettato: qualità immagine insufficiente (blurred); qualità immagine insufficiente (blurred).",
+   "explanation_en": "Review required, the product is not accepted: insufficient image quality (blurred); insufficient image quality (blurred).",
+   "grok": null,
+   "seconds": 0.06
+  }
+ ]
+}

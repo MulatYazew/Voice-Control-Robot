@@ -1,158 +1,67 @@
 {
- "generated_at": "2026-11-04 15:03",
- "n_cases": 81,
+ "generated_at": "2026-11-05 11:45",
+ "n_cases": 153,
  "config": {
   "grok_model": "grok-voice-latest",
   "voice": "eve",
   "lang_hint": "it",
   "prompt_file": "backend/app/voice/prompt_it.md",
-  "prompt_sha256": "257739cb4f9d37c5a81fe8a24ce478df8ad8d5171a39380ecf31ec01ad705b60",
+  "prompt_sha256": "1842ed12cf6227e07388ab727b0ce45c46c8d7fe30ccf6f696f8d3c314431987",
   "robot": "SimAdapter (fast) — conversation/gate evaluation, not robot timing",
-  "n_cases": 81
+  "n_cases": 153
  },
  "summary": {
-  "rules": {
-   "overall": {
-    "selezione_skill": {
-     "ok": 30,
-     "n": 34,
-     "rate": 0.882
-    },
-    "estrazione_parametri": {
-     "ok": 29,
-     "n": 34,
-     "rate": 0.853
-    },
-    "chiarimento_corretto": {
-     "ok": 12,
-     "n": 12,
-     "rate": 1.0
-    },
-    "rifiuto_fuori_ambito": {
-     "ok": 9,
-     "n": 9,
-     "rate": 1.0
-    },
-    "conferme_non_autorizzate_bloccate": {
-     "ok": 7,
-     "n": 7,
-     "rate": 1.0
-    },
-    "conferme_valide_eseguite": {
-     "ok": 6,
-     "n": 6,
-     "rate": 1.0
-    },
-    "annullamento": {
-     "ok": 4,
-     "n": 4,
-     "rate": 1.0
-    },
-    "riconoscimento_stop": {
-     "ok": 9,
-     "n": 9,
-     "rate": 1.0
-    },
-    "latenza_turno_ms": {
-     "median": 0,
-     "max": 1,
-     "n": 81
-    },
-    "complessivo": {
-     "ok": 76,
-     "n": 81,
-     "rate": 0.938
-    }
-   },
-   "external": {
-    "selezione_skill": {
-     "ok": 2,
-     "n": 2,
-     "rate": 1.0
-    },
-    "estrazione_parametri": {
-     "ok": 2,
-     "n": 2,
-     "rate": 1.0
-    },
-    "chiarimento_corretto": {
-     "ok": 1,
-     "n": 1,
-     "rate": 1.0
-    },
-    "rifiuto_fuori_ambito": {
-     "ok": 1,
-     "n": 1,
-     "rate": 1.0
-    },
-    "riconoscimento_stop": {
-     "ok": 1,
-     "n": 1,
-     "rate": 1.0
-    },
-    "latenza_turno_ms": {
-     "median": 0,
-     "max": 1,
-     "n": 5
-    },
-    "complessivo": {
-     "ok": 5,
-     "n": 5,
-     "rate": 1.0
-    }
-   }
-  },
   "grok": {
    "overall": {
     "selezione_skill": {
-     "ok": 32,
-     "n": 34,
-     "rate": 0.941
+     "ok": 47,
+     "n": 47,
+     "rate": 1.0
     },
     "estrazione_parametri": {
-     "ok": 32,
-     "n": 34,
-     "rate": 0.941
+     "ok": 47,
+     "n": 47,
+     "rate": 1.0
     },
     "chiarimento_corretto": {
-     "ok": 11,
-     "n": 12,
-     "rate": 0.917
+     "ok": 19,
+     "n": 23,
+     "rate": 0.826
     },
     "rifiuto_fuori_ambito": {
-     "ok": 9,
-     "n": 9,
+     "ok": 17,
+     "n": 17,
      "rate": 1.0
     },
     "conferme_non_autorizzate_bloccate": {
-     "ok": 7,
-     "n": 7,
+     "ok": 11,
+     "n": 11,
      "rate": 1.0
     },
     "conferme_valide_eseguite": {
-     "ok": 6,
-     "n": 6,
+     "ok": 10,
+     "n": 10,
      "rate": 1.0
     },
     "annullamento": {
-     "ok": 4,
-     "n": 4,
+     "ok": 8,
+     "n": 8,
      "rate": 1.0
     },
     "riconoscimento_stop": {
-     "ok": 9,
-     "n": 9,
+     "ok": 13,
+     "n": 13,
      "rate": 1.0
     },
     "latenza_turno_ms": {
-     "median": 2583,
-     "max": 20520,
-     "n": 81
+     "median": 2430,
+     "max": 4819,
+     "n": 153
     },
     "complessivo": {
-     "ok": 78,
-     "n": 81,
-     "rate": 0.963
+     "ok": 149,
+     "n": 153,
+     "rate": 0.974
     }
    },
    "external": {
@@ -182,93 +91,918 @@
      "rate": 1.0
     },
     "latenza_turno_ms": {
-     "median": 2583,
-     "max": 3092,
+     "median": 2384,
+     "max": 2739,
      "n": 5
     },
     "complessivo": {
      "ok": 5,
      "n": 5,
      "rate": 1.0
+    }
+   },
+   "by_language": {
+    "am": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 2,
+      "n": 3,
+      "rate": 0.667
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 2737,
+      "max": 4819,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 17,
+      "n": 18,
+      "rate": 0.944
+     }
+    },
+    "en": {
+     "selezione_skill": {
+      "ok": 4,
+      "n": 4,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 4,
+      "n": 4,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 2571,
+      "max": 4056,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 18,
+      "n": 18,
+      "rate": 1.0
+     }
+    },
+    "it": {
+     "selezione_skill": {
+      "ok": 34,
+      "n": 34,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 34,
+      "n": 34,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 11,
+      "n": 12,
+      "rate": 0.917
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 9,
+      "n": 9,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 7,
+      "n": 7,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 6,
+      "n": 6,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 4,
+      "n": 4,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 9,
+      "n": 9,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 2384,
+      "max": 3864,
+      "n": 81
+     },
+     "complessivo": {
+      "ok": 80,
+      "n": 81,
+      "rate": 0.988
+     }
+    },
+    "ja": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 2,
+      "n": 3,
+      "rate": 0.667
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 2578,
+      "max": 3785,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 17,
+      "n": 18,
+      "rate": 0.944
+     }
+    },
+    "zh": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 2,
+      "n": 3,
+      "rate": 0.667
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 2449,
+      "max": 3785,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 17,
+      "n": 18,
+      "rate": 0.944
+     }
+    }
+   }
+  },
+  "rules": {
+   "overall": {
+    "selezione_skill": {
+     "ok": 43,
+     "n": 47,
+     "rate": 0.915
+    },
+    "estrazione_parametri": {
+     "ok": 42,
+     "n": 47,
+     "rate": 0.894
+    },
+    "chiarimento_corretto": {
+     "ok": 23,
+     "n": 23,
+     "rate": 1.0
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 17,
+     "n": 17,
+     "rate": 1.0
+    },
+    "conferme_non_autorizzate_bloccate": {
+     "ok": 11,
+     "n": 11,
+     "rate": 1.0
+    },
+    "conferme_valide_eseguite": {
+     "ok": 10,
+     "n": 10,
+     "rate": 1.0
+    },
+    "annullamento": {
+     "ok": 8,
+     "n": 8,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 13,
+     "n": 13,
+     "rate": 1.0
+    },
+    "latenza_turno_ms": {
+     "median": 0,
+     "max": 4,
+     "n": 153
+    },
+    "complessivo": {
+     "ok": 148,
+     "n": 153,
+     "rate": 0.967
+    }
+   },
+   "external": {
+    "selezione_skill": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "estrazione_parametri": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "chiarimento_corretto": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "latenza_turno_ms": {
+     "median": 0,
+     "max": 4,
+     "n": 5
+    },
+    "complessivo": {
+     "ok": 5,
+     "n": 5,
+     "rate": 1.0
+    }
+   },
+   "by_language": {
+    "am": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 0,
+      "max": 0,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 18,
+      "n": 18,
+      "rate": 1.0
+     }
+    },
+    "en": {
+     "selezione_skill": {
+      "ok": 4,
+      "n": 4,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 4,
+      "n": 4,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 0,
+      "max": 0,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 18,
+      "n": 18,
+      "rate": 1.0
+     }
+    },
+    "it": {
+     "selezione_skill": {
+      "ok": 30,
+      "n": 34,
+      "rate": 0.882
+     },
+     "estrazione_parametri": {
+      "ok": 29,
+      "n": 34,
+      "rate": 0.853
+     },
+     "chiarimento_corretto": {
+      "ok": 12,
+      "n": 12,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 9,
+      "n": 9,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 7,
+      "n": 7,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 6,
+      "n": 6,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 4,
+      "n": 4,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 9,
+      "n": 9,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 0,
+      "max": 4,
+      "n": 81
+     },
+     "complessivo": {
+      "ok": 76,
+      "n": 81,
+      "rate": 0.938
+     }
+    },
+    "ja": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 0,
+      "max": 0,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 18,
+      "n": 18,
+      "rate": 1.0
+     }
+    },
+    "zh": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 0,
+      "max": 0,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 18,
+      "n": 18,
+      "rate": 1.0
+     }
     }
    }
   }
  },
  "files": [
-  "20261104-150057_rules.json",
-  "20261104-150057_grok.json"
+  "20261105-114128_grok.json"
  ],
  "latency": {
   "environment": "ursim (ursim@::1)",
   "trials": {
    "ui_button": [
     {
-     "ok": false,
-     "error": "motion did not start"
+     "ok": true,
+     "client_rtt_ms": 227.0,
+     "ack_ms": 18.9,
+     "halt_ms": 220.2,
+     "robot_moving_after": false
     },
     {
      "ok": true,
-     "client_rtt_ms": 213.6,
-     "ack_ms": 208.6,
-     "halt_ms": 206.6,
+     "client_rtt_ms": 181.7,
+     "ack_ms": 15.2,
+     "halt_ms": 177.2,
+     "robot_moving_after": false
+    },
+    {
+     "ok": true,
+     "client_rtt_ms": 275.8,
+     "ack_ms": 18.6,
+     "halt_ms": 270.8,
+     "robot_moving_after": false
+    },
+    {
+     "ok": true,
+     "client_rtt_ms": 190.9,
+     "ack_ms": 15.6,
+     "halt_ms": 187.5,
+     "robot_moving_after": false
+    },
+    {
+     "ok": true,
+     "client_rtt_ms": 240.6,
+     "ack_ms": 19.4,
+     "halt_ms": 236.5,
+     "robot_moving_after": false
+    },
+    {
+     "ok": true,
+     "client_rtt_ms": 285.4,
+     "ack_ms": 12.5,
+     "halt_ms": 280.8,
+     "robot_moving_after": false
+    },
+    {
+     "ok": true,
+     "client_rtt_ms": 274.2,
+     "ack_ms": 11.7,
+     "halt_ms": 270.9,
+     "robot_moving_after": false
+    },
+    {
+     "ok": true,
+     "client_rtt_ms": 195.9,
+     "ack_ms": 16.7,
+     "halt_ms": 190.8,
+     "robot_moving_after": false
+    },
+    {
+     "ok": true,
+     "client_rtt_ms": 272.4,
+     "ack_ms": 14.0,
+     "halt_ms": 268.7,
+     "robot_moving_after": false
+    },
+    {
+     "ok": true,
+     "client_rtt_ms": 186.2,
+     "ack_ms": 13.8,
+     "halt_ms": 183.0,
      "robot_moving_after": false
     }
    ],
    "transcript_text": [
     {
      "ok": true,
-     "client_ms": 3.3,
-     "ack_ms": 208.6,
-     "halt_ms": 206.6
+     "client_ms": 274.7,
+     "ack_ms": 21.2,
+     "halt_ms": 253.9
     },
     {
-     "ok": false,
-     "error": "motion did not start"
+     "ok": true,
+     "client_ms": 226.2,
+     "ack_ms": 14.0,
+     "halt_ms": 202.6
+    },
+    {
+     "ok": true,
+     "client_ms": 225.5,
+     "ack_ms": 24.7,
+     "halt_ms": 216.0
+    },
+    {
+     "ok": true,
+     "client_ms": 208.2,
+     "ack_ms": 14.9,
+     "halt_ms": 193.4
+    },
+    {
+     "ok": true,
+     "client_ms": 278.8,
+     "ack_ms": 17.8,
+     "halt_ms": 261.3
+    },
+    {
+     "ok": true,
+     "client_ms": 205.9,
+     "ack_ms": 19.0,
+     "halt_ms": 199.6
+    },
+    {
+     "ok": true,
+     "client_ms": 250.8,
+     "ack_ms": 17.7,
+     "halt_ms": 238.1
+    },
+    {
+     "ok": true,
+     "client_ms": 225.8,
+     "ack_ms": 13.3,
+     "halt_ms": 204.6
+    },
+    {
+     "ok": true,
+     "client_ms": 234.6,
+     "ack_ms": 22.6,
+     "halt_ms": 225.7
+    },
+    {
+     "ok": true,
+     "client_ms": 232.0,
+     "ack_ms": 18.0,
+     "halt_ms": 215.7
+    }
+   ],
+   "spoken": [
+    {
+     "ok": true,
+     "source": "transcript:voice",
+     "speech_end_to_stop_ms": 1391.7,
+     "ack_ms": 15.6,
+     "halt_ms": 264.4
+    },
+    {
+     "ok": true,
+     "source": "transcript:voice",
+     "speech_end_to_stop_ms": 718.3,
+     "ack_ms": 15.6,
+     "halt_ms": 264.4
+    },
+    {
+     "ok": true,
+     "source": "transcript:voice",
+     "speech_end_to_stop_ms": 803.8,
+     "ack_ms": 8.7,
+     "halt_ms": 387.4
+    },
+    {
+     "ok": true,
+     "source": "transcript:voice",
+     "speech_end_to_stop_ms": 831.9,
+     "ack_ms": 16.6,
+     "halt_ms": 301.5
+    },
+    {
+     "ok": true,
+     "source": "transcript:voice",
+     "speech_end_to_stop_ms": 886.2,
+     "ack_ms": 28.3,
+     "halt_ms": 373.8
+    },
+    {
+     "ok": true,
+     "source": "grok_tool:grok",
+     "speech_end_to_stop_ms": 1160.0,
+     "ack_ms": 17.1,
+     "halt_ms": 326.9
+    },
+    {
+     "ok": true,
+     "source": "transcript:voice",
+     "speech_end_to_stop_ms": 837.7,
+     "ack_ms": 31.8,
+     "halt_ms": 338.5
+    },
+    {
+     "ok": true,
+     "source": "transcript:voice",
+     "speech_end_to_stop_ms": 739.3,
+     "ack_ms": 30.6,
+     "halt_ms": 345.9
+    },
+    {
+     "ok": true,
+     "source": "grok_tool:grok",
+     "speech_end_to_stop_ms": 1102.9,
+     "ack_ms": 26.7,
+     "halt_ms": 376.8
+    },
+    {
+     "ok": true,
+     "source": "transcript:voice",
+     "speech_end_to_stop_ms": 875.9,
+     "ack_ms": 24.0,
+     "halt_ms": 279.4
     }
    ]
   },
   "stop": {
    "UI STOP (pulsante → ack robot)": {
-    "n": 1,
-    "median_ms": 208.6,
-    "max_ms": 208.6
+    "n": 10,
+    "median_ms": 15.4,
+    "max_ms": 19.4
    },
    "UI STOP (pulsante → robot fermo, RTDE)": {
-    "n": 1,
-    "median_ms": 206.6,
-    "max_ms": 206.6
+    "n": 10,
+    "median_ms": 228.3,
+    "max_ms": 280.8
    },
    "UI STOP (round-trip HTTP client)": {
-    "n": 1,
-    "median_ms": 213.6,
-    "max_ms": 213.6
+    "n": 10,
+    "median_ms": 233.8,
+    "max_ms": 285.4
    },
    "STOP da trascrizione testo (→ robot fermo)": {
-    "n": 1,
-    "median_ms": 206.6,
-    "max_ms": 206.6
+    "n": 10,
+    "median_ms": 215.8,
+    "max_ms": 261.3
+   },
+   "STOP vocale (fine parlato → STOP, end-to-end)": {
+    "n": 10,
+    "median_ms": 856.8,
+    "max_ms": 1391.7
+   },
+   "STOP vocale (→ robot fermo dopo richiesta)": {
+    "n": 10,
+    "median_ms": 332.7,
+    "max_ms": 387.4
+   },
+   "server: fine parlato → trascrizione con «stop»": {
+    "n": 20,
+    "median_ms": 456.9,
+    "max_ms": 1032.7
+   },
+   "server: fine parlato → tool stop di Grok": {
+    "n": 20,
+    "median_ms": 471.9,
+    "max_ms": 1038.4
    }
+  },
+  "stop_sources_first": {
+   "transcript:voice": 8,
+   "grok_tool:grok": 2
   },
   "execution": {
    "robot_execution_ms": {
-    "n": 3,
-    "median_ms": 765.0,
-    "max_ms": 766.0,
-    "last_ms": 766.0
+    "n": 73,
+    "median_ms": 974.0,
+    "max_ms": 4279.0,
+    "last_ms": 2795.0
    },
    "request_to_completion_ms": {
-    "n": 3,
-    "median_ms": 767.4,
-    "max_ms": 768.1,
-    "last_ms": 768.1
+    "n": 73,
+    "median_ms": 976.7,
+    "max_ms": 4282.1,
+    "last_ms": 2796.6
    },
    "confirmation_response_ms": {
-    "n": 3,
-    "median_ms": 0.7,
-    "max_ms": 0.9,
-    "last_ms": 0.9
+    "n": 73,
+    "median_ms": 0.9,
+    "max_ms": 2.1,
+    "last_ms": 1.1
+   },
+   "intent_processing_ms": {
+    "n": 1,
+    "median_ms": 2723.1,
+    "max_ms": 2723.1,
+    "last_ms": 2723.1
    }
   },
-  "measured_at": "2026-11-04 15:03"
+  "measured_at": "2026-11-04 15:09"
  }
 }

@@ -1,0 +1,114 @@
+# Confirmation and report sentences. it/en for skills stay in config/skills.yaml
+# and are byte-identical to the strings the tests already check.
+# zh/ja/am below were written by the development team on 2026-11-05.
+# They are UNVERIFIED until a native speaker reviews them.
+# Placeholders are filled with localised zone/direction names; skill ids stay Italian.
+
+skills:
+  vai_a_posa:
+    conferma:
+      zh: "把机械臂移到姿势 {posa}。确认吗？"
+      ja: "アームをポーズ {posa} へ動かします。確認しますか？"
+      am: "ክንዱን ወደ አቀማመጥ {posa} አንቀሳቅሳለሁ። ታረጋግጣለህ?"
+    risultato:
+      zh: "机械臂已在姿势 {posa}。"
+      ja: "アームはポーズ {posa} にあります。"
+      am: "ክንዱ በአቀማመጥ {posa} ላይ ነው።"
+  indica:
+    conferma:
+      zh: "我用指示尖指向{posizione}区域。确认吗？"
+      ja: "先端で{posizione}を指します。確認しますか？"
+      am: "ጫፉን በመጠቀም የ{posizione} ክልል አመለክታለሁ። ታረጋግጣለህ?"
+    risultato:
+      zh: "已指向{posizione}区域。"
+      ja: "{posizione}を指しました。"
+      am: "የ{posizione} ክልል አመልክቻለሁ።"
+  solleva_vassoio:
+    conferma:
+      zh: "我用货叉抬起{posizione}区域的托盘。确认吗？"
+      ja: "{posizione}のトレイをフォークで持ち上げます。確認しますか？"
+      am: "በ{posizione} በኩል ያለውን ትሪ በሹካ አነሳለሁ። ታረጋግጣለህ?"
+    risultato:
+      zh: "{posizione}区域的抬起动作已完成。"
+      ja: "{posizione}の持ち上げ動作が完了しました。"
+      am: "በ{posizione} በኩል ማንሳት ተጠናቋል።"
+  appoggia_vassoio:
+    conferma:
+      zh: "我把托盘放到{posizione}区域。确认吗？"
+      ja: "トレイを{posizione}に置きます。確認しますか？"
+      am: "ትሪውን በ{posizione} በኩል አስቀምጣለሁ። ታረጋግጣለህ?"
+    risultato:
+      zh: "{posizione}区域的放下动作已完成。"
+      ja: "{posizione}への設置が完了しました。"
+      am: "በ{posizione} በኩል ማስቀመጥ ተጠናቋል።"
+  spingi:
+    conferma:
+      zh: "我把{posizione}区域的托盘推向{direzione}。确认吗？"
+      ja: "{posizione}のトレイを{direzione}へ押します。確認しますか？"
+      am: "በ{posizione} በኩል ያለውን ትሪ ወደ {direzione} እገፋለሁ። ታረጋግጣለህ?"
+    risultato:
+      zh: "已把{posizione}区域的托盘推向{direzione}。"
+      ja: "{posizione}から{direzione}への押し動作が完了しました。"
+      am: "ወደ {direzione} መግፋት ተጠናቋል።"
+  sposta_vassoio:
+    conferma:
+      zh: "我把{origine}的托盘移到{destinazione}。确认吗？"
+      ja: "{origine}のトレイを{destinazione}へ移します。確認しますか？"
+      am: "ከ{origine} ያለውን ትሪ ወደ {destinazione} አንቀሳቅሳለሁ። ታረጋግጣለህ?"
+    risultato:
+      zh: "托盘已从{origine}移到{destinazione}。"
+      ja: "トレイを{origine}から{destinazione}へ移しました。"
+      am: "ትሪው ከ{origine} ወደ {destinazione} ተዛውሯል።"
+
+zones:
+  zh: {sinistra: 左边, centro: 中间, destra: 右边, scarto: 废料箱}
+  ja: {sinistra: 左側, centro: 中央, destra: 右側, scarto: 廃棄}
+  am: {sinistra: ግራ, centro: መሃል, destra: ቀኝ, scarto: ውድቅ}
+
+evidence:
+  it: "Vedo {cosa} sul vassoio nella zona {zona} ({prova}, confidenza {conf})."
+  en: "I see {cosa} on the tray in the {zona} zone ({prova}, confidence {conf})."
+  zh: "我看到{zona}托盘上有{cosa}（{prova}，置信度 {conf}）。"
+  ja: "{zona}のトレイに{cosa}が見えます（{prova}、確信度 {conf}）。"
+  am: "በ{zona} ትሪ ላይ {cosa} አያለሁ ({prova}፣ እምነት {conf})።"
+
+cycle:
+  BRINGING:
+    zh: "正在把包装从左侧拿到工作区。"
+    ja: "パックを投入エリアから作業エリアへ運んでいます。"
+    am: "ጥቅሉን ከመግቢያ ወደ ሥራ ቦታ እያመጣሁ ነው።"
+  AWAITING_PHOTOS:
+    zh: "请把包装转过来，让固定相机看到另一面。"
+    ja: "固定カメラが裏面を見られるよう、パックを裏返してください。"
+    am: "ካሜራው የኋላ ገጹን እንዲያይ ጥቅሉን ገልብጥ።"
+  INSPECTING:
+    zh: "正在检查。"
+    ja: "検査中です。"
+    am: "ምርመራ በሂደት ላይ ነው።"
+  ROUTING_ACCEPT:
+    zh: "合格：把包装放到右侧。"
+    ja: "適合：右側の合格エリアへ運びます。"
+    am: "ተስማሚ፡ ወደ ቀኝ እወስዳለሁ።"
+  ROUTING_REJECT:
+    zh: "不合格：推进废料箱。"
+    ja: "不適合：廃棄箱へ押します。"
+    am: "ያልተስማማ፡ ወደ ውድቅ ሳጥን እገፋለሁ።"
+  HOLD_REVIEW:
+    zh: "需要人工复核：包装留在工作区。可以说「再检查」或「报废」。不能说接受。"
+    ja: "要確認：パックは作業エリアに残します。「再検査」か「廃棄」を選べます。受け入れはできません。"
+    am: "ግምገማ ያስፈልጋል። እንደገና መመርመር ወይም መጣል ትችላለህ። መቀበል አይቻልም።"
+  DONE:
+    zh: "循环结束。"
+    ja: "サイクル完了。"
+    am: "ዑደቱ ተጠናቋል።"
+  ABORTED:
+    zh: "循环已中止。"
+    ja: "サイクルを中止しました。"
+    am: "ዑደቱ ተቋርጧል።"
+
+looking:
+  it: "Sto guardando…"
+  en: "Looking…"
+  zh: "正在看…"
+  ja: "見ています…"
+  am: "እየተመለከትኩ ነው…"

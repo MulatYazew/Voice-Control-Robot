@@ -126,3 +126,33 @@ poses:
     selezionabile: false
     fonte: placeholder_ursim
     verificata_reale: false
+  sinistra_spinta_scarto_inizio:
+    joints: [-1.0708, -1.85, 1.85, -1.57, -1.5707963267948966, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  sinistra_spinta_scarto_fine:
+    joints: [-1.0708, -1.55, 1.55, -1.57, -1.5707963267948966, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  centro_spinta_scarto_inizio:
+    joints: [-1.5708, -1.85, 1.85, -1.57, -1.5707963267948966, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  centro_spinta_scarto_fine:
+    joints: [-1.5708, -1.55, 1.55, -1.57, -1.5707963267948966, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  destra_spinta_scarto_inizio:
+    joints: [-2.0708, -1.85, 1.85, -1.57, -1.5707963267948966, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false
+  destra_spinta_scarto_fine:
+    joints: [-2.0708, -1.55, 1.55, -1.57, -1.5707963267948966, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false

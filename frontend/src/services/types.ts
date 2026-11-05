@@ -5,9 +5,10 @@ export type UiState =
   | "EXECUTING" | "COMPLETED" | "STOPPED" | "FAULT" | "RECONNECTING";
 
 export interface Pending {
-  id: string; skill: string; parametri: Record<string, string>; conferma: string; strumento: string | null;
+  id: string; skill: string; parametri: Record<string, string>; conferma: string; conferma_en?: string; strumento: string | null;
   expires_in_s: number; ttl_s: number; question_asked: boolean; step: number; steps: number;
   sequenza: { move: string; posa: string | null; secondi: number | null }[];
+  frasi?: Record<string, string>;
 }
 
 export interface RobotStatus {
@@ -33,13 +34,14 @@ export interface Status {
 export interface Config {
   mode: "sim" | "ursim" | "real"; robot_name: string; robot_model: string; polyscope: string; zones: string[];
   directions: string[]; ttl_s: number; grok_model: string; grok_configured: boolean; warnings: string[];
+  camera_available?: boolean; camera_calibrated?: boolean; station?: string; delivery_zone?: string;
 }
 
 export interface Layout { zones: Record<string, number>; poses: Record<string, number[]> }
 
 export interface ChatLine {
   id: string; role: "user" | "assistant" | "system"; text: string; final: boolean; source?: string; ts: number;
-  kind?: string;
+  kind?: string; lang?: string;
 }
 
 export type VoiceStatus = "off" | "connecting" | "connected" | "reconnecting" | "error" | "closed" | "disconnected" | "idle";

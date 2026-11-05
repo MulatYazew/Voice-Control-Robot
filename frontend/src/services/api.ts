@@ -14,10 +14,10 @@ export async function resetSystem(): Promise<{ ok: boolean; messaggio?: string }
   return r.json();
 }
 
-export async function textCommand(text: string, engine: "rules" | "grok"): Promise<any> {
+export async function textCommand(text: string, engine: "rules" | "grok", lang = "auto"): Promise<any> {
   const r = await fetch("/api/text-command", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, engine, request_id: crypto.randomUUID() }),
+    body: JSON.stringify({ text, engine, lang, request_id: crypto.randomUUID() }),
   });
   if (!r.ok) throw new Error((await r.json()).detail ?? r.statusText);
   return r.json();

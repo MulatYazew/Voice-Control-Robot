@@ -18,6 +18,7 @@ class WorldModel:
     zones: list[str]
     trays_at: set[str] = field(default_factory=set)       # ASSUMED
     holding_tray: bool = False                            # ASSUMED (tray on the fork)
+    observed: dict[str, float] = field(default_factory=dict)  # zone -> unix time, when a camera said so
     known_pose: str | None = None                         # VERIFIED from joints when feedback allows
     joints: list[float] | None = None                     # VERIFIED (adapter feedback)
     active_skill: str | None = None
@@ -35,8 +36,13 @@ class WorldModel:
         elif skill == "appoggia_vassoio":
             self.trays_at.add(params["posizione"])
             self.holding_tray = False
-        # vai_a_posa / indica / spingi: no change to the assumed object layout
-        # (a push keeps the tray in its zone; direction effect is UNVERIFIED)
+        elif skill == "spingi" and params.get("direzione") == "scarto":
+            self.trays_at.discard(params["posizione"])   # pushed off the bench into the reject box
+        elif skill == "sposta_vassoio":
+            self.trays_at.discard(params["origine"])
+            self.trays_at.add(params["destinazione"])
+            self.holding_tray = False
+        # vai_a_posa / indica / other pushes: no change to the assumed layout (push effect UNVERIFIED)
 
     def match_pose(self, joints: list[float] | None, poses: dict[str, Any], tol: float) -> str | None:
         if not joints:
@@ -57,12 +63,15 @@ class WorldModel:
             "oggetti_presunti": {"vassoi_in_zona": sorted(self.trays_at, key=self.zones.index),
                                  "zone_libere": [z for z in self.zones if z not in self.trays_at],
                                  "vassoio_sulla_forca": self.holding_tray,
-                                 "nota": "Posizioni presunte dalla configurazione: nessuna telecamera o sensore."},
+                                 "osservato_at": dict(self.observed),
+                                 "nota": ("Osservato dalla telecamera." if self.observed
+                                          else "Posizioni presunte dalla configurazione: nessuna telecamera o sensore.")},
         }
 
     def copy(self) -> "WorldModel":
         return WorldModel(zones=list(self.zones), trays_at=set(self.trays_at), holding_tray=self.holding_tray,
-                          known_pose=self.known_pose, joints=list(self.joints) if self.joints else None)
+                          observed=dict(self.observed), known_pose=self.known_pose,
+                          joints=list(self.joints) if self.joints else None)
 
 
 def joints_close(a: list[float] | tuple[float, ...], b: list[float] | tuple[float, ...], tol: float) -> bool:

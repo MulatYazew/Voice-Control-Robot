@@ -28,7 +28,14 @@ def wait_gate(c, state, timeout=5):
 def test_status(client):
     s = client.get("/api/status").json()
     assert s["gate"] == "IDLE" and s["config"]["mode"] == "sim" and "xai" not in str(s["config"]).lower()
-    assert set(s["catalogue"]) == {"vai_a_posa", "indica", "solleva_vassoio", "appoggia_vassoio", "spingi"}
+    assert set(s["catalogue"]) == {"vai_a_posa", "indica", "solleva_vassoio", "appoggia_vassoio", "spingi", "sposta_vassoio"}
+
+
+def test_camera_off_exposes_no_frame(client):
+    assert client.post("/api/camera/frame", content=b"xx").json()["esito"] == "nessuna_telecamera"
+    scene = client.get("/api/camera/scene").json()
+    assert scene["available"] is False and scene["has_frame"] is False
+    assert client.get("/api/status").json()["config"]["station"] == "ARM 3 · senza telecamera"
 
 
 def test_stop_without_voice_connection(client):

@@ -75,7 +75,27 @@ def check_ocr() -> dict[str, str]:
         return _row("OCR (Tesseract)", FAIL, "not installed: brew install tesseract tesseract-lang (labelling → REVIEW only)")
     langs = subprocess.run(["tesseract", "--list-langs"], capture_output=True, text=True).stdout.split()
     missing = [l for l in ("ita", "eng") if l not in langs]
-    return _row("OCR (Tesseract)", WARN if missing else OK, f"missing languages {missing}" if missing else "ita + eng")
+    optional = [l for l in ("chi_sim", "jpn") if l not in langs]
+    detail = f"missing languages {missing}" if missing else "ita + eng"
+    if optional:
+        detail += f" · optional absent (UNVERIFIED): {', '.join(optional)}"
+    return _row("OCR (Tesseract)", WARN if missing or optional else OK, detail)
+
+
+def check_station(settings) -> dict[str, str]:
+    """Camera, zone calibration, catalogue size and the Amharic mode. Never opens a device."""
+    cam = settings.camera or {}
+    available = bool(cam.get("available"))
+    from .perception.camera import CameraService
+    zones_ok = CameraService(cam).calibrated()
+    n = len(list((settings.data_dir / "catalog").glob("*/product.json"))) if settings.data_dir else 0
+    wavs = list((ROOT / "recordings").glob("am_*.wav")) if (ROOT / "recordings").exists() else []
+    am = f"Amharic voice EXPERIMENTAL · NOT TESTED ({len(wavs)} recordings)" if not wavs else f"Amharic recordings present: {len(wavs)} (probe not run here)"
+    if not available:
+        detail = f"ARM 3 · nessuna telecamera · catalogue {n} · {am}"
+        return _row("station", WARN, detail)
+    detail = f"ARM 1 · CAMERA 1 · zones {'calibrated' if zones_ok else 'UNCALIBRATED'} · catalogue {n} · {am}"
+    return _row("station", OK if zones_ok else WARN, detail)
 
 
 def check_lexicon() -> dict[str, str]:
@@ -167,7 +187,8 @@ def prepare(mode: str = "ursim", *, build_frontend: bool = True, generate_datase
         rows.append(_row("configuration", FAIL, str(e)))
         _print(rows)
         return {"ok": False, "checks": rows}
-    rows += [check_grok(s.xai_api_key), check_ocr(), check_frontend(build_frontend), check_dataset(generate_dataset)]
+    rows += [check_grok(s.xai_api_key), check_ocr(), check_station(s), check_frontend(build_frontend),
+             check_dataset(generate_dataset)]
     rows += check_robot(s)
     rows.append(check_port(s.host, s.port))
     for w in s.warnings:

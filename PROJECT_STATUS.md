@@ -233,8 +233,8 @@ spec extraction 100 % (6/6, exact INCI + legal) · sheets 17/18 (one REVIEW, saf
 Known residual issues: bubbles can corrupt OCR of the front label (rejected as "wrong label" instead of "bubble");
 Grok second opinion occasionally flags a correct pack (→ REVIEW, throughput cost).
 
-### Test count
-`pytest -q tests` → **185 passed** (voice 142 incl. 26 ported baseline · labelling 18 · bilingual 25).
+### Test count at the start of 2026-11-05
+`pytest -q tests` → **185 passed** before this session's work packages. After WP-2 through WP-8: **275 passed** (see the section below).
 
 ## WP-1 — Multilingual deterministic phrases (2026-11-05) — DONE · TESTED
 
@@ -255,3 +255,71 @@ $ .venv/bin/python -m pytest -q tests/test_phrases.py tests/test_multilingual_ph
 1. Station slot: photograph real model packs + defective examples with camera 1; re-run `eval/labelling/run_eval.py`-style checks on them; re-tune `config/labelling.yaml` thresholds with the Cristina Portinaro mentor.
 2. Record real poses incl. the reject-box push (`*_spinta_scarto_*`) with `scripts/record_pose.py`.
 3. Provide a Roboflow key to import Bottle_defect for defect-recall testing on real photos.
+
+## WP-2 — Five voice languages (2026-11-05) — DONE · TESTED for text, NOT TESTED for Amharic speech
+
+`/ws/voice` accepts `auto|it|en|zh|ja|am`. `language_hint` is sent only for it, en, zh, ja. Amharic and auto omit the hint. Confirmation sentences for zh, ja and am live in `config/i18n/messages.yaml`. Italian and English strings in `config/skills.yaml` were not rewritten.
+
+Evidence: `tests/test_voice_langs.py` (zh websocket accepted with a fake session, am session has no `language_hint`, Chinese lift / 不要 / 是的, Japanese はい confirms an English proposal, Chinese 是的 starts a cycle through `cycle_starter`, 也许 does not, 止まって latches STOPPED).
+
+Amharic voice probe:
+```
+$ .venv/bin/python scripts/probe_language.py
+EXPERIMENTAL · NOT TESTED
+```
+Log: `eval/results/language_probe.json`. No `recordings/am_*.wav`. The UI says so when አማርኛ is selected. TEXT MODE with `lang=am` is the fallback. Web Speech `am-ET` was not wired.
+
+## WP-3 — Station camera (2026-11-05) — DONE · TESTED in process, live camera NOT TESTED
+
+`camera.available` is false (Arm 3). `GET /api/camera/scene` on the running sim returned `available: false`. `POST /api/camera/frame` returns `nessuna_telecamera`. Sources `opencv:N`, `folder:` and browser push are implemented in `backend/app/perception/camera.py`. Zone polygons and staleness are covered by `tests/test_perception.py`. A live OpenCV device was not opened. The click-four-corners page is the `POST /api/camera/zones` endpoint; the panel shows the frame and candidates when a camera is available and does not itself collect the four clicks.
+
+## WP-4 — Object identification (2026-11-05) — DONE · TESTED on synthetic decisions, live scene NOT TESTED
+
+`locate_object` and `sposta_vassoio` are in the registry. The decision rule (one zone, ambiguous, not found, disagreement → incerto, uncalibrated, no camera, off-tray) is in `tests/test_perception.py`, including a drawn red blob. `scripts/make_synthetic_scenes.py` wrote `data/synthetic_scenes/` (3 png). Grok vision is not called between confirmation and motion. The async "while IDLE" Grok vision cache is **NOT DONE**; a query uses the deterministic colour/OCR result. `perception.detector` stays `none`.
+
+With the camera off, "bring me the red cup" does not propose a movement. That is what the rules eval records as `answer`.
+
+## WP-5 — Catalogue by enrolment (2026-11-05) — DONE · TESTED on synthetic images
+
+`tests/test_catalog.py` enrols three textured images, matches a rotated/scaled view of each by keyword plus ORB, and rejects a blank unknown. Thresholds in `config/perception.yaml` are engineering defaults. No company-sample photos were enrolled. `scripts/enroll_products.py <folder>` is the batch path for the slot.
+
+## WP-6 — Voice-started labelling cycle (2026-11-05) — DONE · TESTED with a fake starter
+
+`propose_labelling_cycle` creates a pending action of kind `cycle`. The same `confirm()` path starts `SortingCycle` only after a valid confirmation. `tests/test_voice_langs.py::test_cycle_confirm_in_zh_and_stop` covers Chinese yes, uncertain, and STOP. REVIEW still has no voice accept (existing `tests/test_labelling.py`). A full cycle on URSim was not run in this session.
+
+## WP-7 — Evaluation (2026-11-05) — rules DONE · TESTED, Grok text see the file, URSim jury latency NOT TESTED
+
+`eval/testset.csv` is 153 rows: 81 Italian plus 18 each of en, zh, ja, am. Amharic rows have `revisione=da_verificare`.
+
+Rules, in-process simulator, `eval/results/20261105-113702_rules.json` and `eval/results/latest_multilingual.json`:
+
+| Language | Overall |
+|---|---|
+| it | 76/81 (0.938), same five misses as 2026-11-04: O03, P02, I04, K01, K02 |
+| en | 18/18 |
+| zh | 18/18 |
+| ja | 18/18 |
+| am | 18/18 |
+| all | 148/153 (0.967) |
+
+Safety rows on that run (blocked confirmation, valid confirmation, cancel, STOP, refusal) are 1.0.
+
+Grok text, `eval/results/20261105-114128_grok.json`, finished 2026-11-05 11:45: **149/153 (0.974)**. By language: it 80/81, en 18/18, zh 17/18, ja 17/18, am 17/18. Safety rows are 1.0 (skill selection 47/47, refusal 17/17, blocked confirmation 11/11, valid confirmation 10/10, cancel 8/8, STOP 13/13). Misses: M03 (same Italian direction guess as 2026-11-04) and ZH16, JA16, AM16, where the case expected a clarification and Grok proposed `vai_a_posa`. This is text mode, not speech.
+
+The jury metric "end of confirmation → first RTDE motion" was **NOT TESTED**. `eval/results/latency_latest.json` is the 2026-11-04 15:09 URSim STOP latency (emulated). It is not today's confirm-to-motion figure.
+
+## WP-8 — Jury UI (2026-11-05) — DONE · TESTED in the browser against `./start` sim
+
+`npm run build` (`tsc --noEmit && vite build`) succeeded. Chrome at `http://127.0.0.1:8000` showed the pipeline, the station badge `ARM 3 · senza telecamera`, `SIMULAZIONE · interna`, the voice selector (UI stayed Italiano), the STOP bar `STOP · FERMA · 停止 · 止まれ · አቁም`, and the perception card stating there is no camera.
+
+A Mandarin text command `请把左边的托盘抬起来` with the voice language set to 中文 reached `PENDING_CONFIRMATION` for `solleva_vassoio` / `sinistra`, and the card showed `我用货叉抬起左边区域的托盘。确认吗？`. `是的` returned `ok: true` and the gate entered `EXECUTING` (program PLAYING on the in-process simulator). The Ethiopic glyphs on the STOP bar depend on the OS font; the characters in the source are `አቁም`.
+
+## WP-9 — NOT STARTED
+
+P2 items (check after each label, sheet run-out, YOLO, Bottle_defect) were not started. YOLO stays off. No Roboflow key was available.
+
+## What this session did not measure
+- Amharic, Mandarin or Japanese speech through `/ws/voice`.
+- A real camera, calibrated zones, or a company-sample catalogue.
+- URSim or the real arm, including the jury confirm-to-motion latency.
+- Native-speaker review of the zh, ja and am lexicon.

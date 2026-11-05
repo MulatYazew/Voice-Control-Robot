@@ -1,0 +1,12 @@
+# Engineering defaults. Re-tune on real station photos. Not measured on hardware.
+# Colour distance is OpenCV LAB (0-255 channels), not CIE ΔE76.
+perception:
+  colour_max_de: 32
+  ocr_fuzzy: 85
+  orb_inliers: 12
+  grok_cache_s: 10
+  evidence_ttl_s: 15
+  frame_change_mean: 8.0
+  recheck_budget_s: 0.3
+  detector: none          # none | yolo. Default none: the demo does not depend on it.
+  background_diff: 28

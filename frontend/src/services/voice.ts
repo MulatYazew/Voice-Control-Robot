@@ -19,7 +19,7 @@ export class VoiceClient {
   private paused = false;
   private retry = 0;
 
-  constructor(private cb: VoiceCallbacks) {}
+  constructor(private cb: VoiceCallbacks, private lang: () => string = () => "auto") {}
 
   /** Must be called from a user gesture (click): requests mic permission and starts streaming. */
   async start(): Promise<void> {
@@ -47,7 +47,7 @@ export class VoiceClient {
   }
 
   private connect(): void {
-    const url = `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws/voice`;
+    const url = `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws/voice?lang=${this.lang()}`;
     const ws = new WebSocket(url);
     ws.binaryType = "arraybuffer";
     this.ws = ws;

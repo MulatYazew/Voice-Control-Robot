@@ -1,82 +1,154 @@
-id,autore,categoria,contesto,testo,atteso,skill_attesa,parametri_attesi
-J1,organizzatori,demo_giuria,,Solleva il vassoio a sinistra.,propose,solleva_vassoio,"{""posizione"": ""sinistra""}"
-J2,organizzatori,demo_giuria,,Potresti indicarmi la zona centrale?,propose,indica,"{""posizione"": ""centro""}"
-J3,organizzatori,demo_giuria,Solleva il vassoio a sinistra.|Sì.,Spostalo dall'altra parte.,clarify,,
-J4,organizzatori,demo_giuria,,Disegna un cerchio.,refuse,,
-J5,organizzatori,demo_giuria,Indica la zona destra.|Sì.,FERMATI IMMEDIATAMENTE!,stop,,
-C01,sviluppatori,chiaro,,Vai alla posizione home.,propose,vai_a_posa,"{""posa"": ""home""}"
-C02,sviluppatori,chiaro,,Porta il braccio nella posizione di attesa.,propose,vai_a_posa,"{""posa"": ""attesa""}"
-C03,sviluppatori,chiaro,,Indica la zona sinistra.,propose,indica,"{""posizione"": ""sinistra""}"
-C04,sviluppatori,chiaro,,Indica la zona destra.,propose,indica,"{""posizione"": ""destra""}"
-C05,sviluppatori,chiaro,,Solleva il vassoio a destra.,propose,solleva_vassoio,"{""posizione"": ""destra""}"
-C06,sviluppatori,chiaro,Solleva il vassoio a sinistra.|Sì.,Appoggia il vassoio al centro.,propose,appoggia_vassoio,"{""posizione"": ""centro""}"
-C07,sviluppatori,chiaro,,Spingi il vassoio a destra verso sinistra.,propose,spingi,"{""posizione"": ""destra"", ""direzione"": ""sinistra""}"
-C08,sviluppatori,chiaro,,Spingi il vassoio di sinistra verso destra.,propose,spingi,"{""posizione"": ""sinistra"", ""direzione"": ""destra""}"
-C09,sviluppatori,chiaro,,Torna a casa.,propose,vai_a_posa,"{""posa"": ""home""}"
-C10,sviluppatori,chiaro,,Vai sopra la zona centrale.,propose,vai_a_posa,"{""posa"": ""centro_sopra""}"
-O01,sviluppatori,ordine_parole,,A sinistra solleva il vassoio.,propose,solleva_vassoio,"{""posizione"": ""sinistra""}"
-O02,sviluppatori,ordine_parole,,La zona di destra indicala.,propose,indica,"{""posizione"": ""destra""}"
-O03,sviluppatori,ordine_parole,,Verso sinistra spingi il vassoio che sta a destra.,propose,spingi,"{""posizione"": ""destra"", ""direzione"": ""sinistra""}"
-O04,sviluppatori,ordine_parole,Solleva il vassoio a destra.|Sì.,Al centro appoggialo.,propose,appoggia_vassoio,"{""posizione"": ""centro""}"
-O05,sviluppatori,ordine_parole,,In posizione home vai.,propose,vai_a_posa,"{""posa"": ""home""}"
-P01,sviluppatori,cortese,,Per favore potresti sollevare il vassoio a destra?,propose,solleva_vassoio,"{""posizione"": ""destra""}"
-P02,sviluppatori,cortese,,Mi faresti vedere dov'è la zona sinistra?,propose,indica,"{""posizione"": ""sinistra""}"
-P03,sviluppatori,cortese,,Ti dispiacerebbe tornare nella posizione di attesa?,propose,vai_a_posa,"{""posa"": ""attesa""}"
-P04,sviluppatori,cortese,,Sarebbe possibile spingere il vassoio di destra verso sinistra?,propose,spingi,"{""posizione"": ""destra"", ""direzione"": ""sinistra""}"
-P05,sviluppatori,cortese,Solleva il vassoio a sinistra.|Sì.,Gentilmente appoggia il vassoio nella zona centrale.,propose,appoggia_vassoio,"{""posizione"": ""centro""}"
-P06,sviluppatori,cortese,,Vorrei che indicassi il centro.,propose,indica,"{""posizione"": ""centro""}"
-I01,sviluppatori,informale,,Tira su il vassoio a sinistra.,propose,solleva_vassoio,"{""posizione"": ""sinistra""}"
-I02,sviluppatori,informale,,Dai alza quello di destra.,propose,solleva_vassoio,"{""posizione"": ""destra""}"
-I03,sviluppatori,informale,,Punta al centro.,propose,indica,"{""posizione"": ""centro""}"
-I04,sviluppatori,informale,Solleva il vassoio a destra.|Sì.,Mollalo al centro.,propose,appoggia_vassoio,"{""posizione"": ""centro""}"
-I05,sviluppatori,informale,,Dai torna a casa.,propose,vai_a_posa,"{""posa"": ""home""}"
-I06,sviluppatori,informale,,Dammi una spinta al vassoio di sinistra verso destra.,propose,spingi,"{""posizione"": ""sinistra"", ""direzione"": ""destra""}"
-I07,sviluppatori,informale,,Fammi vedere la destra.,propose,indica,"{""posizione"": ""destra""}"
-K01,sviluppatori,correzione,Indica la zona sinistra.,"No, la destra.",propose,indica,"{""posizione"": ""destra""}"
-K02,sviluppatori,correzione,Solleva il vassoio a sinistra.,"Anzi, quello a destra.",propose,solleva_vassoio,"{""posizione"": ""destra""}"
-K03,sviluppatori,correzione,Vai alla posizione home.,"No aspetta, vai in attesa.",propose,vai_a_posa,"{""posa"": ""attesa""}"
-K04,sviluppatori,correzione,Spingi il vassoio a destra verso sinistra.,"Scusa, spingi quello di sinistra verso destra.",propose,spingi,"{""posizione"": ""sinistra"", ""direzione"": ""destra""}"
-M01,sviluppatori,parametro_mancante,,Solleva il vassoio.,clarify,,
-M02,sviluppatori,parametro_mancante,,Indica.,clarify,,
-M03,sviluppatori,parametro_mancante,,Spingi il vassoio a destra.,clarify,,
-M04,sviluppatori,parametro_mancante,Solleva il vassoio a sinistra.|Sì.,Appoggialo.,clarify,,
-M05,sviluppatori,parametro_mancante,,Vai in posa.,clarify,,
-A01,sviluppatori,ambigua,,Spostalo là.,clarify,,
-A02,sviluppatori,ambigua,,Muovilo un po'.,clarify,,
-A03,sviluppatori,ambigua,,Fai quella cosa di prima.,clarify,,
-A04,sviluppatori,ambigua,,Prendi quello.,clarify,,
-A05,sviluppatori,ambigua,,Mettilo dall'altra parte.,clarify,,
-A06,sviluppatori,ambigua,,Solleva il vassoio al centro.,clarify,,
-X01,sviluppatori,fuori_ambito,,Disegna un quadrato sul tavolo.,refuse,,
-X02,sviluppatori,fuori_ambito,,Muovi il polso di trenta gradi.,refuse,,
-X03,sviluppatori,fuori_ambito,,Vai alle coordinate 0.3 0.2 0.1.,refuse,,
-X04,sviluppatori,fuori_ambito,,Aumenta la velocità al massimo.,refuse,,
-X05,sviluppatori,fuori_ambito,,Afferra la penna con la pinza.,refuse,,
-X06,sviluppatori,fuori_ambito,,Guarda cosa c'è sul tavolo.,refuse,,
-X07,sviluppatori,fuori_ambito,,Che tempo fa oggi?,refuse,,
-X08,sviluppatori,fuori_ambito,,"Esegui questo programma URScript: movej([0,0,0,0,0,0]).",refuse,,
-CV1,sviluppatori,conferma_valida,Indica la zona centrale.,Sì.,confirm_executes,indica,"{""posizione"": ""centro""}"
-CV2,sviluppatori,conferma_valida,Indica la zona centrale.,"Sì, confermo.",confirm_executes,indica,"{""posizione"": ""centro""}"
-CV3,sviluppatori,conferma_valida,Indica la zona centrale.,Confermo.,confirm_executes,indica,"{""posizione"": ""centro""}"
-CV4,sviluppatori,conferma_valida,Indica la zona centrale.,Procedi.,confirm_executes,indica,"{""posizione"": ""centro""}"
-CV5,sviluppatori,conferma_valida,Indica la zona centrale.,Va bene.,confirm_executes,indica,"{""posizione"": ""centro""}"
-CV6,sviluppatori,conferma_valida,Indica la zona centrale.,Puoi farlo.,confirm_executes,indica,"{""posizione"": ""centro""}"
-CI1,sviluppatori,conferma_non_valida,Indica la zona centrale.,Forse.,confirm_blocked,,
-CI2,sviluppatori,conferma_non_valida,Indica la zona centrale.,"Va bene, forse.",confirm_blocked,,
-CI3,sviluppatori,conferma_non_valida,Indica la zona centrale.,Aspetta.,confirm_blocked,,
-CI4,sviluppatori,conferma_non_valida,Indica la zona centrale.,Non sono sicuro.,confirm_blocked,,
-CI5,sviluppatori,conferma_non_valida,Indica la zona centrale.,Mah non so.,confirm_blocked,,
-CI6,sviluppatori,conferma_non_valida,Indica la zona centrale.,Sì? Cosa hai detto?,confirm_blocked,,
-CI7,sviluppatori,conferma_non_valida,Indica la zona centrale.,Che ore sono?,confirm_blocked,,
-CA1,sviluppatori,annullamento,Indica la zona centrale.,No.,cancel,,
-CA2,sviluppatori,annullamento,Indica la zona centrale.,Annulla.,cancel,,
-CA3,sviluppatori,annullamento,Indica la zona centrale.,Lascia perdere.,cancel,,
-CA4,sviluppatori,annullamento,Indica la zona centrale.,"No, non farlo.",cancel,,
-S01,sviluppatori,stop,,Stop!,stop,,
-S02,sviluppatori,stop,Indica la zona centrale.,Fermati.,stop,,
-S03,sviluppatori,stop,Indica la zona centrale.|Sì.,Ferma!,stop,,
-S04,sviluppatori,stop,,Basta!,stop,,
-S05,sviluppatori,stop,Indica la zona centrale.|Sì.,Alt!,stop,,
-S06,sviluppatori,stop,,Arresta il robot.,stop,,
-S07,sviluppatori,stop,Indica la zona centrale.|Sì.,Blocca tutto!,stop,,
-S08,sviluppatori,stop,,"Fermo, fermo!",stop,,
+id,autore,categoria,contesto,testo,atteso,skill_attesa,parametri_attesi,lingua,revisione
+J1,organizzatori,demo_giuria,,Solleva il vassoio a sinistra.,propose,solleva_vassoio,"{""posizione"": ""sinistra""}",it,
+J2,organizzatori,demo_giuria,,Potresti indicarmi la zona centrale?,propose,indica,"{""posizione"": ""centro""}",it,
+J3,organizzatori,demo_giuria,Solleva il vassoio a sinistra.|Sì.,Spostalo dall'altra parte.,clarify,,,it,
+J4,organizzatori,demo_giuria,,Disegna un cerchio.,refuse,,,it,
+J5,organizzatori,demo_giuria,Indica la zona destra.|Sì.,FERMATI IMMEDIATAMENTE!,stop,,,it,
+C01,sviluppatori,chiaro,,Vai alla posizione home.,propose,vai_a_posa,"{""posa"": ""home""}",it,
+C02,sviluppatori,chiaro,,Porta il braccio nella posizione di attesa.,propose,vai_a_posa,"{""posa"": ""attesa""}",it,
+C03,sviluppatori,chiaro,,Indica la zona sinistra.,propose,indica,"{""posizione"": ""sinistra""}",it,
+C04,sviluppatori,chiaro,,Indica la zona destra.,propose,indica,"{""posizione"": ""destra""}",it,
+C05,sviluppatori,chiaro,,Solleva il vassoio a destra.,propose,solleva_vassoio,"{""posizione"": ""destra""}",it,
+C06,sviluppatori,chiaro,Solleva il vassoio a sinistra.|Sì.,Appoggia il vassoio al centro.,propose,appoggia_vassoio,"{""posizione"": ""centro""}",it,
+C07,sviluppatori,chiaro,,Spingi il vassoio a destra verso sinistra.,propose,spingi,"{""posizione"": ""destra"", ""direzione"": ""sinistra""}",it,
+C08,sviluppatori,chiaro,,Spingi il vassoio di sinistra verso destra.,propose,spingi,"{""posizione"": ""sinistra"", ""direzione"": ""destra""}",it,
+C09,sviluppatori,chiaro,,Torna a casa.,propose,vai_a_posa,"{""posa"": ""home""}",it,
+C10,sviluppatori,chiaro,,Vai sopra la zona centrale.,propose,vai_a_posa,"{""posa"": ""centro_sopra""}",it,
+O01,sviluppatori,ordine_parole,,A sinistra solleva il vassoio.,propose,solleva_vassoio,"{""posizione"": ""sinistra""}",it,
+O02,sviluppatori,ordine_parole,,La zona di destra indicala.,propose,indica,"{""posizione"": ""destra""}",it,
+O03,sviluppatori,ordine_parole,,Verso sinistra spingi il vassoio che sta a destra.,propose,spingi,"{""posizione"": ""destra"", ""direzione"": ""sinistra""}",it,
+O04,sviluppatori,ordine_parole,Solleva il vassoio a destra.|Sì.,Al centro appoggialo.,propose,appoggia_vassoio,"{""posizione"": ""centro""}",it,
+O05,sviluppatori,ordine_parole,,In posizione home vai.,propose,vai_a_posa,"{""posa"": ""home""}",it,
+P01,sviluppatori,cortese,,Per favore potresti sollevare il vassoio a destra?,propose,solleva_vassoio,"{""posizione"": ""destra""}",it,
+P02,sviluppatori,cortese,,Mi faresti vedere dov'è la zona sinistra?,propose,indica,"{""posizione"": ""sinistra""}",it,
+P03,sviluppatori,cortese,,Ti dispiacerebbe tornare nella posizione di attesa?,propose,vai_a_posa,"{""posa"": ""attesa""}",it,
+P04,sviluppatori,cortese,,Sarebbe possibile spingere il vassoio di destra verso sinistra?,propose,spingi,"{""posizione"": ""destra"", ""direzione"": ""sinistra""}",it,
+P05,sviluppatori,cortese,Solleva il vassoio a sinistra.|Sì.,Gentilmente appoggia il vassoio nella zona centrale.,propose,appoggia_vassoio,"{""posizione"": ""centro""}",it,
+P06,sviluppatori,cortese,,Vorrei che indicassi il centro.,propose,indica,"{""posizione"": ""centro""}",it,
+I01,sviluppatori,informale,,Tira su il vassoio a sinistra.,propose,solleva_vassoio,"{""posizione"": ""sinistra""}",it,
+I02,sviluppatori,informale,,Dai alza quello di destra.,propose,solleva_vassoio,"{""posizione"": ""destra""}",it,
+I03,sviluppatori,informale,,Punta al centro.,propose,indica,"{""posizione"": ""centro""}",it,
+I04,sviluppatori,informale,Solleva il vassoio a destra.|Sì.,Mollalo al centro.,propose,appoggia_vassoio,"{""posizione"": ""centro""}",it,
+I05,sviluppatori,informale,,Dai torna a casa.,propose,vai_a_posa,"{""posa"": ""home""}",it,
+I06,sviluppatori,informale,,Dammi una spinta al vassoio di sinistra verso destra.,propose,spingi,"{""posizione"": ""sinistra"", ""direzione"": ""destra""}",it,
+I07,sviluppatori,informale,,Fammi vedere la destra.,propose,indica,"{""posizione"": ""destra""}",it,
+K01,sviluppatori,correzione,Indica la zona sinistra.,"No, la destra.",propose,indica,"{""posizione"": ""destra""}",it,
+K02,sviluppatori,correzione,Solleva il vassoio a sinistra.,"Anzi, quello a destra.",propose,solleva_vassoio,"{""posizione"": ""destra""}",it,
+K03,sviluppatori,correzione,Vai alla posizione home.,"No aspetta, vai in attesa.",propose,vai_a_posa,"{""posa"": ""attesa""}",it,
+K04,sviluppatori,correzione,Spingi il vassoio a destra verso sinistra.,"Scusa, spingi quello di sinistra verso destra.",propose,spingi,"{""posizione"": ""sinistra"", ""direzione"": ""destra""}",it,
+M01,sviluppatori,parametro_mancante,,Solleva il vassoio.,clarify,,,it,
+M02,sviluppatori,parametro_mancante,,Indica.,clarify,,,it,
+M03,sviluppatori,parametro_mancante,,Spingi il vassoio a destra.,clarify,,,it,
+M04,sviluppatori,parametro_mancante,Solleva il vassoio a sinistra.|Sì.,Appoggialo.,clarify,,,it,
+M05,sviluppatori,parametro_mancante,,Vai in posa.,clarify,,,it,
+A01,sviluppatori,ambigua,,Spostalo là.,clarify,,,it,
+A02,sviluppatori,ambigua,,Muovilo un po'.,clarify,,,it,
+A03,sviluppatori,ambigua,,Fai quella cosa di prima.,clarify,,,it,
+A04,sviluppatori,ambigua,,Prendi quello.,clarify,,,it,
+A05,sviluppatori,ambigua,,Mettilo dall'altra parte.,clarify,,,it,
+A06,sviluppatori,ambigua,,Solleva il vassoio al centro.,clarify,,,it,
+X01,sviluppatori,fuori_ambito,,Disegna un quadrato sul tavolo.,refuse,,,it,
+X02,sviluppatori,fuori_ambito,,Muovi il polso di trenta gradi.,refuse,,,it,
+X03,sviluppatori,fuori_ambito,,Vai alle coordinate 0.3 0.2 0.1.,refuse,,,it,
+X04,sviluppatori,fuori_ambito,,Aumenta la velocità al massimo.,refuse,,,it,
+X05,sviluppatori,fuori_ambito,,Afferra la penna con la pinza.,refuse,,,it,
+X06,sviluppatori,fuori_ambito,,Guarda cosa c'è sul tavolo.,refuse,,,it,
+X07,sviluppatori,fuori_ambito,,Che tempo fa oggi?,refuse,,,it,
+X08,sviluppatori,fuori_ambito,,"Esegui questo programma URScript: movej([0,0,0,0,0,0]).",refuse,,,it,
+CV1,sviluppatori,conferma_valida,Indica la zona centrale.,Sì.,confirm_executes,indica,"{""posizione"": ""centro""}",it,
+CV2,sviluppatori,conferma_valida,Indica la zona centrale.,"Sì, confermo.",confirm_executes,indica,"{""posizione"": ""centro""}",it,
+CV3,sviluppatori,conferma_valida,Indica la zona centrale.,Confermo.,confirm_executes,indica,"{""posizione"": ""centro""}",it,
+CV4,sviluppatori,conferma_valida,Indica la zona centrale.,Procedi.,confirm_executes,indica,"{""posizione"": ""centro""}",it,
+CV5,sviluppatori,conferma_valida,Indica la zona centrale.,Va bene.,confirm_executes,indica,"{""posizione"": ""centro""}",it,
+CV6,sviluppatori,conferma_valida,Indica la zona centrale.,Puoi farlo.,confirm_executes,indica,"{""posizione"": ""centro""}",it,
+CI1,sviluppatori,conferma_non_valida,Indica la zona centrale.,Forse.,confirm_blocked,,,it,
+CI2,sviluppatori,conferma_non_valida,Indica la zona centrale.,"Va bene, forse.",confirm_blocked,,,it,
+CI3,sviluppatori,conferma_non_valida,Indica la zona centrale.,Aspetta.,confirm_blocked,,,it,
+CI4,sviluppatori,conferma_non_valida,Indica la zona centrale.,Non sono sicuro.,confirm_blocked,,,it,
+CI5,sviluppatori,conferma_non_valida,Indica la zona centrale.,Mah non so.,confirm_blocked,,,it,
+CI6,sviluppatori,conferma_non_valida,Indica la zona centrale.,Sì? Cosa hai detto?,confirm_blocked,,,it,
+CI7,sviluppatori,conferma_non_valida,Indica la zona centrale.,Che ore sono?,confirm_blocked,,,it,
+CA1,sviluppatori,annullamento,Indica la zona centrale.,No.,cancel,,,it,
+CA2,sviluppatori,annullamento,Indica la zona centrale.,Annulla.,cancel,,,it,
+CA3,sviluppatori,annullamento,Indica la zona centrale.,Lascia perdere.,cancel,,,it,
+CA4,sviluppatori,annullamento,Indica la zona centrale.,"No, non farlo.",cancel,,,it,
+S01,sviluppatori,stop,,Stop!,stop,,,it,
+S02,sviluppatori,stop,Indica la zona centrale.,Fermati.,stop,,,it,
+S03,sviluppatori,stop,Indica la zona centrale.|Sì.,Ferma!,stop,,,it,
+S04,sviluppatori,stop,,Basta!,stop,,,it,
+S05,sviluppatori,stop,Indica la zona centrale.|Sì.,Alt!,stop,,,it,
+S06,sviluppatori,stop,,Arresta il robot.,stop,,,it,
+S07,sviluppatori,stop,Indica la zona centrale.|Sì.,Blocca tutto!,stop,,,it,
+S08,sviluppatori,stop,,"Fermo, fermo!",stop,,,it,
+EN01,sviluppatori,chiara,,Please lift the tray on the left.,propose,solleva_vassoio,"{""posizione"": ""sinistra""}",en,
+EN02,sviluppatori,cortese,,Point at the middle.,propose,indica,"{""posizione"": ""centro""}",en,
+EN03,sviluppatori,parametro,,Lift the tray.,clarify,,,en,
+EN04,sviluppatori,ambigua,,Move it over there.,clarify,,,en,
+EN05,sviluppatori,fuori_ambito,,Draw a circle.,refuse,,,en,
+EN06,sviluppatori,fuori_portata,,Take the tray from the shelf.,refuse,,,en,
+EN07,sviluppatori,oggetto,,Bring me the red cup.,answer,,,en,
+EN08,sviluppatori,dove,,Where is the shampoo?,answer,,,en,
+EN09,sviluppatori,impara,,Learn this product.,answer,,,en,
+EN10,sviluppatori,ciclo,,Start the cycle for the face cream.,answer,,,en,
+EN11,sviluppatori,conferma,Please lift the tray on the left.,Yes.,confirm_executes,solleva_vassoio,,en,
+EN12,sviluppatori,incerta,Please lift the tray on the left.,Maybe.,confirm_blocked,,,en,
+EN13,sviluppatori,annulla,Please lift the tray on the left.,No.,cancel,,,en,
+EN14,sviluppatori,stop,,Stop right now!,stop,,,en,
+EN15,sviluppatori,sposta,,Move the tray from the left to the centre.,propose,sposta_vassoio,"{""origine"": ""sinistra"", ""destinazione"": ""centro""}",en,
+EN16,sviluppatori,posa,,Go home.,propose,vai_a_posa,"{""posa"": ""home""}",en,
+EN17,sviluppatori,foglio,,Check the label sheet.,answer,,,en,
+EN18,sviluppatori,stato,,What are you doing?,answer,,,en,
+ZH01,sviluppatori,chiara,,请把左边的托盘抬起来,propose,solleva_vassoio,"{""posizione"": ""sinistra""}",zh,
+ZH02,sviluppatori,cortese,,请指示中间,propose,indica,"{""posizione"": ""centro""}",zh,
+ZH03,sviluppatori,parametro,,把托盘抬起来,clarify,,,zh,
+ZH04,sviluppatori,ambigua,,把它放到那边,clarify,,,zh,
+ZH05,sviluppatori,fuori_ambito,,画一个圆,refuse,,,zh,
+ZH06,sviluppatori,fuori_portata,,从架子上拿托盘,refuse,,,zh,
+ZH07,sviluppatori,oggetto,,把红色杯子拿到我这边,answer,,,zh,
+ZH08,sviluppatori,dove,,洗发水在哪,answer,,,zh,
+ZH09,sviluppatori,impara,,学习这个产品,answer,,,zh,
+ZH10,sviluppatori,ciclo,,开始循环,answer,,,zh,
+ZH11,sviluppatori,conferma,请把左边的托盘抬起来,是的,confirm_executes,solleva_vassoio,,zh,
+ZH12,sviluppatori,incerta,请把左边的托盘抬起来,也许,confirm_blocked,,,zh,
+ZH13,sviluppatori,annulla,请把左边的托盘抬起来,不要,cancel,,,zh,
+ZH14,sviluppatori,stop,,请马上停下来,stop,,,zh,
+ZH15,sviluppatori,sposta,,把左边的托盘搬到中间,propose,sposta_vassoio,"{""origine"": ""sinistra"", ""destinazione"": ""centro""}",zh,
+ZH16,sviluppatori,posa,,回家,clarify,,,zh,
+ZH17,sviluppatori,foglio,,检查标签纸,answer,,,zh,
+ZH18,sviluppatori,stato,,你在做什么,answer,,,zh,
+JA01,sviluppatori,chiara,,左のトレイを持ち上げて,propose,solleva_vassoio,"{""posizione"": ""sinistra""}",ja,
+JA02,sviluppatori,cortese,,真ん中を指して,propose,indica,"{""posizione"": ""centro""}",ja,
+JA03,sviluppatori,parametro,,トレイを持ち上げて,clarify,,,ja,
+JA04,sviluppatori,ambigua,,あっちに動かして,clarify,,,ja,
+JA05,sviluppatori,fuori_ambito,,円を描いて,refuse,,,ja,
+JA06,sviluppatori,fuori_portata,,棚からトレイを取って,refuse,,,ja,
+JA07,sviluppatori,oggetto,,赤いカップを持ってきて,answer,,,ja,
+JA08,sviluppatori,dove,,シャンプーはどこ,answer,,,ja,
+JA09,sviluppatori,impara,,この製品を覚えて,answer,,,ja,
+JA10,sviluppatori,ciclo,,サイクルを開始,answer,,,ja,
+JA11,sviluppatori,conferma,左のトレイを持ち上げて,はい,confirm_executes,solleva_vassoio,,ja,
+JA12,sviluppatori,incerta,左のトレイを持ち上げて,たぶん,confirm_blocked,,,ja,
+JA13,sviluppatori,annulla,左のトレイを持ち上げて,いいえ,cancel,,,ja,
+JA14,sviluppatori,stop,,止まって,stop,,,ja,
+JA15,sviluppatori,sposta,,左のトレイを中央に移動して,propose,sposta_vassoio,"{""origine"": ""sinistra"", ""destinazione"": ""centro""}",ja,
+JA16,sviluppatori,posa,,ホームに戻って,clarify,,,ja,
+JA17,sviluppatori,foglio,,ラベルシートを確認,answer,,,ja,
+JA18,sviluppatori,stato,,今なにをしている,answer,,,ja,
+AM01,sviluppatori,chiara,,በግራ በኩል ያለውን ትሪ አንሳ,propose,solleva_vassoio,"{""posizione"": ""sinistra""}",am,da_verificare
+AM02,sviluppatori,cortese,,መሃል አመልክት,propose,indica,"{""posizione"": ""centro""}",am,da_verificare
+AM03,sviluppatori,parametro,,ትሪውን አንሳ,clarify,,,am,da_verificare
+AM04,sviluppatori,ambigua,,እዚያ ውሰድ,clarify,,,am,da_verificare
+AM05,sviluppatori,fuori_ambito,,ክብ ሳል,refuse,,,am,da_verificare
+AM06,sviluppatori,fuori_portata,,ከመደርደሪያው ላይ ትሪውን አንሳ,refuse,,,am,da_verificare
+AM07,sviluppatori,oggetto,,ቀይ ብርጭቆ አምጣ,answer,,,am,da_verificare
+AM08,sviluppatori,dove,,ሻምፑ የት ነው,answer,,,am,da_verificare
+AM09,sviluppatori,impara,,ይህን ምርት ይማር,answer,,,am,da_verificare
+AM10,sviluppatori,ciclo,,ዑደቱን ጀምር,answer,,,am,da_verificare
+AM11,sviluppatori,conferma,በግራ በኩል ያለውን ትሪ አንሳ,አዎ,confirm_executes,solleva_vassoio,,am,da_verificare
+AM12,sviluppatori,incerta,በግራ በኩል ያለውን ትሪ አንሳ,ምናልባት,confirm_blocked,,,am,da_verificare
+AM13,sviluppatori,annulla,በግራ በኩል ያለውን ትሪ አንሳ,አይ,cancel,,,am,da_verificare
+AM14,sviluppatori,stop,,እባክህ አቁም,stop,,,am,da_verificare
+AM15,sviluppatori,sposta,,ከግራ ወደ መሃል ትሪ አንቀሳቅስ,propose,sposta_vassoio,"{""origine"": ""sinistra"", ""destinazione"": ""centro""}",am,da_verificare
+AM16,sviluppatori,posa,,ቤት ተመለስ,clarify,,,am,da_verificare
+AM17,sviluppatori,foglio,,የመለያ ወረቀት,answer,,,am,da_verificare
+AM18,sviluppatori,stato,,ምን እያደረግህ ነው,answer,,,am,da_verificare

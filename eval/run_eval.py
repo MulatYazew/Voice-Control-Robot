@@ -45,6 +45,7 @@ def load_cases(path: Path = EVAL_DIR / "testset.csv") -> list[dict[str, Any]]:
     for r in rows:
         r["contesto"] = [c for c in (r["contesto"] or "").split("|") if c.strip()]
         r["parametri_attesi"] = json.loads(r["parametri_attesi"]) if r["parametri_attesi"] else {}
+        r["lingua"] = (r.get("lingua") or "it").strip() or "it"
     return rows
 
 
@@ -62,13 +63,18 @@ async def run_case(engine: str, case: dict[str, Any]) -> dict[str, Any]:
     await gate.start()
     sess = None
     try:
+        lingua = case.get("lingua") or "it"
         if engine == "rules":
             conv = TextConversation(gate)
-            send = conv.handle
+
+            async def send(text: str):
+                return await conv.handle(text, lingua)
         else:
-            sess = GrokSession(s, gate, bus, Metrics(path=None), mode="text")
+            sess = GrokSession(s, gate, bus, Metrics(path=None), mode="text", lang=lingua if lingua != "auto" else "auto")
             await sess.start_text()
-            send = sess.say_text
+
+            async def send(text: str):
+                return await sess.say_text(text)
         for ctx in case["contesto"]:
             await send(ctx)
             await _settle(gate)
@@ -99,10 +105,13 @@ async def run_case(engine: str, case: dict[str, Any]) -> dict[str, Any]:
             ok = pend is None and not executed
         elif exp == "stop":
             ok = gate.state == GateState.STOPPED
+        elif exp == "answer":
+            ok = not proposals and not executed
         else:
             ok = False
         reply = (out.get("reply") if isinstance(out, dict) else None) or (sess.assistant_text[-1] if sess and sess.assistant_text else "")
-        return {"id": case["id"], "autore": case["autore"], "categoria": case["categoria"], "testo": case["testo"],
+        return {"id": case["id"], "autore": case["autore"], "categoria": case["categoria"], "lingua": case.get("lingua") or "it",
+                "testo": case["testo"],
                 "contesto": case["contesto"], "atteso": exp, "ok": ok, "skill_ok": skill_ok, "params_ok": params_ok,
                 "setup_pending": setup_pending, "proposed": [{"skill": p.get("skill"), "params": p.get("params")} for p in proposals],
                 "executed": bool(executed), "gate": gate.state.value, "events": kinds, "reply": reply,
@@ -135,7 +144,10 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         out["complessivo"] = {"ok": tot, "n": len(rs), "rate": round(tot / len(rs), 3) if rs else 0}
         return out
     ext = [r for r in rows if r["autore"] != "sviluppatori"]
-    return {"overall": part(rows), "external": part(ext)}
+    by_lang = {}
+    for lang in sorted({r.get("lingua") or "it" for r in rows}):
+        by_lang[lang] = part([r for r in rows if (r.get("lingua") or "it") == lang])
+    return {"overall": part(rows), "external": part(ext), "by_language": by_lang}
 
 
 async def run_engine(engine: str, cases: list[dict[str, Any]], concurrency: int) -> list[dict[str, Any]]:
@@ -177,13 +189,30 @@ def main() -> None:
         (RESULTS / f"{stamp}_{engine}.json").write_text(json.dumps(
             {"engine": engine, "config": config, "prompt": prompt if engine == "grok" else None, "summary": summary[engine],
              "cases": rows}, ensure_ascii=False, indent=1))
+    if a.only:
+        print(json.dumps({e: summary[e] for e in all_rows}, ensure_ascii=False, indent=1))
+        return
+    prev_path = RESULTS / "latest.json"
+    prev = json.loads(prev_path.read_text()) if prev_path.exists() else {}
+    for engine, block in (prev.get("summary") or {}).items():
+        summary.setdefault(engine, block)
     latest = {"generated_at": time.strftime("%Y-%m-%d %H:%M"), "n_cases": len(cases), "config": config, "summary": summary,
               "files": [f"{stamp}_{e}.json" for e in all_rows]}
     lat_file = RESULTS / "latency_latest.json"
     if lat_file.exists():
         latest["latency"] = json.loads(lat_file.read_text())
     (RESULTS / "latest.json").write_text(json.dumps(latest, ensure_ascii=False, indent=1))
-    print(json.dumps(summary, ensure_ascii=False, indent=1))
+    multi = {"generated_at": latest["generated_at"], "n_cases": len(cases), "engines_run": list(all_rows),
+             "label": "In-process simulator. A language block is present only for an engine that was run in this stamp or kept from the previous multilingual file.",
+             "by_engine": {e: summary[e] for e in all_rows}}
+    prev_multi_path = RESULTS / "latest_multilingual.json"
+    if prev_multi_path.exists():
+        prev_multi = json.loads(prev_multi_path.read_text())
+        for engine, block in (prev_multi.get("by_engine") or {}).items():
+            multi["by_engine"].setdefault(engine, block)
+    (RESULTS / f"{stamp}_multilingual.json").write_text(json.dumps(multi, ensure_ascii=False, indent=1))
+    (RESULTS / "latest_multilingual.json").write_text(json.dumps(multi, ensure_ascii=False, indent=1))
+    print(json.dumps({e: summary[e] for e in all_rows}, ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":

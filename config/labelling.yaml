@@ -1,0 +1,36 @@
+# Smart Labelling — inspection thresholds.
+# These are ENGINEERING DEFAULTS chosen by the team for the prototype. They are NOT product tolerances.
+# Placement tolerances are per product and must be entered by the operator when approving a specification
+# (they are never invented by the system). Thresholds below must be reviewed with the compliance mentor.
+
+grok:
+  vision_model: grok-4.7          # image-capable model (verified via /v1/language-models on 2026-11-04)
+  second_opinion: true            # Grok may DOWNGRADE a decision to REVIEW_REQUIRED, never upgrade it
+  timeout_s: 90
+
+ocr:
+  languages: ita+eng
+  # Text identity thresholds (rapidfuzz ratio 0..100 on normalised text)
+  exact_required_for: [inci, legal_text]   # mandatory text must match the approved reference exactly
+  review_min_ratio: 80            # below this the text is a DIFFERENT text (wrong label); between -> REVIEW
+  name_min_ratio: 92              # product name on the front label
+
+image_quality:
+  min_sharpness: 60               # variance of Laplacian on each LABEL crop (not the whole face)
+  min_brightness: 40
+  max_brightness: 235
+  min_face_area_frac: 0.05        # pack must cover at least 5% of the frame
+
+detection:
+  label_min_area_frac: 0.02       # of the face area
+  label_color_distance: 38        # Lab distance between label and pack colour
+  match_max_center_dist: 0.25     # fraction of face size, to associate a detected label with a spec label
+
+defects:
+  residual_threshold: 30          # grey-level residual after alignment (45 missed bubbles on a pale label: see PROJECT_STATUS)
+  min_blob_area_frac: 0.0015      # of label area
+  max_defect_area_frac: 0.001     # total residual area above this -> NON_COMPLIANT; any crease-shaped residual -> NON_COMPLIANT
+                                  # (synthetic set: correct packs 0.000 %, creases 0.16-0.20 %, bubbles 0.5-0.7 %; RE-TUNE on real photos)
+  crease_min_elongation: 5.0
+  review_margin: 0.8              # measurements within (margin..1.0] of a limit -> REVIEW_REQUIRED
+  visual_identity_min_ncc: 0.55   # label crop vs reference crop (structure similarity)

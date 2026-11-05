@@ -109,7 +109,49 @@ async def main(out: Path) -> None:
     print("final gate:", st["gate"], "| page errors:", errors[:3], "| video:", video)
 
 
+# Ten jury beats. Spoken rehearsal above stays Italian (macOS `say`). `--text` posts the
+# same intents through TEXT MODE so a laptop without a microphone can walk the gate.
+TEXT_SCRIPT = [
+    ("it", "Solleva il vassoio a sinistra.", "propose"),
+    ("it", "Sì, confermo.", "confirm"),
+    ("en", "Bring me the red cup.", "no camera: no motion"),
+    ("zh", "把它放到那边", "clarify, no motion"),
+    ("ja", "シャンプーはどこ？", "locate, no motion"),
+    ("it", "Disegna un cerchio.", "refuse"),
+    ("it", "Prendi il vassoio sullo scaffale.", "refuse"),
+    ("en", "Learn this product.", "approval stays in the UI"),
+    ("am", "በግራ በኩል ያለውን ትሪ አንሳ", "experimental"),
+    ("am", "አዎ", "confirm only if a proposal is pending"),
+]
+
+
+def rehearse_text() -> None:
+    import urllib.error
+    try:
+        status()
+    except Exception as e:
+        print(f"TEXT rehearsal NOT TESTED: {URL} is not up ({e}).")
+        return
+    reset()
+    for lang, text, note in TEXT_SCRIPT:
+        req = urllib.request.Request(URL + "/api/text-command",
+                                     data=json.dumps({"text": text, "engine": "rules", "lang": lang}).encode(),
+                                     headers={"Content-Type": "application/json"})
+        try:
+            body = json.loads(urllib.request.urlopen(req).read())
+        except urllib.error.HTTPError as e:
+            print(f"  {lang} FAIL {text} {e}")
+            continue
+        print(f"  {lang:3} {note:28} gate={body.get('gate')} esito={(body.get('result') or {}).get('esito')} «{text}»")
+    print("final gate:", status()["gate"])
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="recordings")
-    asyncio.run(main(Path(ap.parse_args().out)))
+    ap.add_argument("--text", action="store_true", help="walk the jury script through TEXT MODE; no microphone")
+    args = ap.parse_args()
+    if args.text:
+        rehearse_text()
+    else:
+        asyncio.run(main(Path(args.out)))

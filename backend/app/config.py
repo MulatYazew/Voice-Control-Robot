@@ -40,6 +40,7 @@ class Settings:
     config_dir: Path = CONFIG_DIR
     data_dir: Path = DATA_DIR
     warnings: list[str] = field(default_factory=list)
+    camera: dict[str, Any] = field(default_factory=dict)
 
     # ------------------------------------------------------------ helpers ---
     @property
@@ -69,7 +70,10 @@ class Settings:
         return {"mode": self.mode, "robot_name": r.get("name"), "robot_model": r.get("model"),
                 "polyscope": r.get("polyscope_version"), "zones": self.zones, "directions": self.directions,
                 "ttl_s": self.ttl_s, "grok_model": self.xai_model, "grok_configured": bool(self.xai_api_key),
-                "warnings": self.warnings}
+                "warnings": self.warnings, "camera_available": bool(self.camera.get("available")),
+                "camera_calibrated": _zones_calibrated(self.camera),
+                "delivery_zone": self.robot.get("workspace", {}).get("delivery_zone", "destra"),
+                "station": "ARM 1 · CAMERA 1" if self.camera.get("available") else "ARM 3 · senza telecamera"}
 
 
 def _load_yaml(name: str, config_dir: Path) -> dict[str, Any]:
@@ -86,6 +90,7 @@ def load_settings(mode: str | None = None, *, config_dir: Path = CONFIG_DIR, dat
     robot = _load_yaml("robot.yaml", config_dir)
     skills = _load_yaml("skills.yaml", config_dir)["skills"]
     poses = _load_yaml("poses.yaml", config_dir)["poses"]
+    camera = (_load_yaml("camera.yaml", config_dir).get("camera") or {}) if (config_dir / "camera.yaml").exists() else {}
 
     # user poses recorded by voice / record_pose.py (P2) live in data/, never in config/
     up = data_dir / "user_poses.yaml"
@@ -105,10 +110,15 @@ def load_settings(mode: str | None = None, *, config_dir: Path = CONFIG_DIR, dat
         wake_word=(os.getenv("WAKE_WORD") or None),
         host=os.getenv("HOST", "127.0.0.1"),
         port=int(os.getenv("PORT", "8000")),
-        config_dir=config_dir, data_dir=data_dir,
+        config_dir=config_dir, data_dir=data_dir, camera=camera,
     )
     validate(s)
     return s
+
+
+def _zones_calibrated(camera: dict[str, Any]) -> bool:
+    zones = camera.get("zones_px") or {}
+    return all(isinstance(zones.get(z), list) and len(zones[z]) >= 3 for z in ("sinistra", "centro", "destra"))
 
 
 _POSE_RE = re.compile(r"\{(\w+)\}")

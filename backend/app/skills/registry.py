@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..config import Settings
+from ..i18n import skill_sentence
 from ..safety.phrases import direction_aliases, normalize, zone_aliases
 from .world import WorldModel
 
@@ -177,19 +178,31 @@ class Registry:
         self._check_preconditions(sk, resolved, world)
         motion = self.motion(sk, resolved)
         fmt = {k: v.replace("_", " ") for k, v in resolved.items()}
+        conferma = sk.conferma.format(**fmt)
+        conferma_en = sk.conferma_en.format(**_en(fmt))
+        risultato = sk.risultato.format(**fmt)
+        risultato_en = sk.risultato_en.format(**_en(fmt))
+        conferme = {"it": conferma, "en": conferma_en}
+        risultati = {"it": risultato, "en": risultato_en}
+        for lang in ("zh", "ja", "am"):
+            c_lang = skill_sentence(sid, "conferma", lang, fmt)
+            r_lang = skill_sentence(sid, "risultato", lang, fmt)
+            if c_lang:
+                conferme[lang] = c_lang
+            if r_lang:
+                risultati[lang] = r_lang
         return ValidatedAction(skill=sid, params=resolved, motion=motion, timeout_s=sk.timeout_s,
-                               conferma=sk.conferma.format(**fmt), risultato=sk.risultato.format(**fmt),
-                               strumento=sk.strumento, conferma_en=sk.conferma_en.format(**_en(fmt)),
-                               risultato_en=sk.risultato_en.format(**_en(fmt)))
+                               conferma=conferma, risultato=risultato, strumento=sk.strumento,
+                               conferma_en=conferma_en, risultato_en=risultato_en,
+                               extra={"conferme": conferme, "risultati": risultati})
 
     def _options(self, sid: str, pname: str, tipo: str, world: WorldModel) -> list[str]:
         dom = self.domain(tipo)
         sk = self.skills[sid]
-        if pname == "posizione":
-            if "vassoio_presunto_in_zona" in sk.precondizioni:
-                return [z for z in dom if z in world.trays_at]
-            if "zona_libera" in sk.precondizioni:
-                return [z for z in dom if z not in world.trays_at]
+        if pname in ("posizione", "origine") and "vassoio_presunto_in_zona" in sk.precondizioni:
+            return [z for z in dom if z in world.trays_at]
+        if pname in ("posizione", "destinazione") and "zona_libera" in sk.precondizioni:
+            return [z for z in dom if z not in world.trays_at]
         return dom
 
     def _check_preconditions(self, sk: Skill, p: dict[str, str], world: WorldModel) -> None:
@@ -199,11 +212,17 @@ class Registry:
                                  options=[z for z in self.s.zones if z not in world.trays_at])
             if pc == "vassoio_sulla_forca" and not world.holding_tray:
                 raise SkillError(PRECONDIZIONE, "Non c'è nessun vassoio sulla forca.")
-            if pc == "vassoio_presunto_in_zona" and p["posizione"] not in world.trays_at:
-                raise SkillError(PRECONDIZIONE, f"Nella zona {p['posizione']} non è previsto nessun vassoio.",
-                                 param="posizione", options=sorted(world.trays_at))
-            if pc == "zona_libera" and p["posizione"] in world.trays_at:
-                raise SkillError(PRECONDIZIONE, f"La zona {p['posizione']} è già occupata.", param="posizione",
+            if pc == "zone_diverse" and p.get("origine") and p.get("origine") == p.get("destinazione"):
+                raise SkillError(RICHIESTA_AMBIGUA, "Origine e destinazione devono essere zone diverse.",
+                                 param="destinazione", options=[z for z in self.s.zones if z != p["origine"]])
+            zone_from = p.get("origine") or p.get("posizione")
+            zone_to = p.get("destinazione") or p.get("posizione")
+            if pc == "vassoio_presunto_in_zona" and zone_from not in world.trays_at:
+                raise SkillError(PRECONDIZIONE, f"Nella zona {zone_from} non è previsto nessun vassoio.",
+                                 param="origine" if "origine" in p else "posizione", options=sorted(world.trays_at))
+            if pc == "zona_libera" and zone_to in world.trays_at:
+                raise SkillError(PRECONDIZIONE, f"La zona {zone_to} è già occupata.",
+                                 param="destinazione" if "destinazione" in p else "posizione",
                                  options=[z for z in self.s.zones if z not in world.trays_at])
 
     def motion(self, sk: Skill, p: dict[str, str]) -> list[MotionStep]:

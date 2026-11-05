@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..safety import phrases
+from ..safety.phrases import skill_triggers
 from ..skills.registry import ZONE_ALIASES
 
 SKILL_PATTERNS: list[tuple[str, list[str]]] = [
@@ -108,9 +109,90 @@ IT_WORDS = {"il", "la", "lo", "per", "favore", "solleva", "vassoio", "spingi", "
 
 
 def detect_language(text: str, default: str = "it") -> str:
+    n = phrases.normalize(text)
+    has_kana = any(0x3040 <= ord(ch) <= 0x30FF for ch in n)
+    has_han = any(0x4E00 <= ord(ch) <= 0x9FFF for ch in n)
+    has_eth = any(0x1200 <= ord(ch) <= 0x137F for ch in n)
+    if has_kana:
+        return "ja"
+    if has_han:
+        return "zh"
+    if has_eth:
+        return "am"
     toks = set(phrases.tokens(text))
     en, it = len(toks & EN_WORDS), len(toks & IT_WORDS)
     return "en" if en > it else ("it" if it > en else default)
+
+
+_COLOURS = {
+    "rosso": ["rosso", "rossa", "rossi", "rosse", "red", "红色", "赤い", "ቀይ"],
+    "blu": ["blu", "blue", "蓝色", "青い", "ሰማያዊ"],
+    "verde": ["verde", "green", "绿色", "緑", "አረንጓዴ"],
+    "giallo": ["giallo", "gialla", "yellow", "黄色", "黄色い"],
+    "bianco": ["bianco", "bianca", "white", "白色", "白い"],
+    "nero": ["nero", "nera", "black", "黑色", "黒い"],
+}
+_OBJECTS = ["tazza", "bicchiere", "bottiglia", "shampoo", "cup", "bottle", "杯子", "瓶", "洗发水", "シャンプー", "ሻምፑ"]
+_BRING = ["portami", "portami", "bring me", "bring the", "拿到我这边", "持ってきて", "አምጣ"]
+_WHERE = ["dov e", "dove", "where is", "where s", "在哪", "どこ", "የት"]
+_LABEL_LEARN = ["impara questo", "impara il prodotto", "learn this product", "learn the product", "学习这个", "覚えて", "ይማር"]
+_LABEL_SHEET = ["foglio etichette", "label sheet", "标签纸", "ラベルシート", "የመለያ ወረቀት"]
+_LABEL_CYCLE = ["avvia il ciclo", "start the cycle", "开始循环", "サイクルを開始", "ዑደቱን ጀምር"]
+_LABEL_WHY = ["perche l hai scartato", "perche l'hai scartato", "why was it rejected", "why did you reject", "为什么报废", "なぜ捨て", "ለምን ጣል"]
+_VAGUE_NONLATIN = ["那边", "那里", "そこ", "あっち", "እዚያ"]
+_OOS_NONLATIN = ["画一个", "画圈", "円を描", "ክብ ሳል"]
+_UNREACHABLE = ("scaffale", "shelf", "架子", "棚から", "መደርደሪያ")
+
+
+def _colour_in(t: str) -> str | None:
+    for canon, words in _COLOURS.items():
+        if any(w in t for w in words):
+            return canon
+    return None
+
+
+def _tray_move(t: str) -> Intent | None:
+    if not any(w in t for w in ("vassoio", "tray", "托盘", "トレイ", "ትሪ")):
+        return None
+    zones = _zones_in(t)
+    if len(zones) < 2:
+        return None
+    if not any(w in t for w in ("porta", "sposta", "move the tray", "bring the tray", "搬", "移", "አንቀሳቅስ")):
+        return None
+    return Intent("skill", skill="sposta_vassoio", params={"origine": zones[0][1], "destinazione": zones[1][1]})
+
+
+def _object_intent(t: str) -> Intent | None:
+    if any(w in t for w in ("vassoio", "tray", "托盘", "トレイ")) and "tazza" not in t and "cup" not in t and "杯子" not in t:
+        return None
+    colour = _colour_in(t)
+    noun = next((w for w in _OBJECTS if w in t), None)
+    if not colour and not noun:
+        return None
+    params = {k: v for k, v in (("colore", colour), ("categoria", "tazza" if noun in ("tazza", "cup", "杯子") else None),
+                                ("testo", noun if noun not in ("tazza", "cup", "杯子", "bottiglia", "bottle", "瓶") else None)) if v}
+    if any(w in t for w in _WHERE):
+        params["azione"] = "cerca"
+        return Intent("locate", params=params)
+    if any(w in t for w in _BRING) or "portami" in t:
+        params["azione"] = "porta"
+        return Intent("locate", params=params)
+    if noun or colour:
+        params["azione"] = "cerca"
+        return Intent("locate", params=params)
+    return None
+
+
+def _label_intent(t: str) -> Intent | None:
+    if any(w in t for w in _LABEL_LEARN):
+        return Intent("label_learn")
+    if any(w in t for w in _LABEL_SHEET):
+        return Intent("label_sheet")
+    if any(w in t for w in _LABEL_CYCLE):
+        return Intent("label_cycle")
+    if any(w in t for w in _LABEL_WHY):
+        return Intent("label_explain")
+    return None
 
 
 def parse(text: str, *, poses: dict[str, Any] | None = None, pending: bool = False) -> Intent:
@@ -119,6 +201,8 @@ def parse(text: str, *, poses: dict[str, Any] | None = None, pending: bool = Fal
         return Intent("none")
     if phrases.is_stop(text):
         return Intent("stop")
+    if any(w in t for w in _UNREACHABLE):
+        return Intent("out_of_scope")
     if pending:
         v = phrases.confirmation_verdict(text)
         if v == phrases.VALID:
@@ -127,11 +211,20 @@ def parse(text: str, *, poses: dict[str, Any] | None = None, pending: bool = Fal
             return Intent("cancel" if v == phrases.NEGATIVE else "confirm", verdict=v)
     elif phrases.is_cancel(text) and not _skill_of(t):
         return Intent("cancel")
+    located = _object_intent(t)
+    if located:
+        return located
+    labelled = _label_intent(t)
+    if labelled:
+        return labelled
     skill = _skill_of(t)
     if skill is None:
-        if _any(OUT_OF_SCOPE, t):
+        moved = _tray_move(t)
+        if moved:
+            return moved
+        if _any(OUT_OF_SCOPE, t) or any(w in t for w in _OOS_NONLATIN):
             return Intent("out_of_scope")
-        if _any(VAGUE_MOVE, t):
+        if _any(VAGUE_MOVE, t) or any(w in t for w in _VAGUE_NONLATIN):
             return Intent("clarify", note="movimento vago")
         zones = _zones_in(t)
         if zones:  # parameter only (answer to a clarification question)
@@ -169,5 +262,10 @@ def parse(text: str, *, poses: dict[str, Any] | None = None, pending: bool = Fal
 def _skill_of(t: str) -> str | None:
     for skill, pats in SKILL_PATTERNS:
         if _any(pats, t):
+            return skill
+    for skill, words in skill_triggers().items():
+        if skill == "sposta_vassoio":
+            continue
+        if any(w and w in t for w in words):
             return skill
     return None

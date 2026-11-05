@@ -1,0 +1,10 @@
+{
+ "measured_at": "2026-11-05 11:37",
+ "recordings": {
+  "am": [],
+  "zh": [],
+  "ja": []
+ },
+ "amharic": "EXPERIMENTAL · NOT TESTED",
+ "decision": "No owner recordings in recordings/. Amharic voice is not claimed. The UI offers አማርኛ and TEXT MODE (engine=grok or rules, lang=am). Deterministic STOP still applies to that text. The STOP button and Space always work."
+}

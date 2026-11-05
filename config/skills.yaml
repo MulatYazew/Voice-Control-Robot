@@ -15,6 +15,8 @@ skills:
     timeout_s: 30
     conferma: "Porto il braccio nella posa {posa}. Confermi?"
     risultato: "Il braccio è nella posa {posa}."
+    conferma_en: "Moving the arm to pose {posa}. Do you confirm?"
+    risultato_en: "The arm is at pose {posa}."
     in_caso_di_errore: fault
 
   indica:
@@ -31,6 +33,8 @@ skills:
     timeout_s: 40
     conferma: "Indico la zona {posizione} con la punta. Confermi?"
     risultato: "Ho indicato la zona {posizione}."
+    conferma_en: "Pointing at the {posizione} zone with the tip. Do you confirm?"
+    risultato_en: "Pointed at the {posizione} zone."
     in_caso_di_errore: fault
 
   solleva_vassoio:
@@ -46,6 +50,8 @@ skills:
     timeout_s: 45
     conferma: "Sollevo con la forca il vassoio nella zona {posizione}. Confermi?"
     risultato: "Sequenza di sollevamento completata nella zona {posizione}."
+    conferma_en: "Lifting the tray in the {posizione} zone with the fork. Do you confirm?"
+    risultato_en: "Lifting sequence completed in the {posizione} zone."
     in_caso_di_errore: fault
 
   appoggia_vassoio:
@@ -61,6 +67,8 @@ skills:
     timeout_s: 45
     conferma: "Appoggio il vassoio nella zona {posizione}. Confermi?"
     risultato: "Sequenza di appoggio completata nella zona {posizione}."
+    conferma_en: "Putting the tray down in the {posizione} zone. Do you confirm?"
+    risultato_en: "Put-down sequence completed in the {posizione} zone."
     in_caso_di_errore: fault
 
   spingi:
@@ -77,4 +85,27 @@ skills:
     timeout_s: 45
     conferma: "Spingo il vassoio nella zona {posizione} verso {direzione}. Confermi?"
     risultato: "Spinta completata nella zona {posizione} verso {direzione}."
+    conferma_en: "Pushing the tray in the {posizione} zone towards {direzione}. Do you confirm?"
+    risultato_en: "Push completed in the {posizione} zone towards {direzione}."
+    in_caso_di_errore: fault
+
+  sposta_vassoio:
+    descrizione: "Sposta il vassoio da una zona a un'altra con la forca (solleva e appoggia). Un solo movimento, una sola conferma."
+    strumento: forca
+    parametri:
+      origine: {tipo: zona}
+      destinazione: {tipo: zona}
+    precondizioni: [forca_libera, vassoio_presunto_in_zona, zona_libera, zone_diverse]
+    sequenza:
+      - {move: movej, posa: "{origine}_sopra"}
+      - {move: movel, posa: "{origine}_presa"}
+      - {move: movel, posa: "{origine}_sopra"}
+      - {move: movej, posa: "{destinazione}_sopra"}
+      - {move: movel, posa: "{destinazione}_presa"}
+      - {move: movel, posa: "{destinazione}_sopra"}
+    timeout_s: 60
+    conferma: "Sposto il vassoio dalla zona {origine} alla zona {destinazione}. Confermi?"
+    risultato: "Spostamento completato da {origine} a {destinazione}."
+    conferma_en: "Moving the tray from the {origine} zone to the {destinazione} zone. Do you confirm?"
+    risultato_en: "Move completed from {origine} to {destinazione}."
     in_caso_di_errore: fault

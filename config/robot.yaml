@@ -28,9 +28,11 @@ connections:
 
 workspace:
   zones: [sinistra, centro, destra]        # subject to verification
-  push_directions: [sinistra, destra]      # subject to verification
+  push_directions: [sinistra, destra, scarto]   # subject to verification; scarto = towards the reject box (edge of table, location UNVERIFIED)
   # Tray positions are ASSUMED (no camera). Initial assumption at startup:
   trays_assumed_at: [sinistra, destra]
+  # Where "bring it to me" puts the tray. UNVERIFIED until the supervised slot.
+  delivery_zone: destra
 
 tool:
   description: "Printed tool attachment with fork, pusher and indicating tip (no gripper)"

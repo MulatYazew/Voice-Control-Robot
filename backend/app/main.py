@@ -9,8 +9,8 @@ import time
 from contextlib import asynccontextmanager
 from typing import Any, Literal
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -20,6 +20,10 @@ from .monitoring.events import EventBus, History, Metrics, log_event, setup_logg
 from .safety.gate import Gate
 from .skills.registry import Registry
 from .voice.grok_session import GrokSession
+from .api.labelling import make_router
+from .conversation import tools as tools_mod
+from .labelling.service import LabellingService
+from .labelling.sorting import SortingCycle
 
 log = logging.getLogger("voce.api")
 
@@ -43,6 +47,7 @@ class ResetBody(BaseModel):
 class TextBody(BaseModel):
     text: str = Field(..., min_length=1, max_length=300)
     engine: Literal["rules", "grok"] = "rules"
+    lang: Literal["auto", "it", "en", "zh", "ja", "am"] = "auto"
     request_id: str | None = Field(None, max_length=64)
 
 
@@ -70,19 +75,52 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
     gate = Gate(s, reg, adapter or make_adapter(s), bus, metrics, history)
     text = TextConversation(gate)
     dedup = _Dedup()
+    from .perception.service import Station
+    station = Station(s)
+    labelling = LabellingService(s.xai_api_key, root=s.data_dir / "labelling")
+    cycle = SortingCycle(gate, labelling, bus, camera=station.camera)
+    tools_mod.LABELLING = (labelling, cycle)
+    tools_mod.PERCEPTION = station
+    gate.evidence = station.evidence
+    gate.perceive = station
+    gate.recheck = station.recheck
+
+    async def _start_cycle_from_voice(product_id: str, operator: str) -> dict[str, Any]:
+        return await cycle.start(product_id, operator, layout_confirmed=True)
+
+    gate.cycle_starter = _start_cycle_from_voice
+
+    def _label_voice(intent: Any, lang: str) -> dict[str, Any]:
+        pid = (getattr(intent, "params", None) or {}).get("product_id")
+        return tools_mod._cycle_voice_tool("propose_labelling_cycle", {"product_id": pid, "lingua": lang}, gate, labelling, cycle)
+
+    gate.label_voice = _label_voice
     state: dict[str, Any] = {"voice": None, "grok_text": None, "voice_status": "disconnected"}
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         log_event(log, "startup", mode=s.mode, warnings=s.warnings)
         await gate.start()                     # never resumes old pending actions (pending is in-memory only)
+        watcher = asyncio.ensure_future(_stop_aborts_cycle())
         yield
+        watcher.cancel()
+        if cycle.phase not in ("IDLE", "DONE", "ABORTED"):
+            cycle.abort("shutdown")
         log_event(log, "shutdown")
         if state["grok_text"]:
             await state["grok_text"].close()
         await gate.shutdown()
 
+    async def _stop_aborts_cycle() -> None:
+        q = bus.subscribe()
+        while True:
+            ev = await q.get()
+            if ev["type"] == "stop" and cycle.phase not in ("IDLE", "DONE", "ABORTED"):
+                cycle.abort(f"STOP ({ev.get('source')})")
+
     app = FastAPI(title="VOCE", lifespan=lifespan)
+    app.include_router(make_router(labelling, cycle))
+    app.state.labelling, app.state.cycle = labelling, cycle
     app.state.gate, app.state.bus, app.state.settings, app.state.text = gate, bus, s, text
 
     def voice_status() -> dict[str, Any]:
@@ -116,7 +154,6 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
         cached = dedup.get(body.request_id)
         if cached is not None:
             return {**cached, "duplicate": True}
-        bus.publish("transcript", role="user", text=body.text, final=True, source="text", mode=TEXT_MODE_LABEL)
         if body.engine == "grok":
             if not s.xai_api_key:
                 raise HTTPException(503, "Grok non configurato: usa engine=rules")
@@ -129,9 +166,57 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
                    "reply": state["grok_text"].assistant_text[-1] if state["grok_text"].assistant_text else "",
                    "gate": gate.state.value}
         else:
-            out = {**await text.handle(body.text), "engine": "rules"}
+            out = {**await text.handle(body.text, body.lang), "engine": "rules"}
         dedup.put(body.request_id, out)
         return out
+
+    @app.get("/api/camera/scene")
+    async def api_camera_scene() -> dict[str, Any]:
+        return station.scene()
+
+    @app.get("/api/camera/frame")
+    async def api_camera_get() -> Response:
+        got = station.camera.get_frame()
+        if got is None:
+            raise HTTPException(404, "nessuna_immagine")
+        from .perception.service import encode_jpeg
+        data = encode_jpeg(got[0])
+        if not data:
+            raise HTTPException(404, "nessuna_immagine")
+        return Response(content=data, media_type="image/jpeg")
+
+    async def _jpeg(request: Request):
+        import cv2
+        import numpy as np
+        img = cv2.imdecode(np.frombuffer(await request.body(), np.uint8), cv2.IMREAD_COLOR)
+        if img is None:
+            raise HTTPException(400, "immagine non valida")
+        return img
+
+    @app.post("/api/camera/frame")
+    async def api_camera_post(request: Request) -> dict[str, Any]:
+        if not station.camera.available:
+            return {"ok": False, "esito": "nessuna_telecamera"}
+        station.camera.push_frame(await _jpeg(request))
+        return {"ok": True}
+
+    @app.post("/api/camera/background")
+    async def api_camera_background(request: Request) -> dict[str, Any]:
+        if not station.camera.available:
+            return {"ok": False, "esito": "nessuna_telecamera"}
+        station.camera.push_background(await _jpeg(request))
+        return {"ok": True}
+
+    class ZonesBody(BaseModel):
+        zones: dict[str, list[list[float]]]
+
+    @app.post("/api/camera/zones")
+    async def api_camera_zones(body: ZonesBody) -> dict[str, Any]:
+        needed = ("sinistra", "centro", "destra")
+        if any(len(body.zones.get(z) or []) < 3 for z in needed):
+            return {"ok": False, "esito": "zone_non_calibrate"}
+        station.camera.save_zones({z: body.zones[z] for z in needed})
+        return {"ok": True, "calibrated_at": station.camera.cfg.get("calibrated_at")}
 
     @app.get("/api/eval/latest")
     async def api_eval() -> JSONResponse:
@@ -186,7 +271,10 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
             await ws.send_json({"type": "error", "message": "Un'altra sessione vocale è già attiva."})
             await ws.close()
             return
-        sess = GrokSession(s, gate, bus, metrics, client=ws, mode="voice")
+        lang = ws.query_params.get("lang", "auto")
+        if lang not in ("auto", "it", "en", "zh", "ja", "am"):
+            lang = "auto"
+        sess = GrokSession(s, gate, bus, metrics, client=ws, mode="voice", lang=lang)
         state["voice"] = sess
         try:
             await sess.run_voice()

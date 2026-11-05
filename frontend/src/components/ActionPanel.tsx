@@ -27,8 +27,8 @@ function Countdown({ p }: { p: Pending }) {
   );
 }
 
-export function ActionPanel({ status, progress, execStart }: {
-  status: Status | null; progress: { done: number; total: number } | null; execStart: number | null;
+export function ActionPanel({ status, progress, execStart, voiceLang }: {
+  status: Status | null; progress: { done: number; total: number } | null; execStart: number | null; voiceLang: string;
 }) {
   const [, tick] = useState(0);
   useEffect(() => { const t = window.setInterval(() => tick((x) => x + 1), 250); return () => window.clearInterval(t); }, []);
@@ -46,7 +46,7 @@ export function ActionPanel({ status, progress, execStart }: {
             {Object.entries(p.parametri).map(([k, v]) => <span key={k} className="param"><b>{k}</b> {v.replace("_", " ")}</span>)}
             {p.strumento && <span className="param"><b>strumento</b> {p.strumento}</span>}
           </div>
-          <div className="confirm-q">«{p.conferma}»</div>
+          <div className="confirm-q">«{p.frasi?.[voiceLang] || (voiceLang === "en" ? p.conferma_en || p.conferma : p.conferma)}»</div>
           <div className="hint">Rispondi a voce: «Sì, confermo» oppure «No».{!p.question_asked && " (in attesa della domanda)"}</div>
           <Countdown p={p} />
         </>

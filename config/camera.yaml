@@ -1,0 +1,23 @@
+# Station camera ("camera 1"). Unknown values stay null until verified on the station.
+camera:
+  # false on Arm 3 (no camera, per the brief). true on the Arm 1 labelling station.
+  available: false
+  model: UNKNOWN
+  resolution: null                # e.g. [1920, 1080] once verified
+  # Source of station images:
+  #   browser  - the operator's browser camera / uploads (default; works with any USB/laptop camera)
+  #   opencv:N - a camera attached to the backend machine (OpenCV device index N)
+  #   folder:P - simulated station: images replayed from folder P (development / evaluation only)
+  source: browser
+  max_age_s: 1.5                  # older than this, get_frame returns nothing and nothing moves
+  # Polygons in image pixels. null = uncalibrated: object→zone mapping is refused.
+  zones_px:
+    sinistra: null
+    centro: null
+    destra: null
+  calibrated_at: null
+  calibration:
+    px_per_mm: null               # null = uncalibrated: tolerances are relative (% of face size, degrees)
+  faces_visible_from_station: [front]   # faces the fixed camera sees; others must be shown/turned by the operator
+storage:
+  root: data/labelling

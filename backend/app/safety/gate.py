@@ -61,11 +61,16 @@ class PendingAction:
     step_index: int = 0
     step_total: int = 1
     remaining: list[dict[str, Any]] = field(default_factory=list)   # raw later steps (re-validated each time)
+    kind: str = "skill"                                          # skill | sequence | cycle
 
     def public(self, ttl: float, now: float) -> dict[str, Any]:
-        return {"id": self.id, **self.action.public(), "expires_in_s": max(0.0, round(ttl - (now - self.created), 1)),
-                "ttl_s": ttl, "question_asked": self.question_asked_at is not None, "source": self.source,
-                "plan_id": self.plan_id, "step": self.step_index + 1, "steps": self.step_total}
+        out = {"id": self.id, **self.action.public(), "expires_in_s": max(0.0, round(ttl - (now - self.created), 1)),
+               "ttl_s": ttl, "question_asked": self.question_asked_at is not None, "source": self.source,
+               "plan_id": self.plan_id, "step": self.step_index + 1, "steps": self.step_total}
+        frasi = (self.action.extra or {}).get("conferme") or {}
+        if frasi:
+            out["frasi"] = frasi
+        return out
 
 
 def _err(code: str, msg: str, **kw: Any) -> dict[str, Any]:
@@ -103,6 +108,7 @@ class Gate:
         self._io_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="robot-io")
         self._bg: list[asyncio.Task] = []
         self._report_cbs: list[Callable[[dict[str, Any]], Any]] = []
+        self.cycle: dict[str, Any] | None = None
 
     # ================================================================ infra ===
     def _transition(self, new: GateState, reason: str, **data: Any) -> None:
@@ -122,14 +128,15 @@ class Gate:
                 "world": self.world.snapshot(), "robot": self.robot_status.to_dict(), "robot_adapter": self.robot.name,
                 "mode": self.s.mode, "fault": self.fault_reason, "last_stop": self.last_stop,
                 "last_result": self.last_result.to_dict() if self.last_result else None,
-                "metrics": self.metrics.summary(), "history": self.history.list()[:30]}
+                "metrics": self.metrics.summary(), "history": self.history.list()[:30],
+                "cycle": self.cycle}
 
     def on_report(self, cb: Callable[[dict[str, Any]], Any]) -> Callable[[], None]:
         self._report_cbs.append(cb)
         return lambda: self._report_cbs.remove(cb) if cb in self._report_cbs else None
 
-    def _report(self, kind: str, text: str, **data: Any) -> None:
-        ev = self.bus.publish("report", kind=kind, text=text, **data)
+    def _report(self, kind: str, text: str, text_en: str | None = None, **data: Any) -> None:
+        ev = self.bus.publish("report", kind=kind, text=text, text_en=text_en or text, **data)
         for cb in list(self._report_cbs):
             try:
                 r = cb(ev)
@@ -245,7 +252,8 @@ class Gate:
             return _err("occupato", "Il braccio sta eseguendo un movimento: attendi il risultato o di' stop.")
         return None
 
-    def propose(self, skill: Any, params: dict[str, Any] | None, *, source: str = "grok") -> dict[str, Any]:
+    def propose(self, skill: Any, params: dict[str, Any] | None, *, source: str = "grok",
+                evidenza_id: str | None = None) -> dict[str, Any]:
         b = self._blocked()
         if b:
             return b
@@ -254,7 +262,58 @@ class Gate:
         except SkillError as e:
             self.bus.publish("proposal_rejected", skill=str(skill), params=params, result=e.to_dict())
             return e.to_dict()
+        if evidenza_id:
+            err = self._check_evidence(evidenza_id, act.params)
+            if err:
+                self.bus.publish("proposal_rejected", skill=act.skill, params=act.params, result=err)
+                return err
+            self._decorate_evidence(act, evidenza_id)
         return self._set_pending(act, source)
+
+    def propose_cycle(self, product_id: str, conferme: dict[str, str], *, source: str = "grok") -> dict[str, Any]:
+        """Pending action of kind cycle. The same confirm() path authorises SortingCycle.start."""
+        b = self._blocked()
+        if b:
+            return b
+        act = ValidatedAction(
+            skill="ciclo_etichettatura", params={"product_id": product_id}, motion=[], timeout_s=120,
+            conferma=conferme.get("it") or "Avvio il ciclo di etichettatura. Confermi?",
+            risultato="Ciclo avviato.",
+            conferma_en=conferme.get("en") or "Starting the labelling cycle. Do you confirm?",
+            risultato_en="Cycle started.",
+            extra={"conferme": dict(conferme), "kind": "cycle", "product_id": product_id},
+        )
+        res = self._set_pending(act, source)
+        res["kind"] = "cycle"
+        return res
+
+    def _check_evidence(self, eid: str, params: dict[str, str]) -> dict[str, Any] | None:
+        store = getattr(self, "evidence", None)
+        ev = store.get(eid) if store is not None else None
+        if not ev:
+            return _err("evidenza_scaduta", "L'evidenza visiva è assente o più vecchia di 15 secondi. Nessun movimento.")
+        zone = params.get("origine") or params.get("posizione")
+        if zone and ev.get("zona") != zone:
+            return _err("evidenza_scaduta", "L'evidenza non è sulla zona richiesta. Nessun movimento.")
+        return None
+
+    def _decorate_evidence(self, act: ValidatedAction, eid: str) -> None:
+        from ..i18n import evidence_sentence
+        ev = self.evidence.get(eid) or {}
+        cand = ev.get("candidato") or {}
+        cosa = " ".join(x for x in (cand.get("categoria"), cand.get("colore"), cand.get("testo")) if x) or "un oggetto"
+        conf = f"{max(0.0, 1.0 - float(cand.get('colore_de') or 30) / 100):.2f}"
+        prova = "colore verificato" if "CV" in (cand.get("fonti") or []) else "osservazione"
+        conferme = act.extra.setdefault("conferme", {"it": act.conferma, "en": act.conferma_en})
+        for lang in list(conferme):
+            prefix = evidence_sentence(lang, cosa=cosa, zona=str(ev.get("zona") or ""), prova=prova, conf=conf)
+            if prefix:
+                conferme[lang] = prefix + " " + conferme[lang]
+        act.conferma = conferme.get("it", act.conferma)
+        act.conferma_en = conferme.get("en", act.conferma_en)
+        act.extra["evidenza_id"] = eid
+        if ev.get("zona"):
+            self.world.observed[str(ev["zona"])] = time.time()
 
     def propose_sequence(self, steps: list[dict[str, Any]], *, source: str = "grok") -> dict[str, Any]:
         """P2: validate a whole sequence (on a simulated world copy). Each movement still needs its own confirmation."""
@@ -287,15 +346,22 @@ class Gate:
                      step_total: int = 1, remaining: list[dict[str, Any]] | None = None) -> dict[str, Any]:
         replaced = self.pending.id if self.pending else None
         pa = PendingAction(id=f"A{next(self._act_ids)}", action=act, created=self.clock(), source=source,
-                           plan_id=plan_id, step_index=step_index, step_total=step_total, remaining=remaining or [])
+                           plan_id=plan_id, step_index=step_index, step_total=step_total, remaining=remaining or [],
+                           kind=str(act.extra.get("kind") or "skill"))
         self.pending = pa
         self._transition(GateState.PENDING_CONFIRMATION, f"proposta {pa.id} {act.skill}",
                          action=pa.id, skill=act.skill, params=act.params, replaced=replaced)
         self.history.add(kind="proposta", action=pa.id, skill=act.skill, params=act.params, source=source)
-        return {"ok": True, "esito": "in_attesa_di_conferma", "action_id": pa.id, "skill": act.skill,
-                "parametri": act.params, "frase_conferma": act.conferma, "scade_in_s": self.s.ttl_s,
-                "istruzione": "Leggi frase_conferma all'operatore e aspetta la sua risposta. Non chiamare confirm finché "
-                              "l'operatore non ha risposto sì in un nuovo turno."}
+        conferme = act.extra.get("conferme") or {"it": act.conferma, "en": act.conferma_en}
+        out = {"ok": True, "esito": "in_attesa_di_conferma", "action_id": pa.id, "skill": act.skill,
+               "kind": pa.kind, "parametri": act.params, "frase_conferma": act.conferma,
+               "frase_conferma_en": act.conferma_en, "scade_in_s": self.s.ttl_s,
+               "istruzione": "Leggi la frase_conferma_<lingua> all'operatore, parola per parola, e aspetta. "
+                             "Non chiamare confirm finché l'operatore non ha risposto sì in un nuovo turno."}
+        for lang, sent in conferme.items():
+            out[f"frase_conferma_{lang}"] = sent
+        out["frase_conferma_it"] = conferme.get("it", act.conferma)
+        return out
 
     def mark_question_asked(self, action_id: str | None = None) -> None:
         pa = self.pending
@@ -311,7 +377,8 @@ class Gate:
             self.history.add(kind="scaduta", action=pa.id, skill=pa.action.skill)
             if self.state == GateState.PENDING_CONFIRMATION:
                 self._transition(GateState.IDLE, f"proposta {pa.id} scaduta")
-            self._report("scaduta", f"La proposta {pa.id} è scaduta senza conferma. Nessun movimento.")
+            self._report("scaduta", f"La proposta {pa.id} è scaduta senza conferma. Nessun movimento.",
+                         text_en=f"Proposal {pa.id} expired without confirmation. No movement.")
             return True
         return False
 
@@ -362,6 +429,28 @@ class Gate:
             return _err("stato_cambiato", "Lo stato è cambiato durante la conferma: nessun movimento.")
         if not st.ok_for_motion:
             return _err("robot_non_disponibile", f"Robot non disponibile: {st.detail or st.safety or st.robot_mode}.")
+        recheck = getattr(self, "recheck", None)
+        if recheck is not None:
+            t_check = time.perf_counter()
+            problem = recheck(pa)
+            # A slow check (Grok vision) must not sit between yes and motion. Only a fast deterministic answer counts.
+            if problem and (time.perf_counter() - t_check) <= 0.3:
+                self.pending = None
+                if self.state == GateState.PENDING_CONFIRMATION:
+                    self._transition(GateState.IDLE, "percezione cambiata prima del movimento")
+                return problem if isinstance(problem, dict) else _err("percezione_cambiata", str(problem))
+        if pa.kind == "cycle":
+            pa.used = True
+            u.used_for = pa.id
+            product = pa.action.params.get("product_id", "")
+            self.pending = None
+            if self.state == GateState.PENDING_CONFIRMATION:
+                self._transition(GateState.IDLE, f"ciclo confermato {pa.id}")
+            starter = getattr(self, "cycle_starter", None)
+            if starter is None:
+                return _err("ciclo_non_disponibile", "Il ciclo non è collegato. Nessun movimento.")
+            lang = getattr(self, "operator_lang", "it") or "it"
+            return await starter(str(product), f"voice:{lang}")
         # ---- authorised: exactly this action, exactly once
         pa.used = True
         u.used_for = pa.id
@@ -432,7 +521,9 @@ class Gate:
                                   step_total=pa.step_total, remaining=pa.remaining[1:])
                 text += (f" Passo {pa.step_index + 2} di {pa.step_total} pronto ({self.pending.id}): "
                          f"{a2.conferma} Serve una NUOVA conferma.")
-            self._report("completato", text, result=res.to_dict())
+            self._report("completato", text, text_en=f"DONE {pa.id}: {act.risultato_en} Configured motion sequence executed in "
+                         f"{res.duration:.1f}s, confirmed by robot feedback. No sensor on the tray: its state is assumed.",
+                         result=res.to_dict())
         elif res.outcome == STOPPED:
             for _ in range(20):           # program state can lag the halt by a few ms: report observed standstill
                 if not st.moving:
@@ -444,13 +535,14 @@ class Gate:
             self.history.add(kind="interrotta", action=pa.id, skill=act.skill, steps=res.steps_completed)
             self._report("fermato", f"FERMATO durante {pa.id} ({act.skill}) dopo {res.steps_completed}/{res.steps_total} "
                                     f"movimenti. Robot: {self._robot_brief(st)}. Serve RIPRISTINA dall'interfaccia.",
-                         result=res.to_dict())
+                         text_en=f"STOPPED during {pa.id} ({act.skill}) after {res.steps_completed}/{res.steps_total} movements. "
+                                 f"Robot halted. Press RESET (RIPRISTINA) in the interface.", result=res.to_dict())
         elif res.outcome == NOT_STARTED:
             self.history.add(kind="non_eseguita", action=pa.id, skill=act.skill, error=res.error)
             if self.state == GateState.EXECUTING:
                 self._transition(GateState.IDLE, f"{pa.id} non avviata: {res.error}")
             self._report("non_eseguito", f"NON ESEGUITO {pa.id}: {res.error}. Il braccio non si è mosso.",
-                         result=res.to_dict())
+                         text_en=f"NOT EXECUTED {pa.id}: {res.error}. The arm did not move.", result=res.to_dict())
         else:  # FAILED or UNKNOWN
             self._fault(f"{res.outcome}: {res.error}", pa, res)
 
@@ -463,6 +555,7 @@ class Gate:
         if self.state != GateState.STOPPED:
             self._transition(GateState.FAULT, reason)
         self._report("guasto", f"GUASTO: {reason}. Nessun nuovo tentativo automatico. Serve l'intervento dell'operatore.",
+                     text_en=f"FAULT: {reason}. No automatic retry. Operator intervention required.",
                      result=res.to_dict() if res else None)
 
     def _robot_brief(self, st: RobotStatus) -> str:
@@ -500,6 +593,7 @@ class Gate:
         robot_ack = asyncio.ensure_future(self._robot_stop(source))   # 1. request robot stop immediately
         pa = self.pending                       # 3-5. cancel pending / queued, invalidate authorisation
         self.pending = None
+        self.end_cycle(f"STOP da {source}")
         if self.utterance:
             self.utterance.used_for = self.utterance.used_for or "STOP"
         was = self.state
@@ -529,7 +623,9 @@ class Gate:
         if was not in (GateState.EXECUTING, GateState.STOPPED):  # executing: _execute() reports; already stopped: no repeat
             self._report("fermato", f"STOP ricevuto ({source}). "
                          + (f"Proposta {pa.id} annullata. " if pa else "")
-                         + f"Robot: {self._robot_brief(st)}. Nuovi movimenti bloccati fino a RIPRISTINA.")
+                         + f"Robot: {self._robot_brief(st)}. Nuovi movimenti bloccati fino a RIPRISTINA.",
+                         text_en=f"STOP received ({source}). " + (f"Proposal {pa.id} cancelled. " if pa else "")
+                         + "New movements blocked until RESET.")
         _ = m0
         return {"ok": True, "esito": "fermato", **{k: info[k] for k in ("ack_latency_ms", "previous_state")},
                 "robot": self._robot_brief(st)}
@@ -563,8 +659,69 @@ class Gate:
             self.utterance.used_for = self.utterance.used_for or "RESET"
         self._transition(GateState.IDLE, f"ripristino operatore ({operator}) da {prev.value}", operator=operator)
         self.history.add(kind="ripristino", operator=operator, previous=prev.value)
-        self._report("ripristino", f"Sistema ripristinato dall'operatore. Robot {self._robot_brief(st)}.")
+        self._report("ripristino", f"Sistema ripristinato dall'operatore. Robot {self._robot_brief(st)}.",
+                     text_en="System reset by the operator.")
         return {"ok": True, "esito": "ripristinato", "gate": self.state.value, "robot": st.to_dict()}
+
+    # ==================================================== labelling cycle ===
+    # The operator explicitly authorises ONE production cycle for ONE approved product. While it is active,
+    # only the predefined cycle movements may run without a per-move voice confirmation; each still goes
+    # through validation, the one-at-a-time rule, timeouts, FAULT handling and STOP. STOP ends the authorisation.
+    CYCLE_ALLOWED = {("solleva_vassoio", (("posizione", "sinistra"),)), ("appoggia_vassoio", (("posizione", "centro"),)),
+                     ("solleva_vassoio", (("posizione", "centro"),)), ("appoggia_vassoio", (("posizione", "destra"),)),
+                     ("spingi", (("direzione", "scarto"), ("posizione", "centro")))}
+
+    def authorize_cycle(self, product_id: str, operator: str) -> dict[str, Any]:
+        b = self._blocked()
+        if b:
+            return b
+        if self.pending:
+            return _err("occupato", "C'è un'azione in attesa di conferma.")
+        if not self.robot_status.ok_for_motion:
+            return _err("robot_non_disponibile", f"Robot non pronto: {self.robot_status.detail}")
+        cid = f"C{next(self._plan_ids)}"
+        self.cycle = {"id": cid, "product_id": product_id, "operator": operator, "active": True, "started_at": time.time()}
+        self.history.add(kind="ciclo_autorizzato", cycle=cid, product=product_id, operator=operator)
+        log_event(log, "cycle authorised", cycle=cid, product=product_id, operator=operator)
+        self.publish_state()
+        return {"ok": True, "cycle_id": cid}
+
+    def end_cycle(self, reason: str) -> None:
+        c = getattr(self, "cycle", None)
+        if c and c["active"]:
+            c["active"] = False
+            c["ended"] = reason
+            self.history.add(kind="ciclo_terminato", cycle=c["id"], reason=reason)
+            log_event(log, "cycle ended", cycle=c["id"], reason=reason)
+            self.publish_state()
+
+    async def run_cycle_step(self, cycle_id: str, skill: str, params: dict[str, str]) -> ExecutionResult | dict[str, Any]:
+        """Execute one predefined cycle movement and WAIT for the real result."""
+        c = getattr(self, "cycle", None)
+        if not c or not c["active"] or c["id"] != cycle_id:
+            return _err("ciclo_non_autorizzato", "Nessun ciclo autorizzato attivo.")
+        key = (skill, tuple(sorted(params.items())))
+        if key not in self.CYCLE_ALLOWED:
+            return _err("movimento_non_previsto", f"{skill} {params} non fa parte del ciclo.")
+        b = self._blocked()
+        if b or self.pending:
+            return b or _err("occupato", "Azione in attesa.")
+        try:
+            act = self.reg.validate(skill, params, self.world)
+        except SkillError as e:
+            return e.to_dict()
+        st = await self.refresh_robot()
+        if not st.ok_for_motion:
+            return _err("robot_non_disponibile", f"Robot non pronto: {st.detail or st.safety}")
+        pa = PendingAction(id=f"A{next(self._act_ids)}", action=act, created=self.clock(), source=f"ciclo:{cycle_id}", used=True)
+        self._cancel = threading.Event()
+        self.world.active_skill = act.skill
+        self.history.add(kind="confermata", action=pa.id, skill=act.skill, params=act.params, text=f"ciclo {cycle_id}")
+        self._transition(GateState.EXECUTING, f"ciclo {cycle_id}: {act.skill} {act.params}", action=pa.id)
+        t_req = self.clock()
+        self._exec_task = asyncio.ensure_future(self._execute(pa, self._cancel, t_req))
+        await self._exec_task
+        return self.last_result if self.last_result and self.last_result.skill == act.skill else _err("esito_sconosciuto", "")
 
     # ============================================================ P2: poses ===
     async def save_pose(self, name: str) -> dict[str, Any]:

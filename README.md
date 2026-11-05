@@ -1,6 +1,14 @@
-# VOCE — Italian voice control for a robotic arm
+# VOCE — Intelligent Robotic Assistant
 
-*Parla naturalmente. Il robot capisce. Tu confermi.*
+*One platform, five languages, eyes on Arm 1, voice on both.*
+
+The operator speaks Italian, English, Mandarin, Japanese or Amharic. Grok proposes. The deterministic backend validates. The operator confirms. The arm executes a named skill, or one labelling cycle. STOP works in every language and does not depend on Grok.
+
+- **Arm 3 (Voice Control):** no camera. The arm lifts, puts down or pushes a tray, or points. It cannot grasp an object.
+- **Arm 1 (Labelling):** camera 1. Read a model pack, inspect, then move the tray: compliant to the right, non-compliant into the reject box, doubt stops for the operator.
+- A new product is **enrolled**, not retrained: one photo, OCR keywords and ORB descriptors. No GPU and no per-SKU dataset. Approval of tolerances stays on the screen.
+
+> **Grok understands and proposes. Computer vision observes and measures. Deterministic software validates. The safety layer authorises. The robot executes. The operator remains in control.**
 
 Grok Hackathon · Track 04 (Voice Control). An operator speaks Italian into the laptop microphone. **Grok Voice** (realtime) understands the request and proposes one of five predefined skills of the Universal Robots "Arm 3". The backend validates the proposal and asks for spoken confirmation. Only then does it execute the skill and report the actual result. **STOP** is available at any moment and doesn't depend on Grok.
 
@@ -8,7 +16,7 @@ Grok Hackathon · Track 04 (Voice Control). An operator speaks Italian into the 
 
 ---
 
-## 1. Objective
+## 1. Objective (Mode A)
 Let people who don't program robots call up ready-made operations by voice, safely: every movement needs explicit confirmation, and a stop is always available. Free trajectories and unconfirmed movements are out of scope by design.
 
 ## 2. Architecture
@@ -19,9 +27,10 @@ Let people who don't program robots call up ready-made operations by voice, safe
  mic → AudioWorklet ── PCM16 24k ──▶  /ws/voice ── voice/grok_session.py ──── wss ─────▶  Grok Voice
  speaker ◀── Grok audio ◀───────────                │  (key stays here)   ◀── tool calls ──  (server VAD,
  UI ◀── state/transcripts ── /ws/events             ▼                     ◀── transcripts ─  transcription)
- STOP button / Space ── POST /api/stop ──▶  safety/gate.py   ◀── conversation/tools.py (5+2 tools only)
+ STOP button / Space ── POST /api/stop ──▶  safety/gate.py   ◀── conversation/tools.py
  RIPRISTINA ── POST /api/reset ─────────▶   │  deterministic: validation, confirmation, STOP latch, FAULT
  TEXT MODE ── POST /api/text-command ───▶   │  skills/registry.py  ← config/skills.yaml + poses.yaml
+ camera frame ── perception/camera.py ──▶   │  perception/finder.py + catalog.py  (evidence only; never a movement)
                                             ▼
                                     robot/base.py RobotAdapter
                                     ├─ robot/sim.py  SimAdapter (in-process)
@@ -32,7 +41,8 @@ Let people who don't program robots call up ready-made operations by voice, safe
 | Path | Role |
 |---|---|
 | `backend/app/safety/gate.py` | State machine IDLE → PENDING_CONFIRMATION → EXECUTING → IDLE · STOPPED · FAULT |
-| `backend/app/safety/phrases.py` | Deterministic STOP / confirmation / cancel phrase checks on the operator's transcript |
+| `backend/app/safety/phrases.py` | Deterministic STOP / confirmation / cancel checks, five languages (`config/lexicon.yaml`) |
+| `backend/app/perception/` | Camera, zone polygons, colour/OCR finder, product catalogue by enrolment |
 | `backend/app/skills/registry.py` | Skill registry, parameter validation, preconditions, fixed motion sequences |
 | `backend/app/voice/prompt_it.md` | The Italian system prompt (single file) |
 | `backend/app/voice/grok_session.py` | Grok realtime relay, tool dispatch, reconnection, metrics |
@@ -40,6 +50,18 @@ Let people who don't program robots call up ready-made operations by voice, safe
 | `backend/app/launcher.py` | `start()` / `stop()` used by the notebook and `start.sh` |
 | `frontend/` | VOCE industrial UI (React + TypeScript + Vite) |
 | `eval/` | 81-case test set, rules baseline, Grok-vs-rules evaluation, STOP latency trials |
+
+## 2b. Languages
+
+| Language | Deterministic STOP / yes / no | Rules engine (2026-11-05) | Grok Voice |
+|---|---|---|---|
+| Italian | TESTED | 76/81, same five misses as 2026-11-04 | TESTED live on 2026-11-04 |
+| English | TESTED | 18/18 new cases | TESTED live on 2026-11-04 |
+| Mandarin | TESTED in `tests/test_multilingual_phrases.py` | 18/18 | NOT TESTED as speech today |
+| Japanese | TESTED in `tests/test_multilingual_phrases.py` | 18/18 | NOT TESTED as speech today |
+| Amharic | TESTED on text, including romanised fallbacks | 18/18, `revisione=da_verificare` | EXPERIMENTAL · NOT TESTED. Not in the official STT list. Use TEXT MODE if speech does not transcribe |
+
+Lexicon entries for zh, ja and am have `reviewed_by: null` in `config/lexicon.yaml`. They are used and are UNVERIFIED until a native speaker signs them. The rules-engine file is `eval/results/latest_multilingual.json`.
 
 ## 3. Hardware capabilities (authoritative)
 - Universal Robots arm "Arm 3"; printed tool with **fork, pusher and indicating tip**; **no gripper, no camera**.
@@ -89,7 +111,14 @@ These settings live in the container. `scripts/ursim.sh stop` deletes the contai
 ./start.sh              # ursim (default) → http://localhost:8000
 ./start.sh sim          # in-process simulator, no Docker needed
 ```
-Or from Jupyter, with `notebooks/run_application.ipynb` (two cells: `start(mode="ursim")` / `handle.stop()`). `start()` is idempotent.
+Or from Jupyter, with `notebooks/run_application.ipynb` and the kernel **Python (Voice-Control-Robot)**:
+1. `prepare(mode)`: a read-only pre-flight that checks the configuration, API key, Python packages, Tesseract, Grok, the robot connection (mode, safety, Remote Control) and the port. It builds the frontend and generates the synthetic dataset if they're missing.
+2. `start(mode)`: starts VOCE. It is idempotent.
+3. `run_tests()` (optional).
+4. `run_evaluations(...)` (optional; uses the xAI API, and `latency=True` moves the robot).
+5. `handle.stop()`.
+
+All logic lives in `backend/app/preflight.py` and `backend/app/launcher.py`.
 
 ## 9. Grok configuration
 Realtime WebSocket `wss://api.x.ai/v1/realtime?model=grok-voice-latest`, Bearer auth from the backend. Session settings:
@@ -109,6 +138,13 @@ Use a headset in a noisy room. The mic can be paused or the voice session closed
 
 ## 11. Text simulation mode
 Switch on **Modalità testo** in the UI, or `POST /api/text-command {"text": "...", "engine": "rules"|"grok"}`. It's labelled **TEXT MODE — NOT VOICE** everywhere. The `rules` engine works without Grok. It's for development and evaluation only and is never presented as voice operation.
+
+## 11b. Italian and English
+- The **ITALIANO | ENGLISH** selector in the header changes the interface, the voice session's recognition hint (`/ws/voice?lang=`), text-mode replies and the explanations shown.
+- Grok always replies in the language the operator is speaking.
+- Both languages map to the **same canonical action**: «Solleva il vassoio a sinistra» and "Lift the tray on the left" both become `solleva_vassoio {posizione: sinistra}`.
+- STOP, confirmation, uncertainty and cancellation phrases are recognised in both languages, e.g. «Fermati!» / "Stop now!", «Sì, confermo» / "Yes, proceed", «Forse» / "Maybe".
+- Skill IDs, configuration keys and stored results are never translated.
 
 ## 12. Skills
 | Skill | Parameters | Tool | Sequence (named poses) |
@@ -151,7 +187,7 @@ On STOP, the gate first requests the robot stop on a dedicated thread (`stopj` o
 STOPPED and FAULT latch. Only the **RIPRISTINA** button can clear them (`POST /api/reset` with `operator_confirmed: true`); voice cannot. The reset checks that the robot is connected, not moving, in RUNNING mode with NORMAL safety. It never moves the robot and never retries anything.
 
 ## 16. Evaluation methodology
-- `eval/testset.csv`: **81 Italian cases** in 13 categories (clear, word order, polite, informal, corrections, missing parameters, ambiguous, out of scope, valid/invalid confirmation, cancellation, STOP, jury demo).
+- `eval/testset.csv`: **81 Italian cases** plus **72 cases** (18 each in English, Mandarin, Japanese and Amharic). Amharic rows are `revisione=da_verificare`.
 - The `autore` column separates the developers' cases (76) from the organisers' jury commands (5).
 - Each case runs in a fresh gate on the in-process simulator. It's judged **only on what the gate did** (proposal and its parameters, execution, block, cancel, STOP), never on what the model said.
 - The engines are the keyword rules (`eval/baseline_rules.py`) and Grok in text mode, with identical cases.
@@ -174,6 +210,34 @@ STOPPED and FAULT latch. Only the **RIPRISTINA** button can clear them (`POST /a
 | Median turn latency | < 1 ms | 2.6 s (includes Grok speaking) |
 
 The external set (5 cases) is small: add commands written by people outside the team.
+
+### Rules engine, 2026-11-05, 153 cases (`eval/results/20261105-113702_rules.json`)
+
+In-process simulator, not robot timing. The five Italian misses are the same as on 2026-11-04 (O03, P02, I04, K01, K02).
+
+| Language | Rules overall |
+|---|---|
+| Italian | 76/81 (0.938) |
+| English | 18/18 |
+| Mandarin | 18/18 |
+| Japanese | 18/18 |
+| Amharic | 18/18 (lexicon and phrasing UNVERIFIED) |
+| All | 148/153 (0.967) |
+
+Safety rows (blocked confirmation, valid confirmation, cancel, STOP, refusal) are 1.0 on this run.
+
+### Grok text, 2026-11-05, same 153 cases (`eval/results/20261105-114128_grok.json`)
+
+| Language | Grok text overall |
+|---|---|
+| Italian | 80/81 (0.988) |
+| English | 18/18 |
+| Mandarin | 17/18 |
+| Japanese | 17/18 |
+| Amharic | 17/18 |
+| All | 149/153 (0.974) |
+
+Skill selection 47/47, refusal 17/17, blocked confirmation 11/11, valid confirmation 10/10, cancel 8/8, STOP 13/13. The four misses are M03 (the same Italian direction guess as on 2026-11-04) and ZH16, JA16, AM16, where the case expected a clarification for "go home" and Grok proposed `vai_a_posa`. This is a text-mode gate score, not a speech transcription score. The 2026-11-04 figure of 78/81 is a different, smaller set.
 
 ## 18. Baseline comparison
 Grok is better at natural language: paraphrases, polite and informal speech, corrections. The rules miss «Mi faresti vedere…», «Mollalo…», «Anzi, quello a destra» and reversed word order. The rules are stricter on missing parameters. Grok's misses:
@@ -215,6 +279,13 @@ Real-robot values must be measured during the supervised slot and are **not** re
 
 ## 20. Known limitations
 - Joint targets in `config/poses.yaml` are **URSim placeholders**. Real mode refuses any pose not recorded on the real robot (`scripts/record_pose.py --mode real`).
+- `workspace.delivery_zone` is `destra` and is **UNVERIFIED** until the slot.
+- Arm 3 has `camera.available: false`. Object requests do not move anything there. Arm 1 vision needs a calibrated camera and an enrolled catalogue.
+- Amharic speech is **EXPERIMENTAL · NOT TESTED** (`eval/results/language_probe.json`). TEXT MODE accepts `lang=am`. The STOP button and Space always work.
+- zh, ja and am lexicon lists are **UNVERIFIED** (`reviewed_by: null`).
+- Labelling numbers in this file from 2026-11-04 are **synthetic**. No real-camera or real-robot figure is claimed.
+- The confirmation-to-first-RTDE-motion jury metric was **not measured** in this session. Section 19 is the 2026-11-04 URSim STOP latency, labelled emulated.
+- The software STOP is not a safety-rated E-stop. A person stays at the physical E-stop during every real-robot run.
 - No sensing of trays: success means "the configured motion sequence completed, confirmed by joint feedback".
 - Spoken STOP adds voice-detection and transcription time; the UI button and Space bar are the fastest pathways.
 - Background chatter can reach Grok. The prompt tells it to ignore chatter, `WAKE_WORD` is optional, and a headset is recommended.
@@ -247,3 +318,76 @@ The software STOP is a convenience layer, not a safety function.
 | 5 | «Vai nella posizione di attesa.» → «Sì.» → **«FERMATI IMMEDIATAMENTE!»** | STOP via transcript (independent of Grok), STOPPED in the UI, pending cleared, robot state reported, further movement refused until RIPRISTINA |
 
 Also rehearse STOP during confirmation, STOP with Grok disconnected (button and Space still work), and a reset. To rehearse automatically with synthesized speech (it also produces screenshots and a backup video): `python scripts/rehearse_jury.py`.
+
+
+---
+
+# Mode B — Smart Labelling from the model pack
+
+## B1. Workflow
+```
+LEARN NEW PRODUCT ──photos of the model pack (camera / upload / sample)──▶ spec PENDING
+   CV (OpenCV)   : where each label is (relative position, size, angle) per face
+   OCR (Tesseract ita+eng): exact text of each label  → reference text
+   Grok vision (grok-4.7, strict JSON schema): which label is which, product name, its own reading of the text
+   any OCR↔Grok disagreement → field marked "to confirm"
+OPERATOR APPROVAL ── sets every tolerance (±% position, ±° rotation), confirms uncertain fields ──▶ spec APPROVED (versioned)
+LABEL SHEET CHECK ── each approved label found on the sheet (template match + OCR, exact INCI) ──▶ MATCH / MISMATCH
+AVVIA CICLO (operator authorises one cycle, confirms the layout)
+   fork: input (sinistra) → work area under the camera (centro)
+   photos of the required faces → inspection → COMPLIANT / NON_COMPLIANT / REVIEW_REQUIRED
+   COMPLIANT     → fork: centro → accepted area (destra)
+   NON_COMPLIANT → pusher: centro → reject box (spingi direzione=scarto)
+   REVIEW        → NO movement; operator: "inspect again" or "reject" (accepting is not offered)
+```
+A new product brought by the jury is handled the same way, with no training and no code change.
+
+## B2. Inspection method (deterministic; Grok can only downgrade)
+| Check | How | Result |
+|---|---|---|
+| Image usable | pack found against the table; exposure on the whole photo; **sharpness on each label crop** | otherwise REVIEW |
+| Label present / on the right face | label regions = areas whose colour differs from the pack; matched to the spec by position and size | missing → NON_COMPLIANT; another label's text on this face → NON_COMPLIANT (wrong face) |
+| Placement | centre offset (% of face) and rotation vs the model, against the **operator's** tolerance | over the limit → NON_COMPLIANT; within 80–100% of it → REVIEW |
+| Mandatory text (INCI, legal) | OCR, compared character by character with the approved reference; parsed INCI list compared item by item | exact → OK; whole ingredient substituted (OCR confidence ≥ 85) → NON_COMPLIANT; anything else → REVIEW |
+| Front label | brand and product name must be present (fuzzy ≥ 92) | different text → NON_COMPLIANT (wrong label) |
+| Creases / bubbles / damage | label crop aligned to the model crop (ECC), residual blobs: elongated = crease, round = bubble | any crease, or residual area > 0.1% → NON_COMPLIANT |
+| Grok second opinion | compares the pack photos with the model photos | "non_compliant" / "uncertain" → **downgrades COMPLIANT to REVIEW**; never upgrades |
+
+The decision is the most severe finding. **When uncertain, never COMPLIANT.** Every inspection stores its photos, crops, OCR text, findings and spec version, and each finding has an Italian and an English explanation.
+
+Thresholds live in `config/labelling.yaml`. They are engineering defaults to review with the compliance mentor, not product tolerances: placement tolerances are always entered by the operator at approval.
+
+## B3. Data sources and licences
+- **Synthetic dataset** (`scripts/make_synthetic_packs.py`, seed 20261104): rendered packs for **fictional** brands, with dummy labels. INCI names are real nomenclature strings used as dummy content. Results on it are **not evidence of real-camera performance**.
+- **Bottle_defect** (Roboflow Universe, [detect-wownu/bottle_defect](https://universe.roboflow.com/detect-wownu/bottle_defect), **CC BY 4.0**; classes include `label_bubble`, `label_skew`, `label_wrinkling`). It is **not yet used**: downloading needs a Roboflow API key, which the team still has to provide. Attribution is required if it's used.
+- **EU CosIng** may be used as a supplementary INCI nomenclature reference. It is **not** proof that a label is compliant. The approved model pack is the source of truth.
+
+## B4. Camera
+Configured in `config/camera.yaml`. The default source is `browser`: the operator's browser camera (any USB or laptop camera) or uploads. The station camera's model, resolution and calibration are **UNKNOWN**, so geometry is relative (percentages and degrees). If no image is available, nothing can be COMPLIANT.
+
+## B5. Smart Labelling results
+Measured 2026-11-04 17:48 (`eval/results/labelling_run4_final.json`). Grok `grok-4.7` was used for reading model packs and for the second opinion. The **synthetic** dataset has 6 products × 12 packs, and the simulated operator set tolerances of ±4% / ±3°.
+
+| Metric | Result |
+|---|---|
+| **False acceptance** (non-compliant or review pack → COMPLIANT) | **0 / 54** |
+| False rejection (compliant pack → NON_COMPLIANT) | 0 / 18 |
+| Compliant pack held for review | 1 / 18 (Grok second opinion; safe) |
+| Exact decision accuracy | 71 / 72 (98.6%) |
+| Defect detection (creases, bubbles) | precision 1.00, recall 0.92 (11/12; the missed bubbled pack was still rejected, for the wrong reason: "wrong label") |
+| Specification extraction (label count, faces, product name, brand, label type, **exact INCI**, **exact legal text**) | 100% on 6/6 products |
+| Max position error of the specification vs ground truth | 0.31% of the face |
+| Label-sheet verification | 17 / 18 (one correct sheet → REVIEW, so the cycle cannot start: safe) |
+| Median inspection time (vision + OCR, without Grok's latency) | 0.5 s |
+
+**Held-out history (honest).** Each held-out product found a real problem, which was then fixed generically:
+
+| Run | Held-out product | Problem found |
+|---|---|---|
+| 1 | — | 1 false acceptance: bubbles on a pale label |
+| 2 | — | 0 false acceptances, but wrong reasons on a dark pack |
+| 3 | — | specification could not be extracted from a low-contrast pack (safe failure) |
+
+After those fixes, **every product in run 4 had been seen during development**. The jury's pack will be the first truly unseen one. These are rendered images: no real-camera performance is claimed.
+
+**End-to-end on URSim (desktop app, real UI).** Learn → approve → sheet MATCH → AVVIA CICLO → fork left→centre → inspection → COMPLIANT → fork centre→right. A wrong-INCI pack → NON_COMPLIANT → pusher into the reject box. Both runs completed.
