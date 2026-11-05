@@ -1,0 +1,136 @@
+{
+ "generated_at": "2026-11-05 12:24",
+ "seed": 20261105,
+ "product": "mirto_balsamo_barba",
+ "dataset": "synthetic unseen, rendered, not a real pack",
+ "grok": false,
+ "spec": {
+  "label_count_ok": true,
+  "faces_ok": true,
+  "product_name_ok": false,
+  "brand_ok": false,
+  "kind_ok": false,
+  "inci_exact": false,
+  "legal_exact": false,
+  "position_error_pct_max": 0.29,
+  "uncertain_fields": {
+   "front": [
+    "kind"
+   ],
+   "back": [
+    "kind"
+   ]
+  }
+ },
+ "seconds_photos_to_approved_spec": 0.6,
+ "sheets": {
+  "sheet": {
+   "expected": "MATCH",
+   "got": "MATCH",
+   "sheet_state": "ONE_LEFT"
+  },
+  "sheet_wrong_product": {
+   "expected": "MISMATCH",
+   "got": "MISMATCH",
+   "sheet_state": "SHEET_EMPTY"
+  },
+  "sheet_missing_back": {
+   "expected": "MISMATCH",
+   "got": "MISMATCH",
+   "sheet_state": "SHEET_EMPTY"
+  }
+ },
+ "false_acceptances": 0,
+ "false_acceptance_cases": [],
+ "false_rejections": 0,
+ "review": [
+  "blurred"
+ ],
+ "cases": [
+  {
+   "case": "correct_1",
+   "expected": "COMPLIANT",
+   "decision": "COMPLIANT",
+   "defect": null
+  },
+  {
+   "case": "correct_2",
+   "expected": "COMPLIANT",
+   "decision": "COMPLIANT",
+   "defect": null
+  },
+  {
+   "case": "correct_3",
+   "expected": "COMPLIANT",
+   "decision": "COMPLIANT",
+   "defect": null
+  },
+  {
+   "case": "crooked",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "defect": "crooked"
+  },
+  {
+   "case": "shifted",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "defect": "misaligned"
+  },
+  {
+   "case": "creased",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "defect": "crease"
+  },
+  {
+   "case": "bubbled",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "defect": "bubble"
+  },
+  {
+   "case": "wrong_inci",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "defect": "wrong_text"
+  },
+  {
+   "case": "wrong_label",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "defect": "wrong_label"
+  },
+  {
+   "case": "missing_back",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "defect": "missing"
+  },
+  {
+   "case": "swapped",
+   "expected": "NON_COMPLIANT",
+   "decision": "NON_COMPLIANT",
+   "defect": "wrong_face"
+  },
+  {
+   "case": "blurred",
+   "expected": "REVIEW_REQUIRED",
+   "decision": "REVIEW_REQUIRED",
+   "defect": "image_quality"
+  }
+ ],
+ "cycle": {
+  "started": true,
+  "phase": "DONE",
+  "decision": "NON_COMPLIANT",
+  "interventions": 0,
+  "accepted": 0,
+  "rejected": 1,
+  "destination_trays": [],
+  "sheet_before_cycle": {
+   "decision": "MATCH",
+   "sheet_state": "ONE_LEFT"
+  }
+ }
+}

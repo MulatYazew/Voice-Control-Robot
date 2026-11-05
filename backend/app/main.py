@@ -128,6 +128,17 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
         return {"status": v.status if v else state["voice_status"], "configured": bool(s.xai_api_key)}
 
     # ------------------------------------------------------------- REST ---
+    @app.get("/api/capabilities")
+    async def api_capabilities() -> dict[str, Any]:
+        from .capabilities import build_capabilities
+        cam = station.camera
+        age = None
+        if cam._ts is not None:
+            age = max(0.0, time.time() - cam._ts)
+        n = len(list((s.data_dir / "catalog").glob("*/product.json")))
+        robot_on = bool(getattr(gate, "robot_status", None) and gate.robot_status.connected)
+        return build_capabilities(s, robot_connected=robot_on, frame_age_s=age, catalog_size=n)
+
     @app.get("/api/status")
     async def api_status() -> dict[str, Any]:
         return {**gate.status(), "config": s.public(), "voice": voice_status(), "layout": layout(),

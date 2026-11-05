@@ -36,6 +36,40 @@ def _scan(sheet_g: np.ndarray, tmpl_g: np.ndarray, scales) -> tuple[float, float
     return best
 
 
+def _remaining_copies(sheet_g: np.ndarray, tmpl_g: np.ndarray, box: tuple[int, int, int, int]) -> int:
+    """How many copies of this label are still on the sheet, including the one just found."""
+    x, y, w, h = box
+    if w <= 0 or h <= 0:
+        return 1
+    masked = sheet_g.copy()
+    masked[max(0, y):y + h, max(0, x):x + w] = 0
+    second, _ = _best_match(masked, tmpl_g)
+    return 2 if second >= FOUND_MIN else 1
+
+
+def apply_sheet_opinion(result: dict[str, Any], opinion: dict[str, Any] | None) -> dict[str, Any]:
+    """Grok may turn MATCH into REVIEW. It can never turn a rejection into a match."""
+    out = dict(result)
+    exp = dict(out.get("explanation") or {})
+    if opinion is None:
+        out["ai_check"] = "not_available"
+        exp["en"] = ((exp.get("en") or "") + " AI check not available.").strip()
+        exp["it"] = ((exp.get("it") or "") + " Controllo AI non disponibile.").strip()
+        out["explanation"] = exp
+        return out
+    out["ai_check"] = "advisory"
+    out["ai_opinion"] = {"match": bool(opinion.get("match")), "per_label": opinion.get("per_label") or [],
+                         "explanation": opinion.get("explanation") or "",
+                         "label": "AI opinion: advisory, not the decision"}
+    if out.get("decision") == MATCH and opinion.get("match") is False:
+        out["decision"] = REVIEW
+        out["ok"] = False
+        exp["en"] = ((exp.get("en") or "") + " AI opinion: advisory, not the decision. Downgraded to REVIEW.").strip()
+        exp["it"] = ((exp.get("it") or "") + " Parere AI: consultivo, non è la decisione. Portato a REVIEW.").strip()
+    out["explanation"] = exp
+    return out
+
+
 def _best_match(sheet_g: np.ndarray, tmpl_g: np.ndarray) -> tuple[float, tuple[int, int, int, int]]:
     """Blurred multi-scale template match, coarse then refined (tolerates resampling of fine text)."""
     sb = cv2.GaussianBlur(sheet_g, (0, 0), 2.5)
@@ -92,13 +126,20 @@ def verify_sheet(spec: ProductSpec, sheet: np.ndarray, product_dir: Path, cfg: d
                             diff=ocr.diff(l.reference_text, got["text"]))
             else:
                 item.update(found=True, status=COMPLIANT, it=f"{l.label_id}: presente e corretta", en=f"{l.label_id}: present and correct")
+        if item.get("found"):
+            item["remaining"] = _remaining_copies(g, ref, box)
+        else:
+            item["remaining"] = 0
         labels.append(item)
         if item["status"] == NON_COMPLIANT:
             worst = MISMATCH
         elif item["status"] == REVIEW and worst == MATCH:
             worst = REVIEW
     ok = worst == MATCH
-    return {"decision": worst, "ok": ok, "labels": labels,
+    empties = [i["label_id"] for i in labels if i.get("remaining") == 0]
+    ones = [i["label_id"] for i in labels if i.get("remaining") == 1]
+    sheet_state = "SHEET_EMPTY" if empties else ("ONE_LEFT" if ones else "OK")
+    return {"decision": worst, "ok": ok, "labels": labels, "sheet_state": sheet_state,
             "explanation": {"it": ("Foglio etichette corretto per " if ok else "Foglio etichette NON utilizzabile per ") + f"{spec.product_name}. "
                             + "; ".join(i["it"] for i in labels),
                             "en": ("Label sheet matches " if ok else "Label sheet NOT usable for ") + f"{spec.product_name}. "

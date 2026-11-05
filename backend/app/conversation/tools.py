@@ -241,6 +241,11 @@ async def dispatch(gate: Gate, name: str, args: dict[str, Any], *, source: str =
     if not isinstance(args, dict):
         return {"ok": False, "esito": "argomenti_non_validi"}
     try:
+        from ..planning.task_schema import record_tool_call
+        record_tool_call(name, args, getattr(gate, "operator_lang", None))
+    except Exception:
+        pass
+    try:
         if name == "propose_skill":
             _remember_lingua(gate, args)
             return gate.propose(args.get("skill"), args.get("parametri") or args.get("params") or {}, source=source,

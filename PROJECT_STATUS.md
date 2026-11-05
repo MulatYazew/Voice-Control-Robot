@@ -314,12 +314,53 @@ The jury metric "end of confirmation → first RTDE motion" was **NOT TESTED**. 
 
 A Mandarin text command `请把左边的托盘抬起来` with the voice language set to 中文 reached `PENDING_CONFIRMATION` for `solleva_vassoio` / `sinistra`, and the card showed `我用货叉抬起左边区域的托盘。确认吗？`. `是的` returned `ok: true` and the gate entered `EXECUTING` (program PLAYING on the in-process simulator). The Ethiopic glyphs on the STOP bar depend on the OS font; the characters in the source are `አቁም`.
 
-## WP-9 — NOT STARTED
+## WP-9 — NOT STARTED in the morning session
 
-P2 items (check after each label, sheet run-out, YOLO, Bottle_defect) were not started. YOLO stays off. No Roboflow key was available.
+P2 items (check after each label, sheet run-out, YOLO, Bottle_defect) were not started in the morning. YOLO stays off. No Roboflow key was available. The afternoon continuation below adds the label check and the sheet count. Video learning and Bottle_defect stay NOT DONE.
+
+## Phase 11 — continuation 2026-11-05 12:15
+
+The merged brief said the suite was 190 passed and that `tests/test_voice_session.py` already covered a 12:00 voice-session fix. This tree has no `tests/test_voice_session.py`. `backend/app/voice/grok_session.py` was not edited in this continuation. The suite after the work below is the measured one.
+
+`./start.sh sim`, `GET /api/status` and the Italian text command were not repeated in this continuation. The browser check from the morning is under WP-8.
+
+### WP-0 — Capabilities and task record — DONE · TESTED
+`GET /api/capabilities` is built from config and live status. With `station: arm3` the camera is reported unavailable and the gripper is false. `TaskRequest` rejects unknown fields. Tool calls are appended to `logs/voce.jsonl` (gitignored).
+
+### WP-L1 — Cycle without an upload — DONE · TESTED with a fake camera
+`SortingCycle` captures from a non-browser station camera: settle, sharpest of three frames, optional mirror crop. A required face that no view covers becomes REVIEW and is not accepted. A missing frame blocks the start. A frame that disappears after the preflight becomes REVIEW. STOP during the settle aborts the cycle. `confirm_each_move` defaults to false; when true the cycle waits before each move. A manual `add_photo` increments `interventions`. The existing upload tests still pass.
+
+### WP-L2 — Sheet opinion — DONE · TESTED with a fake Grok
+`grok.sheet_check` defaults to false. When it is on, a MATCH can become REVIEW_REQUIRED and a MISMATCH stays a MISMATCH. A failure keeps the deterministic decision and adds "AI check not available". INCI text is not rewritten.
+
+### WP-L3 — Unseen pack — DONE · TESTED on a rendered pack, NOT a real pack
+Seed `20261105` is in `scripts/make_synthetic_packs.py`. The renderer draws front and back only. It does not draw a cap or a bottom.
+
+`eval/results/unseen_pack_20261105-122417.json` (rerun after the matching sheet was selected again; the earlier `unseen_pack_20261105-122329.json` stopped before the cycle because the last sheet stored was the missing-back sheet):
+
+- Raw spec vs the generator: label count and faces matched, position error 0.29%. Product name, brand, kind, INCI and legal text did **not** match.
+- Inspection, no Grok: false acceptances 0, false rejections 0, one REVIEW (the blurred pack). Every other generated defect was NON_COMPLIANT.
+- Sheets: correct sheet MATCH with `ONE_LEFT`; wrong sheet and missing-back sheet MISMATCH with `SHEET_EMPTY`.
+- Cycle: started, `interventions: 0`, decision NON_COMPLIANT, rejected 1, accepted 0. The camera replayed `correct_1_front.jpg` for both faces, so this is not a completed accept of a good pack.
+
+No threshold was changed after this run.
+
+### WP-L4 — PARTIAL
+- Check one label: `LabellingService.inspect_labels` and `POST /api/labelling/labels/check`. A defective front sets `LABEL_DEFECTIVE` and the advice not to apply the back label. No motion. Tested with the inspector replaced by a fake.
+- Sheet run-out: `remaining` and `sheet_state`. `SHEET_EMPTY` refuses the cycle. Tested.
+- Learning a cycle from video: NOT DONE.
+- CosIng and Bottle_defect: NOT DONE. No inventory file and no Roboflow key.
+
+### Tests this continuation actually ran
+```
+$ .venv/bin/python -m pytest -q tests
+296 passed, 1 warning in 71.55s
+```
+The warning is Starlette's httpx deprecation notice. Frontend `npm run build` was not re-run: no frontend file changed.
 
 ## What this session did not measure
 - Amharic, Mandarin or Japanese speech through `/ws/voice`.
 - A real camera, calibrated zones, or a company-sample catalogue.
 - URSim or the real arm, including the jury confirm-to-motion latency.
 - Native-speaker review of the zh, ja and am lexicon.
+- The unseen-pack cycle with a real back-face view. The 12:24 run reused the front photo for both faces.

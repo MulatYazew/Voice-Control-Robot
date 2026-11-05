@@ -19,5 +19,8 @@ camera:
   calibration:
     px_per_mm: null               # null = uncalibrated: tolerances are relative (% of face size, degrees)
   faces_visible_from_station: [front]   # faces the fixed camera sees; others must be shown/turned by the operator
+  # Optional extra views. A back ROI with mirror: horizontal is cropped and flipped before inspection.
+  # Example: views: {back: {roi: [0, 0, 100, 100], mirror: horizontal}}
+  views: {}
 storage:
   root: data/labelling

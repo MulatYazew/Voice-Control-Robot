@@ -219,8 +219,10 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Voice-recorded skills (runtime data)
+# Voice-recorded skills, catalogues and real station photos (runtime data)
 data/
+data/real/
+data/catalog/
 
 # VOCE
 logs/

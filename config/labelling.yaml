@@ -6,7 +6,18 @@
 grok:
   vision_model: grok-4.7          # image-capable model (verified via /v1/language-models on 2026-11-04)
   second_opinion: true            # Grok may DOWNGRADE a decision to REVIEW_REQUIRED, never upgrade it
+  sheet_check: false              # when true, Grok may turn a sheet MATCH into REVIEW, never the reverse
   timeout_s: 90
+
+cycle:
+  settle_s: 0.5                   # wait after the arm is still before an automatic photo
+  confirm_each_move: false        # true = strict mode: a spoken confirmation before every cycle move
+  capture_timeout_s: 2.0          # how long an automatic station waits for a fresh frame
+
+# Suggested only. The operator must type or confirm these before a spec can be approved.
+suggested_tolerances:
+  position_pct: 4.0
+  angle_deg: 3.0
 
 ocr:
   languages: ita+eng

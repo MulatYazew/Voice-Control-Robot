@@ -121,6 +121,19 @@ def make_router(svc: LabellingService, cycle: SortingCycle) -> APIRouter:
         except ValueError as e:
             raise HTTPException(409, str(e))
 
+    @r.post("/labels/check")
+    async def check_labels(product_id: str = Form(...), label_ids: str = Form(...), use_grok: bool = Form(False),
+                           front: UploadFile | None = File(None), back: UploadFile | None = File(None),
+                           left: UploadFile | None = File(None), right: UploadFile | None = File(None),
+                           cap: UploadFile | None = File(None), bottom: UploadFile | None = File(None)) -> dict[str, Any]:
+        files = {"front": front, "back": back, "left": left, "right": right, "cap": cap, "bottom": bottom}
+        photos = {k: await f.read() for k, f in files.items() if f is not None}
+        ids = [x.strip() for x in label_ids.split(",") if x.strip()]
+        try:
+            return await blocking(svc.inspect_labels, product_id, photos, ids, use_grok=use_grok)
+        except (ValueError, KeyError) as e:
+            raise HTTPException(409, str(e))
+
     @r.post("/inspect")
     async def inspect(product_id: str = Form(...), use_grok: bool = Form(True), front: UploadFile | None = File(None),
                       back: UploadFile | None = File(None), left: UploadFile | None = File(None),

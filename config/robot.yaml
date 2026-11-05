@@ -4,6 +4,7 @@
 
 robot:
   name: "Arm 3"
+  station: arm3                  # arm3 = voice, no camera. arm1 = labelling station with camera 1
   vendor: "Universal Robots"
   model: UNKNOWN            # e.g. UR5e — verify on the teach pendant (About)
   polyscope_version: UNKNOWN # verify on the teach pendant (About)

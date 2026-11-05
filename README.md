@@ -365,6 +365,21 @@ Thresholds live in `config/labelling.yaml`. They are engineering defaults to rev
 ## B4. Camera
 Configured in `config/camera.yaml`. The default source is `browser`: the operator's browser camera (any USB or laptop camera) or uploads. The station camera's model, resolution and calibration are **UNKNOWN**, so geometry is relative (percentages and degrees). If no image is available, nothing can be COMPLIANT.
 
+On Arm 1, set `camera.available: true` and a `folder:` or `opencv:` source. The cycle then waits `cycle.settle_s`, keeps the sharpest of three frames, and assigns the faces listed in `faces_visible_from_station`. A `views` entry can crop a mirror ROI and flip it. A required face with no view stays REVIEW. An upload during the wait counts as an intervention. `cycle.confirm_each_move: true` asks before every move; the default is false, which is the single confirmation for the whole plan.
+
+`GET /api/capabilities` reports the station from `config/robot.yaml`. Arm 3 (`station: arm3`) is reported with no camera. Suggested tolerances in `config/labelling.yaml` are shown by the labelling status and are not applied until the operator approves them.
+
+A sheet check with `grok.sheet_check: true` may turn MATCH into REVIEW. It cannot turn MISMATCH into MATCH. One remaining copy is `ONE_LEFT`. None is `SHEET_EMPTY`, and the cycle will not start. `POST /api/labelling/labels/check` inspects only the named labels and does not move the arm.
+
+Unseen pack (seed `20261105`, not one of the development products):
+
+```
+python scripts/make_synthetic_packs.py --heldout
+python -m eval.labelling.run_unseen
+```
+
+The 2026-11-05 12:24 run is `eval/results/unseen_pack_20261105-122417.json`. It is synthetic. The raw spec did not match the generator's brand, name, INCI or legal text. Inspection false acceptances were 0. The automatic cycle used the front photo for both faces, decided NON_COMPLIANT, and pushed toward the reject box with `interventions: 0`. It did not place a pack in the accepted area.
+
 ## B5. Smart Labelling results
 Measured 2026-11-04 17:48 (`eval/results/labelling_run4_final.json`). Grok `grok-4.7` was used for reading model packs and for the second opinion. The **synthetic** dataset has 6 products × 12 packs, and the simulated operator set tolerances of ±4% / ±3°.
 

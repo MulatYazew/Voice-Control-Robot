@@ -25,6 +25,12 @@ def wait_gate(c, state, timeout=5):
     return False
 
 
+def test_capabilities_arm3_has_no_camera(client):
+    cap = client.get("/api/capabilities").json()
+    assert cap["station"] == "arm3" and cap["camera"]["available"] is False
+    assert cap["tool"]["gripper"] is False
+
+
 def test_status(client):
     s = client.get("/api/status").json()
     assert s["gate"] == "IDLE" and s["config"]["mode"] == "sim" and "xai" not in str(s["config"]).lower()

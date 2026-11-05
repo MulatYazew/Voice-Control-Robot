@@ -25,6 +25,19 @@ from .service import LabellingService
 
 log = logging.getLogger("voce.cycle")
 
+
+def _apply_view(frame: np.ndarray, view: dict[str, Any]) -> np.ndarray:
+    """Crop a configured ROI and flip it when the station uses a mirror."""
+    img = frame
+    roi = view.get("roi")
+    if roi and len(roi) == 4:
+        x, y, w, h = (int(v) for v in roi)
+        img = frame[max(0, y):max(0, y) + max(0, h), max(0, x):max(0, x) + max(0, w)]
+    if view.get("mirror") == "horizontal" and getattr(img, "size", 0):
+        import cv2
+        img = cv2.flip(img, 1)
+    return img
+
 PHASES = ("IDLE", "BRINGING", "AWAITING_PHOTOS", "INSPECTING", "ROUTING_ACCEPT", "ROUTING_REJECT", "HOLD_REVIEW",
           "DONE", "ABORTED")
 
@@ -47,6 +60,9 @@ class SortingCycle:
         self.message: dict[str, str] = {"it": "", "en": ""}
         self.task: asyncio.Task | None = None
         self.log: list[dict[str, Any]] = []
+        self.interventions = 0
+        self.stops = 0
+        self.confirm_move = asyncio.Event()
 
     # ------------------------------------------------------------ public ---
     def status(self) -> dict[str, Any]:
@@ -54,6 +70,7 @@ class SortingCycle:
                 "required_faces": self.required_faces, "photos_received": sorted(self.photos),
                 "decision": (self.result or {}).get("decision"), "inspection_id": (self.result or {}).get("inspection_id"),
                 "explanation": (self.result or {}).get("explanation"), "counters": self.counters,
+                "interventions": self.interventions, "stops": self.stops,
                 "message": self.message, "log": self.log[-12:]}
 
     def preflight(self, product_id: str) -> list[str]:
@@ -72,6 +89,22 @@ class SortingCycle:
             problems.append("un ciclo è già in corso / a cycle is already running")
         if self.gate.state != GateState.IDLE:
             problems.append(f"robot non pronto (stato {self.gate.state.value}) / robot not ready")
+        if sheet and sheet.get("sheet_state") == "SHEET_EMPTY":
+            problems.append("foglio etichette esaurito / label sheet finished")
+        if self._auto_camera():
+            if self.camera.get_frame() is None:
+                problems.append("fotogramma assente o non aggiornato")
+            try:
+                spec = self.svc.get(product_id)
+                faces = sorted({l.face for l in spec.labels if l.required})
+            except KeyError:
+                faces = []
+            missing = [f for f in faces if not self._face_coverable(f)]
+            if missing:
+                problems.append("facce non verificabili dalla stazione: " + ", ".join(missing))
+            for name in ("sinistra_sopra", "centro_sopra", "destra_sopra", "centro_spinta_scarto_inizio"):
+                if name not in self.gate.s.poses:
+                    problems.append(f"posa di destinazione mancante: {name}")
         return problems
 
     async def start(self, product_id: str, operator: str, layout_confirmed: bool) -> dict[str, Any]:
@@ -91,11 +124,24 @@ class SortingCycle:
         self.cycle_id, self.product_id = auth["cycle_id"], product_id
         self.required_faces = sorted({l.face for l in spec.labels if l.required})
         self.photos, self.result, self.review_choice = {}, None, None
+        self.interventions = 0
         self.photo_evt.clear()
         self.review_evt.clear()
         self.log = []
         self.task = asyncio.ensure_future(self._run())
         return {"ok": True, "cycle_id": self.cycle_id}
+
+    def _auto_camera(self) -> bool:
+        return (self.camera is not None and self.camera.available
+                and not str(self.camera.source).startswith("browser"))
+
+    def _face_coverable(self, face: str) -> bool:
+        visible = list((self.camera.cfg.get("faces_visible_from_station") or ["front"])) if self.camera else []
+        views = (self.camera.cfg.get("views") or {}) if self.camera else {}
+        return face in visible or face in views
+
+    def _strict(self) -> bool:
+        return bool((self.svc.cfg.get("cycle") or {}).get("confirm_each_move"))
 
     def add_photo(self, face: str, img: np.ndarray) -> dict[str, Any]:
         if self.phase != "AWAITING_PHOTOS":
@@ -103,6 +149,7 @@ class SortingCycle:
         if face not in self.required_faces:
             return {"ok": False, "messaggio": f"faccia {face} non richiesta: {self.required_faces}"}
         self.photos[face] = img
+        self.interventions += 1
         self._emit()
         if set(self.photos) >= set(self.required_faces):
             self.photo_evt.set()
@@ -118,6 +165,7 @@ class SortingCycle:
         return {"ok": True}
 
     def abort(self, reason: str) -> None:
+        self.stops += 1
         if self.task and not self.task.done():
             self.task.cancel()
         self._set("ABORTED", f"Ciclo interrotto: {reason}", f"Cycle aborted: {reason}")
@@ -135,21 +183,58 @@ class SortingCycle:
         log_event(log, f"cycle {self.cycle_id} {phase}", it=it)
         self._emit()
 
-    def _capture_fixed_camera(self) -> None:
-        """Front face from a fixed station camera. The back still needs the operator to turn the pack."""
-        cam = self.camera
-        if cam is None or not getattr(cam, "available", False):
+    def _halted(self) -> bool:
+        cycle = getattr(self.gate, "cycle", None)
+        return self.gate.state == GateState.STOPPED or not (cycle and cycle.get("active"))
+
+    async def _settle(self) -> bool:
+        seconds = float((self.svc.cfg.get("cycle") or {}).get("settle_s", 0.5))
+        end = time.monotonic() + max(0.0, seconds)
+        while time.monotonic() < end:
+            if self._halted():
+                return False
+            await asyncio.sleep(min(0.05, end - time.monotonic()))
+        return not self._halted()
+
+    async def _capture_fixed_camera(self) -> None:
+        """Keep the sharpest of three frames. A mirror view is cropped and flipped. Uploads are not used."""
+        if not self._auto_camera():
             return
-        if str(getattr(cam, "source", "browser")).startswith("browser"):
+        if not await self._settle():
             return
-        if "front" not in self.required_faces or "front" in self.photos:
+        frames: list[np.ndarray] = []
+        for _ in range(3):
+            if self._halted():
+                return
+            got = self.camera.get_frame()
+            if got is not None:
+                frames.append(got[0])
+            await asyncio.sleep(0)
+        if not frames:
             return
-        got = cam.get_frame()
-        if got is None:
-            return
-        self.add_photo("front", got[0])
+        from .vision import label_sharpness
+        best = max(frames, key=lambda im: label_sharpness(im))
+        views = self.camera.cfg.get("views") or {}
+        for face in self.required_faces:
+            if not self._face_coverable(face):
+                continue
+            img = _apply_view(best, views.get(face) or {})
+            if img is None or getattr(img, "size", 0) == 0:
+                continue
+            self.photos[face] = img
+        if set(self.photos) >= set(self.required_faces):
+            self.photo_evt.set()
+        self._emit()
 
     async def _move(self, skill: str, params: dict[str, str]) -> bool:
+        if self._halted():
+            return False
+        if self._strict():
+            self.confirm_move.clear()
+            self._set("AWAIT_MOVE_CONFIRM", f"Confermi la mossa {skill}?", f"Confirm the move {skill}?")
+            await self.confirm_move.wait()
+            if self._halted():
+                return False
         r = await self.gate.run_cycle_step(self.cycle_id, skill, params)
         ok = getattr(r, "success", False)
         if not ok:
@@ -172,19 +257,33 @@ class SortingCycle:
                 self.photo_evt.clear()
                 self._set("AWAITING_PHOTOS", "Inquadra il pacco: foto delle facce " + ", ".join(self.required_faces),
                           "Frame the pack: photos of faces " + ", ".join(self.required_faces))
-                self._capture_fixed_camera()
-                try:
-                    await asyncio.wait_for(self.photo_evt.wait(), self.PHOTO_TIMEOUT_S)
-                except asyncio.TimeoutError:
-                    self.result = None
+                await self._capture_fixed_camera()
+                if self._halted():
+                    self._set("ABORTED", "Ciclo interrotto (STOP).", "Cycle aborted (STOP).")
+                    return
+                missing = [f for f in self.required_faces if f not in self.photos]
+                if self._auto_camera() and missing:
+                    self.result = {"decision": REVIEW, "explanation": {
+                        "it": "Faccia richiesta non verificata dalla telecamera: nessuna accettazione.",
+                        "en": "A required face was not verified by the camera: not accepted."},
+                        "findings": [{"code": "unverified_face", "faces": missing}]}
                     decision = REVIEW
-                    self._set("HOLD_REVIEW", "Nessuna foto ricevuta: pacco trattenuto per revisione.",
-                              "No photos received: pack held for review.")
                 else:
-                    self._set("INSPECTING", "Ispezione in corso.", "Inspecting.")
-                    loop = asyncio.get_running_loop()
-                    self.result = await loop.run_in_executor(None, lambda: self.svc.inspect(self.product_id, dict(self.photos)))
-                    decision = self.result["decision"]
+                    try:
+                        timeout = self.PHOTO_TIMEOUT_S if not self._auto_camera() else float(
+                            (self.svc.cfg.get("cycle") or {}).get("capture_timeout_s", 2.0))
+                        await asyncio.wait_for(self.photo_evt.wait(), timeout)
+                    except asyncio.TimeoutError:
+                        self.result = {"decision": REVIEW, "explanation": {
+                            "it": "Foto non ricevute in tempo: serve una verifica umana.",
+                            "en": "Photos not received in time: a human check is required."}}
+                        decision = REVIEW
+                    else:
+                        self._set("INSPECTING", "Ispezione in corso.", "Inspecting.")
+                        loop = asyncio.get_running_loop()
+                        self.result = await loop.run_in_executor(
+                            None, lambda: self.svc.inspect(self.product_id, dict(self.photos)))
+                        decision = self.result["decision"]
                 if not self.gate.cycle or not self.gate.cycle.get("active"):
                     self._set("ABORTED", "Ciclo interrotto (STOP).", "Cycle aborted (STOP).")
                     return

@@ -202,8 +202,8 @@ def photo_sheet(s: Image.Image, rng: random.Random) -> Image.Image:
     return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.5))
 
 
-def build(p: dict, others: list[dict], rng: random.Random) -> None:
-    d = OUT / p["id"]
+def build(p: dict, others: list[dict], rng: random.Random, root: Path | None = None) -> None:
+    d = (root or OUT) / p["id"]
     (d / "reference").mkdir(parents=True)
     (d / "test").mkdir()
     W, H = p["pack"]
@@ -260,7 +260,42 @@ def build(p: dict, others: list[dict], rng: random.Random) -> None:
     (d / "cases.json").write_text(json.dumps(cases, ensure_ascii=False, indent=1))
 
 
+# Committed before any unseen rehearsal. Do not retune thresholds on the product this seed renders.
+UNSEEN_SEED = 20261105
+UNSEEN_DIR = ROOT / "data" / "datasets" / "unseen"
+
+
+def unseen_product() -> dict:
+    """A fictional front/back pack that is not one of the development products.
+
+    The renderer does not draw a cap or a bottom. That face is NOT in this pack.
+    """
+    return {"id": "mirto_balsamo_barba", "split": "unseen", "brand": "MIRTO NERO", "name": "Balsamo Barba",
+            "size": "40 ml", "pack": (560, 780), "pack_rgb": (72, 48, 36), "label_rgb": (245, 236, 220), "logo": "drop",
+            "front": {"cx": 0.48, "cy": 0.34, "w": 0.64, "h": 0.24},
+            "back": {"cx": 0.52, "cy": 0.62, "w": 0.76, "h": 0.42},
+            "inci": ["RICINUS COMMUNIS SEED OIL", "CERA ALBA", "BUTYROSPERMUM PARKII BUTTER", "TOCOPHEROL",
+                     "ROSMARINUS OFFICINALIS LEAF OIL", "LIMONENE"],
+            "legal": "Prodotto in Italia. Solo per uso esterno. Tenere fuori dalla portata dei bambini."}
+
+
 def main() -> None:
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--heldout", action="store_true")
+    parser.add_argument("--seed", type=int, default=UNSEEN_SEED)
+    args = parser.parse_args()
+    if args.heldout:
+        if args.seed != UNSEEN_SEED:
+            raise SystemExit(f"refusing seed {args.seed}: the committed unseen seed is {UNSEEN_SEED}")
+        if UNSEEN_DIR.exists():
+            shutil.rmtree(UNSEEN_DIR)
+        rng = random.Random(UNSEEN_SEED)
+        product = unseen_product()
+        build(product, [PRODUCTS[0]], rng, UNSEEN_DIR)
+        print("written", UNSEEN_DIR, "seed", UNSEEN_SEED)
+        print("NOT a rehearsal result. Run eval/labelling/run_unseen.py to measure it.")
+        return
     if OUT.exists():
         shutil.rmtree(OUT)
     rng = random.Random(20261104)
