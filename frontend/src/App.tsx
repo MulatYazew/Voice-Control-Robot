@@ -51,6 +51,7 @@ export default function App() {
   const [voiceState, setVoiceState] = useState<VoiceState>("off");
   const [voiceDetail, setVoiceDetail] = useState("");
   const [level, setLevel] = useState(0);
+  const [wake, setWake] = useState<"" | "on" | "not supported">("");
   const [tab, setTab] = useState<Tab>("voice");
   const voice = useRef<VoiceClient | null>(null);
   const langRef = useRef(lang);
@@ -65,6 +66,7 @@ export default function App() {
       voice.current = new VoiceClient({
         onState: (s, d) => { setVoiceState(s); setVoiceDetail(d ?? ""); },
         onLevel: (l) => setLevel(l),
+        onWake: (w) => setWake(w),
       }, () => voiceRef.current);
     }
     await voice.current.start();
@@ -103,7 +105,7 @@ export default function App() {
         {tab === "voice" && (
           <main className="grid">
             <div className="col">
-              <MicPanel state={voiceState} detail={voiceDetail} level={level} available={!!store.config?.grok_configured}
+              <MicPanel state={voiceState} detail={voiceDetail} level={level} wake={wake} available={!!store.config?.grok_configured}
                 onStart={startVoice} onPause={(p) => voice.current?.setPaused(p)} onStop={() => voice.current?.stop()} />
               <ActionPanel status={s} progress={store.progress} execStart={store.execStart} voiceLang={store.voiceLang} />
               <Conversation chat={store.chat} textMode={store.textMode} setTextMode={setTextMode}

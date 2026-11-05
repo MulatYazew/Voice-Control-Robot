@@ -278,10 +278,19 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
             await ws.send_json({"type": "error", "message": "Grok non configurato (XAI_API_KEY): usa TEXT MODE"})
             await ws.close()
             return
-        if state["voice"] is not None:        # one operator voice channel at a time
-            await ws.send_json({"type": "error", "message": "Un'altra sessione vocale è già attiva."})
-            await ws.close()
-            return
+        old = state["voice"]
+        if old is not None:
+            supersede = getattr(old, "supersede", None)
+            if supersede is not None:
+                await supersede()
+                finished = getattr(old, "finished", None)
+                if finished is not None:
+                    try:
+                        await asyncio.wait_for(finished.wait(), 5)
+                    except asyncio.TimeoutError:
+                        pass
+            if state["voice"] is old:
+                state["voice"] = None
         lang = ws.query_params.get("lang", "auto")
         if lang not in ("auto", "it", "en", "zh", "ja", "am"):
             lang = "auto"
@@ -290,9 +299,10 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
         try:
             await sess.run_voice()
         finally:
-            state["voice"] = None
-            state["voice_status"] = "disconnected"
-            bus.publish("voice", status="disconnected", detail="", mode="voice")
+            if state["voice"] is sess:
+                state["voice"] = None
+                state["voice_status"] = "disconnected"
+                bus.publish("voice", status="disconnected", detail="", mode="voice")
 
     # --------------------------------------------------------- frontend ---
     if (FRONTEND_DIST / "index.html").exists():

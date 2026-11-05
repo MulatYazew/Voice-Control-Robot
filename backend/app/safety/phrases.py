@@ -22,7 +22,7 @@ from ..config import ROOT
 
 LEXICON_PATH = ROOT / "config" / "lexicon.yaml"
 LANGS = ("it", "en", "zh", "ja", "am")
-LIST_KEYS = ("stop", "affirm", "negative", "uncertain", "cancel")
+LIST_KEYS = ("stop", "affirm", "negative", "uncertain", "cancel", "terminate")
 
 # verdicts
 VALID = "valida"
@@ -202,6 +202,8 @@ class _Compiled:
         self.uncertain_phrases: list[str] = []
         self.cancel_phrases: list[str] = []
         self.cancel_cjk: list[str] = []
+        self.terminate_phrases: list[str] = []
+        self.terminate_cjk: list[str] = []
         for lang in LANGS:
             self._absorb(data["stop"][lang], self.stop_tokens, self.stop_phrases, self.stop_cjk)
             self._absorb(data["affirm"][lang], self.affirm_tokens, self.affirm_phrases, self.affirm_cjk)
@@ -209,8 +211,10 @@ class _Compiled:
             self._absorb(data["uncertain"][lang], self.uncertain_tokens, self.uncertain_phrases, self.uncertain_cjk)
             # Single-word cancels ("annulla", "cancel") match as phrases, same as before.
             self._absorb(data["cancel"][lang], set(), self.cancel_phrases, self.cancel_cjk, singles_as_phrases=True)
+            self._absorb(data["terminate"][lang], set(), self.terminate_phrases, self.terminate_cjk, singles_as_phrases=True)
         # Longer CJK entries first so a caller that inspects the first hit is stable.
-        for bucket in (self.stop_cjk, self.affirm_cjk, self.negative_cjk, self.uncertain_cjk, self.cancel_cjk):
+        for bucket in (self.stop_cjk, self.affirm_cjk, self.negative_cjk, self.uncertain_cjk, self.cancel_cjk,
+                       self.terminate_cjk):
             bucket.sort(key=len, reverse=True)
 
     @staticmethod
@@ -271,6 +275,17 @@ def skill_triggers() -> dict[str, list[str]]:
         words.sort(key=len, reverse=True)
         out[sid] = words
     return out
+
+
+def is_terminate(text: str | None) -> bool:
+    """Close the assistant. Every phrase names the assistant or the session, so bare 'stop' does not match."""
+    n = normalize(text)
+    if not n:
+        return False
+    c = _compiled()
+    if _has_phrase(n, c.terminate_phrases):
+        return True
+    return _substring_hit(n, c.terminate_cjk)
 
 
 def is_stop(text: str | None) -> bool:

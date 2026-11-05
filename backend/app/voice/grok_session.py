@@ -26,14 +26,14 @@ from ..config import Settings
 from ..conversation.tools import build_prompt, dispatch, tool_schemas
 from ..monitoring.events import EventBus, Metrics, log_event
 from ..safety import phrases
-from ..safety.gate import Gate
+from ..safety.gate import Gate, GateState
 
 log = logging.getLogger("voce.grok")
 XAI_URL = "wss://api.x.ai/v1/realtime?model={model}"
 
 
 class GrokSession:
-    MAX_RECONNECTS = 5
+    """Reconnects for as long as the browser stays. Only the operator closes the assistant."""
 
     def __init__(self, settings: Settings, gate: Gate, bus: EventBus, metrics: Metrics, *, client=None,
                  mode: str = "voice", lang: str = "auto") -> None:
@@ -50,6 +50,9 @@ class GrokSession:
         self._intent_measured = True
         self._lock = asyncio.Lock()
         self._closing = False
+        self._operator_closed = False
+        self._wake = asyncio.Event()
+        self.finished = asyncio.Event()
         self.tool_calls: list[dict[str, Any]] = []     # for text-mode evaluation
         self.assistant_text: list[str] = []
         self._cur = ""
@@ -211,10 +214,7 @@ class GrokSession:
                 self.bus.publish("transcript", role="user", text=txt, final=False, source="voice")
                 self.gate.note_partial(txt)
             elif t == "conversation.item.input_audio_transcription.completed":
-                txt = ev.get("transcript", "")
-                if phrases.is_stop(txt) and self.t_speech_end:
-                    self.metrics.record("transcript_stop_detect_ms", (time.monotonic() - self.t_speech_end) * 1000)
-                self.gate.note_transcript(txt, source="voice")
+                await self.on_final_transcript(ev.get("transcript", ""))
             elif t == "response.created":
                 self.resp_active = True
                 self.resp_created_at = self.gate.clock()
@@ -257,7 +257,12 @@ class GrokSession:
                     m = json.loads(msg["text"])
                 except json.JSONDecodeError:
                     continue
-                if m.get("type") == "mic":
+                if m.get("type") == "ping":
+                    await self.to_client({"type": "pong", "t": m.get("t")})
+                elif m.get("type") == "end_session":
+                    await self.end_session("ui")
+                    return
+                elif m.get("type") == "mic":
                     self.bus.publish("mic", on=bool(m.get("on")))
                     if not m.get("on"):
                         await self.to_xai({"type": "input_audio_buffer.clear"})
@@ -277,40 +282,102 @@ class GrokSession:
         self.want_response = False
         self._idle.set()
 
+    def _backoff(self, attempts: int) -> float:
+        return float(min(2 ** max(attempts - 1, 0), 15))
+
+    async def _pause(self, seconds: float, client_task: asyncio.Task) -> bool:
+        """True when the browser left or the operator closed the assistant."""
+        if self._closing or client_task.done():
+            return True
+        sleep = asyncio.ensure_future(asyncio.sleep(seconds))
+        wake = asyncio.ensure_future(self._wake.wait())
+        await asyncio.wait({sleep, client_task, wake}, return_when=asyncio.FIRST_COMPLETED)
+        sleep.cancel()
+        wake.cancel()
+        return self._closing or client_task.done()
+
+    async def supersede(self) -> None:
+        """A newer browser connection takes the slot. Close this socket with 4000."""
+        self._closing = True
+        self._wake.set()
+        if self.client is not None:
+            try:
+                await self.client.close(code=4000)
+            except Exception:
+                pass
+
+    async def end_session(self, reason: str) -> None:
+        """Operator closed the assistant. Robot STOP is not this path."""
+        self._closing = True
+        self._operator_closed = True
+        moving = self.gate.state == GateState.EXECUTING
+        robot = getattr(self.gate, "robot_status", None)
+        if moving or (robot is not None and getattr(robot, "moving", False)):
+            await self.gate.stop("assistant_closed", detail=reason)
+        await self.to_client({"type": "session_end", "reason": reason,
+                              "message": "Assistente chiuso / Assistant closed"})
+        self._set_status("closed", reason)
+        if self.client is not None:
+            try:
+                await self.client.close(code=1000)
+            except Exception:
+                pass
+        self._wake.set()
+
+    async def on_final_transcript(self, txt: str) -> None:
+        """STOP wins. A close-the-assistant phrase is checked on the final transcript only."""
+        if phrases.is_stop(txt) and self.t_speech_end:
+            self.metrics.record("transcript_stop_detect_ms", (time.monotonic() - self.t_speech_end) * 1000)
+        if phrases.is_terminate(txt):
+            if phrases.is_stop(txt):
+                await self.gate.stop("transcript:voice", detail=txt or "")
+            self.gate.note_transcript(txt, source="voice")
+            await self.end_session("spoken")
+            return
+        self.gate.note_transcript(txt, source="voice")
+
     async def run_voice(self) -> None:
-        """Serve one browser voice connection until it disconnects."""
+        """Serve one browser voice connection until the operator closes it or the socket ends."""
         self._unsub.append(self.gate.on_report(self._on_report))
         watcher = asyncio.ensure_future(self._watch_bus())
         client_task = asyncio.ensure_future(self._pump_client())
         attempts = 0
         try:
-            while not client_task.done():
+            while not client_task.done() and not self._closing:
+                reason = "connessione Grok chiusa"
                 try:
                     await self.connect()
                     attempts = 0
+                    self._set_status("connected", f"Grok Voice ({self.s.xai_model})")
                     xai_task = asyncio.ensure_future(self._pump_xai())
                     done, _ = await asyncio.wait({xai_task, client_task}, return_when=asyncio.FIRST_COMPLETED)
-                    if client_task in done:
+                    if client_task in done or self._closing:
                         xai_task.cancel()
                         break
                     exc = xai_task.exception()
                     reason = f"connessione Grok chiusa ({exc or 'fine flusso'})"
                 except (OSError, asyncio.TimeoutError, websockets.WebSocketException, RuntimeError) as e:
                     reason = f"connessione Grok fallita: {e}"
-                await self._drop(reason)
-                attempts += 1
-                if attempts > self.MAX_RECONNECTS or not self.s.xai_api_key:
-                    self._set_status("error", reason)
-                    await client_task
+                if self._closing or client_task.done():
                     break
-                self._set_status("reconnecting", f"{reason} — nuovo tentativo {attempts}/{self.MAX_RECONNECTS}")
-                await asyncio.sleep(min(2 ** (attempts - 1), 8))
+                await self._drop(reason)
+                if not self.s.xai_api_key:
+                    self._set_status("error", reason)
+                    break
+                attempts += 1
+                delay = self._backoff(attempts)
+                detail = f"reconnecting (attempt {attempts}, next in {delay:g}s)"
+                self._set_status("reconnecting", detail)
+                await self.to_client({"type": "voice_status", "status": "reconnecting", "detail": detail})
+                if await self._pause(delay, client_task):
+                    break
         finally:
             watcher.cancel()
             client_task.cancel()
-            await self._drop("browser disconnesso", final=True)
+            await self._drop("assistente chiuso" if self._operator_closed else "browser disconnesso", final=True)
             for u in self._unsub:
                 u()
+            self.finished.set()
 
     async def _drop(self, reason: str, *, final: bool = False) -> None:
         if self.xai is not None:

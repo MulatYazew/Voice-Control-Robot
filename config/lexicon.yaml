@@ -197,6 +197,34 @@ directions:
     ja: [scarto]
     am: [scarto]
 
+# Close the assistant. Every entry names the assistant or the session.
+# A bare "stop", "basta", "fine" or "chiudi" must not match.
+# am is NOT VERIFIED until reviewed_by.am is a person's name.
+terminate:
+  it:
+    - chiudi l'assistente
+    - termina l'assistente
+    - spegni l'assistente
+    - chiudi la sessione
+    - termina la sessione
+    - fine sessione
+  en:
+    - close the assistant
+    - turn off the assistant
+    - end the session
+    - close the session
+  zh:
+    - 关闭助手
+    - 结束会话
+    - 关掉助手
+  ja:
+    - アシスタントを終了
+    - アシスタントを閉じて
+    - セッションを終了
+  am:
+    - ረዳቱን ዝጋ
+    - ክፍለ ጊዜውን ጨርስ
+
 # Substring / token triggers for the rules engine (TEXT MODE). Canonical skill ids.
 skill_triggers:
   solleva_vassoio:

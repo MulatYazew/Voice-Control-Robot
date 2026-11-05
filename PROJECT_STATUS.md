@@ -364,3 +364,22 @@ The warning is Starlette's httpx deprecation notice. Frontend `npm run build` wa
 - URSim or the real arm, including the jury confirm-to-motion latency.
 - Native-speaker review of the zh, ja and am lexicon.
 - The unseen-pack cycle with a real back-face view. The 12:24 run reused the front photo for both faces.
+
+## Part A — voice session stays up until the operator closes it (2026-11-05)
+
+Baseline before this step: **296 passed**. After `tests/test_voice_session.py` plus the phrase and voice-language files: **142 passed** in that slice. The full suite is recorded again after Part B.
+
+| Cause | Fix | Test |
+|---|---|---|
+| Grok gave up after 5 reconnects | No attempt cap. Back-off 1, 2, 4, 8, then 15 s. The counter resets after a connect. | `test_ten_drops_and_seven_failed_connects_still_reconnect` |
+| A half-open `/ws/voice` refused the next browser | The new socket closes the old one with code 4000 and takes the slot. Only the owner clears it. | `test_new_browser_replaces_the_old_socket` |
+| No application heartbeat; sleep and a lost mic looked connected | Browser ping every 5 s, backend `pong` even while Grok is down. 15 s of silence reconnects. `AudioContext` resumes. A dead mic track is reopened after 500 ms. Wake Lock is requested when the browser has it. | `test_ping_keeps_a_quiet_session` |
+| Spoken "stop" must not close the assistant | `is_terminate` matches only phrases that name the assistant or the session. STOP still stops the robot and the session stays up. Both in one sentence: stop first, then close. | `test_spoken_close_and_stop`, `test_stop_and_close_in_one_sentence`, `test_stop_leaves_the_session_able_to_answer_status` |
+| Closing from the UI | `{"type":"end_session"}` sends `session_end`, closes with code 1000, and stops the robot only if it is moving. The browser does not reconnect. | `test_end_session_stops_a_moving_robot` |
+| A Grok drop must not revive a pending action | The drop clears the pending action. The next connect does not put it back. | `test_grok_drop_clears_pending` |
+
+A Grok-only drop while the arm is moving still stops the robot, because the spoken STOP spotter depends on the transcript. The README says this.
+
+Amharic close phrases are in the lexicon and marked **NOT VERIFIED**.
+
+Manual soak (30 min open, Wi-Fi off for 10 s, laptop lid, headset unplug): **NOT TESTED**. Nobody ran those on this machine in this session.

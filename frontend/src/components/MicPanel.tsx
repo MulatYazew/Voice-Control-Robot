@@ -1,8 +1,8 @@
 import { useT } from "../i18n/strings";
 import type { VoiceState } from "../services/voice";
 
-export function MicPanel({ state, detail, level, onStart, onPause, onStop, available }: {
-  state: VoiceState; detail: string; level: number; available: boolean;
+export function MicPanel({ state, detail, level, onStart, onPause, onStop, available, wake }: {
+  state: VoiceState; detail: string; level: number; available: boolean; wake?: "on" | "not supported" | "";
   onStart: () => void; onPause: (p: boolean) => void; onStop: () => void;
 }) {
   const t = useT();
@@ -31,6 +31,9 @@ export function MicPanel({ state, detail, level, onStart, onPause, onStop, avail
         </div>
       )}
       {!available && <p className="hint">{t("grok_missing")}</p>}
+      {state === "reconnecting" && detail && <p className="hint">{detail}</p>}
+      {wake === "on" && <p className="hint">{t("wake_on")}</p>}
+      {wake === "not supported" && <p className="hint">{t("wake_off")}</p>}
       {state === "error" && <p className="hint bad">{detail || "Errore del microfono"}</p>}
     </section>
   );
