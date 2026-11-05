@@ -20,6 +20,12 @@ class Station:
         self.evidence = EvidenceStore(ttl_s=15.0)
         self.catalog = Catalog(settings.data_dir / "catalog")
         self.available = bool(self.camera.available)
+        from .sim_station import SimStation
+        self.sim = SimStation(root=settings.data_dir.parent, scenes=settings.config_dir / "scenes")
+        if self.camera.source == "sim":
+            self.camera.available = True
+            self.available = True
+            self.camera.renderer = self.sim.render
 
     def locate(self, args: dict[str, Any]) -> dict[str, Any]:
         query = Query.from_args(args)
@@ -85,7 +91,71 @@ class Station:
             props = proposals_from_frame(frame[0], self.camera.cfg.get("zones_px") or {}, self.camera.background())
         return {"available": self.available, "calibrated": self.camera.calibrated(),
                 "source": self.camera.source, "has_frame": frame is not None,
+                "simulated": self.camera.source == "sim",
+                "label": "SIMULATED CAMERA · SYNTHETIC PRODUCTS" if self.camera.source == "sim" else None,
                 "candidates": [{k: v for k, v in p.items() if k != "crop"} for p in props]}
+
+    def zone_rows(self) -> list[dict[str, Any]]:
+        from .identify import rows_from_image
+        from .sim_station import BANNER, catalog_from_dataset
+        if self.camera.source == "sim":
+            img = self.sim.render()
+            source = BANNER
+        else:
+            got = self.camera.get_frame()
+            if got is None:
+                return []
+            img, source = got[0], f"camera:{self.camera.source}"
+        return rows_from_image(img, catalog_from_dataset(self.sim.root), sorgente=source, mirror=self.sim.mirror)
+
+    def answer_scene(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Spoken answers. A move is only proposed; the gate still waits for a fresh yes."""
+        from .identify import find_in_rows
+        from .sim_station import BANNER
+        if self.camera.source != "sim" and not self.available:
+            return {"ok": False, "esito": "nessuna_telecamera",
+                    "messaggio": "Nessuna telecamera su questa stazione. Non invento ciò che non vedo."}
+        rows = self.zone_rows()
+        action = params.get("azione")
+        if action == "etichetta":
+            zone = params.get("posizione") or ""
+            row = next((r for r in rows if r["zona"] == zone), None)
+            if row is None or row["stato"] != "pack":
+                return {"ok": False, "esito": "not_found", "messaggio": "Non vedo un pacco in quella zona.", "zone": rows}
+            decision = (row.get("conformita") or {}).get("decisione")
+            if not row.get("prodotto", {}).get("id") or decision is None:
+                return {"ok": True, "esito": "not_checkable", "zone": rows,
+                        "messaggio": "Non posso giudicare la conformità: questo prodotto non ha una specifica approvata."}
+            return {"ok": True, "zone": rows, "messaggio": f"{decision}. {row['conformita'].get('motivi')}"}
+        if action == "trova":
+            found = find_in_rows(rows, tipo=params.get("tipo") or None, nome=params.get("nome") or None)
+            if found["stato"] == "ambiguous":
+                return {"ok": False, "esito": "ambiguous", "zone": found["zone"],
+                        "messaggio": "Ne vedo più di uno: " + " e ".join(found["zone"]) + ". Quale?"}
+            if found["stato"] != "match":
+                return {"ok": False, "esito": "not_found", "messaggio": "Non lo vedo sul tavolo."}
+            return {"ok": True, "zone": found["zone"], "messaggio": f"Lo vedo in {found['zone'][0]}. Non mi muovo."}
+        if action == "porta":
+            found = find_in_rows(rows, tipo=params.get("tipo") or "cream")
+            if found["stato"] == "ambiguous":
+                return {"ok": False, "esito": "ambiguous", "zone": found["zone"],
+                        "messaggio": "Ne vedo più di uno. Quale zona?"}
+            if found["stato"] != "match":
+                return {"ok": False, "esito": "not_found", "messaggio": "Non lo vedo sul tavolo."}
+            dest = params.get("posizione") or "destra"
+            return {"ok": True, "propose": {"skill": "sposta_vassoio",
+                                            "params": {"origine": found["zone"][0], "destinazione": dest}},
+                    "messaggio": f"Vedo la crema in {found['zone'][0]}. {BANNER}."}
+        parts = []
+        for row in rows:
+            if row["stato"] == "empty":
+                parts.append(f"{row['zona']}: vuota")
+            elif row.get("prodotto", {}).get("id"):
+                parts.append(f"{row['zona']}: {row['prodotto'].get('nome') or row['prodotto']['id']}")
+            else:
+                parts.append(f"{row['zona']}: prodotto sconosciuto")
+        return {"ok": True, "zone": rows, "sorgente": BANNER if self.camera.source == "sim" else self.camera.source,
+                "messaggio": "; ".join(parts)}
 
 
 def encode_jpeg(img: np.ndarray) -> bytes | None:

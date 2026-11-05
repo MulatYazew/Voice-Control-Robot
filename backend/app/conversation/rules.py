@@ -203,6 +203,9 @@ def parse(text: str, *, poses: dict[str, Any] | None = None, pending: bool = Fal
         return Intent("stop")
     if any(w in t for w in _UNREACHABLE):
         return Intent("out_of_scope")
+    scene = _scene_intent(t)
+    if scene:
+        return scene
     if pending:
         v = phrases.confirmation_verdict(text)
         if v == phrases.VALID:
@@ -257,6 +260,28 @@ def parse(text: str, *, poses: dict[str, Any] | None = None, pending: bool = Fal
         elif zones:
             params["posizione"] = zones[0][1]
     return Intent("skill", skill=skill, params=params)
+
+
+def _scene_intent(t: str) -> Intent | None:
+    """What is on the table. 'Guarda…' stays out of scope: that sentence is a refusal case."""
+    if "guarda" in t:
+        return None
+    if "cosa c e sul tavolo" in t or "what do you see" in t or "what is on the table" in t:
+        return Intent("scene", params={"azione": "tavolo"})
+    if "etichetta" in t and any(w in t for w in ("corretta", "giusta", "correct")):
+        zones = _zones_in(t)
+        return Intent("scene", params={"azione": "etichetta", "posizione": zones[0][1] if zones else ""})
+    if "dov e la crema" in t or "dove e la crema" in t or "where is the cream" in t:
+        return Intent("scene", params={"azione": "trova", "tipo": "cream"})
+    if "cos e questo prodotto" in t or "what is this product" in t:
+        return Intent("scene", params={"azione": "tavolo"})
+    if "trova il prodotto" in t or "find the product" in t:
+        nome = t.split("prodotto")[-1].split("product")[-1].strip()
+        return Intent("scene", params={"azione": "trova", "nome": nome})
+    if "porta la crema" in t or "bring the cream" in t:
+        zones = _zones_in(t)
+        return Intent("scene", params={"azione": "porta", "tipo": "cream", "posizione": zones[-1][1] if zones else "destra"})
+    return None
 
 
 def _skill_of(t: str) -> str | None:

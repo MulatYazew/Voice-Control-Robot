@@ -108,6 +108,16 @@ def tool_schemas(s: Settings, poses: list[str], *, stretch: bool = True) -> list
          "description": "Propone il ciclo di etichettatura. Non muove finché l'operatore non conferma a voce.",
          "parameters": {"type": "object", "properties": {"product_id": {"type": "string"}, "lingua": {"type": "string", "enum": LANGS}},
                         "required": ["product_id"]}},
+        {"type": "function", "name": "identify_zone",
+         "description": "Legge una zona, o tutte, dalla telecamera. Non muove il robot. Il testo stampato si riporta come letto.",
+         "parameters": {"type": "object", "properties": {"zona": {"type": "string", "enum": s.zones}}}},
+        {"type": "function", "name": "find_product",
+         "description": "Cerca un prodotto per tipo, nome, marca o colore. Non muove il robot. Se ce n'è più di uno, chiedi quale.",
+         "parameters": {"type": "object", "properties": {
+             "tipo": {"type": "string"}, "nome": {"type": "string"}, "marca": {"type": "string"}, "colore": {"type": "string"}}}},
+        {"type": "function", "name": "check_labels",
+         "description": "Conformità dell'etichetta nella zona. Non muove il robot. Senza specifica approvata non dire mai conforme.",
+         "parameters": {"type": "object", "properties": {"zona": {"type": "string", "enum": s.zones}}, "required": ["zona"]}},
     ]
     return tools
 
@@ -155,6 +165,31 @@ def _labelling_tool(name: str, args: dict[str, Any], gate: Gate | None = None) -
     if name in ("learn_model_pack", "check_label_sheet", "inspect_work_area", "propose_labelling_cycle"):
         return _cycle_voice_tool(name, args, gate, svc, cycle)
     return {"ok": False, "esito": "strumento_sconosciuto"}
+
+
+def _perception_tool(name: str, args: dict[str, Any]) -> dict[str, Any]:
+    if PERCEPTION is None:
+        return _no_camera()
+    from ..perception.identify import find_in_rows
+    rows = PERCEPTION.zone_rows()
+    if name == "identify_zone":
+        zona = args.get("zona")
+        picked = [r for r in rows if r["zona"] == zona] if zona else rows
+        return {"ok": True, "zone": picked, "sorgente": (picked or rows or [{}])[0].get("sorgente") if (picked or rows) else None}
+    if name == "find_product":
+        found = find_in_rows(rows, tipo=args.get("tipo"), nome=args.get("nome"), marca=args.get("marca"))
+        return {"ok": found["stato"] == "match", **found, "zone_rows": rows}
+    row = next((r for r in rows if r["zona"] == args.get("zona")), None)
+    if row is None or row["stato"] != "pack" or not (row.get("prodotto") or {}).get("id"):
+        return {"ok": True, "esito": "not_checkable",
+                "messaggio": "Non posso giudicare la conformità: questo prodotto non ha una specifica approvata.",
+                "zona": row}
+    decision = (row.get("conformita") or {}).get("decisione")
+    if decision is None:
+        return {"ok": True, "esito": "not_checkable",
+                "messaggio": "Non posso giudicare la conformità: questo prodotto non ha una specifica approvata.",
+                "zona": row}
+    return {"ok": True, "decisione": decision, "motivi": row["conformita"].get("motivi"), "zona": row}
 
 
 def _no_camera() -> dict[str, Any]:
@@ -276,6 +311,8 @@ async def dispatch(gate: Gate, name: str, args: dict[str, Any], *, source: str =
                 return {"ok": False, "esito": "nessuna_telecamera",
                         "messaggio": "Questa stazione non ha telecamera. Il braccio sposta solo vassoi, non afferra gli oggetti."}
             return PERCEPTION.locate(args)
+        if name in ("identify_zone", "find_product", "check_labels"):
+            return _perception_tool(name, args)
     except Exception as e:  # pragma: no cover - defensive
         return {"ok": False, "esito": "errore_interno", "messaggio": str(e)}
     return {"ok": False, "esito": "strumento_sconosciuto", "messaggio": f"Strumento {name!r} non disponibile."}

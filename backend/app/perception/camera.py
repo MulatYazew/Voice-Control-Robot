@@ -85,6 +85,12 @@ class CameraService:
     def get_frame(self, max_age_s: float | None = None) -> tuple[np.ndarray, float] | None:
         if not self.available:
             return None
+        if self.source == "sim":
+            renderer = getattr(self, "renderer", None)
+            if renderer is not None:
+                frame = renderer()
+                if frame is not None:
+                    self.push_frame(frame)
         if self.source.startswith("folder:"):
             self._pull_folder()
         limit = self.max_age_s if max_age_s is None else max_age_s

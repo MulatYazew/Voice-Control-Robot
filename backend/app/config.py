@@ -71,6 +71,7 @@ class Settings:
                 "polyscope": r.get("polyscope_version"), "zones": self.zones, "directions": self.directions,
                 "ttl_s": self.ttl_s, "grok_model": self.xai_model, "grok_configured": bool(self.xai_api_key),
                 "warnings": self.warnings, "camera_available": bool(self.camera.get("available")),
+                "camera_source": self.camera.get("source"),
                 "camera_calibrated": _zones_calibrated(self.camera),
                 "delivery_zone": self.robot.get("workspace", {}).get("delivery_zone", "destra"),
                 "station": "ARM 1 · CAMERA 1" if self.camera.get("available") else "ARM 3 · senza telecamera"}

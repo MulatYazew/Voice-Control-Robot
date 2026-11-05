@@ -36,6 +36,16 @@ def make_adapter(s: Settings):
     return URAdapter(s)
 
 
+class SimZone(BaseModel):
+    zona: str
+    product: str | None = None
+    variant: str | None = None
+
+
+class SimPreset(BaseModel):
+    name: str
+
+
 class StopBody(BaseModel):
     source: Literal["button", "space", "http", "pedal"] = "http"
 
@@ -95,6 +105,13 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
         return tools_mod._cycle_voice_tool("propose_labelling_cycle", {"product_id": pid, "lingua": lang}, gate, labelling, cycle)
 
     gate.label_voice = _label_voice
+
+    def _scene_outcome(skill: str, params: dict, outcome: str) -> None:
+        pose = getattr(gate.world, "known_pose", None)
+        station.sim.note_pose(pose if isinstance(pose, str) else None)
+        station.sim.on_robot(skill, params, outcome)
+
+    gate.on_verified_motion = _scene_outcome
     state: dict[str, Any] = {"voice": None, "grok_text": None, "voice_status": "disconnected"}
 
     @asynccontextmanager
@@ -184,6 +201,52 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
     @app.get("/api/camera/scene")
     async def api_camera_scene() -> dict[str, Any]:
         return station.scene()
+
+    def _sim_open() -> None:
+        if s.mode == "real" or station.camera.source != "sim":
+            raise HTTPException(409, "simulated camera is off")
+
+    @app.get("/api/camera/frame.jpg")
+    async def api_camera_jpg() -> Response:
+        return await api_camera_get()
+
+    @app.get("/api/sim/scene")
+    async def api_sim_scene() -> dict[str, Any]:
+        _sim_open()
+        return station.sim.public()
+
+    @app.post("/api/sim/scene")
+    async def api_sim_set(body: SimZone) -> dict[str, Any]:
+        _sim_open()
+        if gate.state.value == "EXECUTING":
+            raise HTTPException(409, "robot is executing")
+        try:
+            station.sim.set_zone(body.zona, body.product, body.variant)
+        except KeyError:
+            raise HTTPException(400, "zona sconosciuta")
+        return station.sim.public()
+
+    @app.post("/api/sim/scene/preset")
+    async def api_sim_preset(body: SimPreset) -> dict[str, Any]:
+        _sim_open()
+        if gate.state.value == "EXECUTING":
+            raise HTTPException(409, "robot is executing")
+        try:
+            return station.sim.load_preset(body.name)
+        except FileNotFoundError:
+            raise HTTPException(404, "preset assente")
+
+    @app.post("/api/sim/scene/reset")
+    async def api_sim_reset() -> dict[str, Any]:
+        _sim_open()
+        if gate.state.value == "EXECUTING":
+            raise HTTPException(409, "robot is executing")
+        return station.sim.reset()
+
+    @app.get("/api/sim/identify")
+    async def api_sim_identify() -> dict[str, Any]:
+        _sim_open()
+        return {"label": "SIMULATED CAMERA · SYNTHETIC PRODUCTS", "zone": station.zone_rows()}
 
     @app.get("/api/camera/frame")
     async def api_camera_get() -> Response:

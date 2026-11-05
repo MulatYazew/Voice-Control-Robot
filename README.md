@@ -321,6 +321,18 @@ The software STOP is a convenience layer, not a safety function.
 
 Also rehearse STOP during confirmation, STOP with Grok disconnected (button and Space still work), and a reset. To rehearse automatically with synthesized speech (it also produces screenshots and a backup video): `python scripts/rehearse_jury.py`.
 
+Simulated station (the picture is not a camera; the arm, when used, is URSim):
+
+| # | Say | Expected |
+|---|---|---|
+| S1 | "What do you see on the table?" | three zone cards and a spoken summary; the SIMULATED CAMERA · SYNTHETIC PRODUCTS banner is visible |
+| S2 | «Dov'è la crema?» with the ambiguous preset | the two zones, no motion |
+| S3 | «Porta la crema a sinistra a destra» → «Sì» | URSim moves; the camera confirms the new position |
+| S4 | «L'etichetta del balsamo è corretta?» | NON_COMPLIANT when an approved spec says so, with the measured reason |
+| S5 | unseen preset → «Cos'è questo prodotto?» | unknown product; compliance cannot be judged without an approved specification |
+| S6 | Leave the assistant idle for 10 min, then «Torna a casa» | it still answers |
+| S7 | «Fermati!» during a move, then «Chiudi l'assistente» | the robot is STOPPED and the assistant is still up after the stop, then the assistant closes and stays closed until AVVIA ASSISTENTE VOCALE |
+
 
 ---
 
@@ -381,6 +393,8 @@ python -m eval.labelling.run_unseen
 ```
 
 The 2026-11-05 12:24 run is `eval/results/unseen_pack_20261105-122417.json`. It is synthetic. The raw spec did not match the generator's brand, name, INCI or legal text. Inspection false acceptances were 0. The automatic cycle used the front photo for both faces, decided NON_COMPLIANT, and pushed toward the reject box with `interventions: 0`. It did not place a pack in the accepted area.
+
+URSim simulates the controller only. It has no camera and no objects. `camera.source: sim` renders a station picture (three trays, synthetic packs, optional mirrored back faces) and is labelled **SIMULATED CAMERA · SYNTHETIC PRODUCTS**. A pack in that picture moves only after the gate reports `completato`. STOPPED, FAULT and an unknown outcome leave the picture where it was and mark it uncertain. `GET /api/camera/frame.jpg` serves the current frame. `/api/sim/*` answers 409 unless the source is `sim`, and also when `ROBOT_MODE=real`. Setting a scene during EXECUTING is refused. Two other modes use the same identification path: a real webcam (`opencv:0`) with real packs while URSim moves the virtual arm, and the real station (camera 1, arm 1). There is no Gazebo, Isaac or MuJoCo scene in this project. A 3D simulator is future work, not part of this demo.
 
 ## B5. Smart Labelling results
 Measured 2026-11-04 17:48 (`eval/results/labelling_run4_final.json`). Grok `grok-4.7` was used for reading model packs and for the second opinion. The **synthetic** dataset has 6 products × 12 packs, and the simulated operator set tolerances of ±4% / ±3°.

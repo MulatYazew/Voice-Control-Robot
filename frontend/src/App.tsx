@@ -112,7 +112,7 @@ export default function App() {
                 grokAvailable={!!store.config?.grok_configured} voiceLang={store.voiceLang} />
             </div>
             <div className="col">
-              <PerceptionPanel config={store.config} />
+              <PerceptionPanel config={store.config} gate={s?.gate} />
               <RobotPanel status={s} layout={store.layout} joints={store.joints} />
               <History items={s?.history ?? []} />
             </div>

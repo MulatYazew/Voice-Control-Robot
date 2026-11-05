@@ -1,0 +1,5 @@
+mirror_view: true
+zones:
+  sinistra: {product: lumen_crema_viso, variant: wrong_inci}
+  centro: {product: lumen_crema_viso, variant: creased}
+  destra: {product: lumen_crema_viso, variant: missing_back}

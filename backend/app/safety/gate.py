@@ -502,6 +502,7 @@ class Gate:
                 self._fault("posizione finale diversa dal target: esito incerto", pa)
                 return
             self.world.apply_effects(act.skill, act.params)
+            self.note_motion_outcome(act.skill, act.params, "completato")
             self.history.add(kind="completata", action=pa.id, skill=act.skill, params=act.params,
                              duration_s=res.duration)
             if self.state == GateState.EXECUTING:
@@ -525,6 +526,7 @@ class Gate:
                          f"{res.duration:.1f}s, confirmed by robot feedback. No sensor on the tray: its state is assumed.",
                          result=res.to_dict())
         elif res.outcome == STOPPED:
+            self.note_motion_outcome(act.skill, act.params, "uncertain")
             for _ in range(20):           # program state can lag the halt by a few ms: report observed standstill
                 if not st.moving:
                     break
@@ -538,6 +540,7 @@ class Gate:
                          text_en=f"STOPPED during {pa.id} ({act.skill}) after {res.steps_completed}/{res.steps_total} movements. "
                                  f"Robot halted. Press RESET (RIPRISTINA) in the interface.", result=res.to_dict())
         elif res.outcome == NOT_STARTED:
+            self.note_motion_outcome(act.skill, act.params, "uncertain")
             self.history.add(kind="non_eseguita", action=pa.id, skill=act.skill, error=res.error)
             if self.state == GateState.EXECUTING:
                 self._transition(GateState.IDLE, f"{pa.id} non avviata: {res.error}")
@@ -546,9 +549,20 @@ class Gate:
         else:  # FAILED or UNKNOWN
             self._fault(f"{res.outcome}: {res.error}", pa, res)
 
+    def note_motion_outcome(self, skill: str, params: dict, outcome: str) -> None:
+        """Tell a simulated station about a verified result. Anything else must not move the scene."""
+        fn = getattr(self, "on_verified_motion", None)
+        if fn is None:
+            return
+        try:
+            fn(skill, params, outcome)
+        except Exception:
+            log.exception("scene update failed")
+
     def _fault(self, reason: str, pa: PendingAction | None, res: ExecutionResult | None = None) -> None:
         self.fault_reason = reason
         self.world.fault = reason
+        self.note_motion_outcome(pa.action.skill if pa else "", pa.action.params if pa else {}, "uncertain")
         self.world.known_pose = None
         self.pending = None
         self.history.add(kind="guasto", action=pa.id if pa else None, reason=reason)
@@ -594,6 +608,7 @@ class Gate:
         pa = self.pending                       # 3-5. cancel pending / queued, invalidate authorisation
         self.pending = None
         self.end_cycle(f"STOP da {source}")
+        self.note_motion_outcome("", {}, "uncertain")
         if self.utterance:
             self.utterance.used_for = self.utterance.used_for or "STOP"
         was = self.state

@@ -138,6 +138,9 @@ td:not(:first-child), th:not(:first-child) { text-align: right; font-family: var
 .voicesel { display: flex; gap: 8px; align-items: center; padding: 8px 20px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .voicesel select { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font: inherit; }
 .frame { width: 100%; border-radius: var(--radius); border: 1px solid var(--line); }
+.sim-banner { font-weight: 700; letter-spacing: 0.04em; padding: 6px 8px; background: #1c1c1c; color: #f4f4f4; }
+.zone-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; margin-top: 6px; }
+.zone-card.flash { outline: 2px solid #2a6; }
 .cands { list-style: none; padding: 0; margin: 8px 0 0; }
 .confirm-q { font-size: 22px; line-height: 1.35; }
 .stopbar .stop small { font-size: 12px; letter-spacing: .1em; opacity: .8; margin-left: 10px; font-weight: 600; }

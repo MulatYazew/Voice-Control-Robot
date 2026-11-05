@@ -1,0 +1,5 @@
+mirror_view: true
+zones:
+  sinistra: {product: lumen_crema_viso, variant: correct_1}
+  centro: {product: lumen_crema_viso, variant: correct_2}
+  destra: null

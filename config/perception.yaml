@@ -10,3 +10,13 @@ perception:
   recheck_budget_s: 0.3
   detector: none          # none | yolo. Default none: the demo does not depend on it.
   background_diff: 28
+  sim:
+    difficulty: normal      # easy | normal | hard. Rendered frames only.
+    mirror_view: true
+  types:
+    cream: [crema, cream]
+    serum: [siero, serum]
+    oil: [olio, oil]
+    toner: [tonico, toner]
+    lip_balm: [balsamo, lip balm]
+    shampoo: [shampoo]

@@ -1,0 +1,6 @@
+# SIMULATED CAMERA · SYNTHETIC PRODUCTS. Not a real station.
+mirror_view: true
+zones:
+  sinistra: {product: lumen_crema_viso, variant: correct_1}
+  centro: null
+  destra: {product: ambra_balsamo_labbra, variant: crooked}

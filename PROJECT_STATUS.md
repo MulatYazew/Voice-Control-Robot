@@ -383,3 +383,45 @@ A Grok-only drop while the arm is moving still stops the robot, because the spok
 Amharic close phrases are in the lexicon and marked **NOT VERIFIED**.
 
 Manual soak (30 min open, Wi-Fi off for 10 s, laptop lid, headset unplug): **NOT TESTED**. Nobody ran those on this machine in this session.
+
+## Part B — simulated station camera (2026-11-05)
+
+URSim has no camera and no objects. `camera.source: sim` renders a 1500×900 picture: three trays on top, mirrored back faces below, labelled **SIMULATED CAMERA · SYNTHETIC PRODUCTS**. A pack moves only when the gate reports `completato`. Any other outcome sets `uncertain` and leaves the packs where they are. There is no Gazebo, Isaac or MuJoCo scene.
+
+Endpoints: `GET /api/camera/frame.jpg`, `GET/POST /api/sim/scene`, `POST /api/sim/scene/preset`, `POST /api/sim/scene/reset`, `GET /api/sim/identify`. `/api/sim/*` is 409 unless the source is `sim`, and 409 when the mode is `real`. Changing the scene during EXECUTING is 409.
+
+Presets in `config/scenes/`: `demo`, `defects`, `ambiguous`, `empty`, `unseen`.
+
+Tools, none of which move the arm: `identify_zone`, `find_product`, `check_labels`. «Cosa c'è sul tavolo?» and "What do you see?" list the zones. «Guarda cosa c'è sul tavolo.» stays a refusal, as in the earlier eval.
+
+The picture was checked in the browser at `http://127.0.0.1:8765` with the source set to `sim` in that process only (the committed `camera.yaml` is still the Arm 3 browser default). The banner, the three trays, the zone cards and the preset buttons were on screen. Empty preset cleared the trays. «Cosa c'è sul tavolo?» replied `sinistra: vuota; centro: vuota; destra: vuota`.
+
+Identification of the demo frame, three zones: **0.432 s**. Left cream matched `lumen_crema_viso` (ratio 100, the type word was not in the OCR text). Centre empty. Right lip balm: unknown product.
+
+Synthetic evaluation, `eval/results/perception_synthetic_20261105-133822.json`, 6 products × 12 variants × difficulties `normal` and `hard` (144 rows). Not a real camera.
+
+| | normal + hard |
+|---|---|
+| Product id matched | 10 / 144 |
+| Type word matched | 2 / 144 |
+| Unknown product | 134 / 144 |
+| False acceptances (a row marked COMPLIANT) | **0** |
+| Unseen pack | pack present, product unknown, compliance not checkable |
+
+Hard difficulty matched no product. The rendered, resized, disturbed label is often not readable by Tesseract. No approved specification was loaded, so compliance stays "not checkable" and is never COMPLIANT. Real-camera numbers: **not measured**.
+
+`scripts/sim_station_e2e.py` wrote `eval/results/sim_station_20261105-133630.json`: **NOT RUN**. `::1:30004` refused the connection, so URSim was not up and no motion result is claimed.
+
+### Tests
+```
+$ .venv/bin/python -m pytest -q tests
+320 passed, 1 warning in 75.18s
+```
+Before this prompt the suite was **296 passed**. The warning is Starlette's httpx deprecation notice. `npm run build` in `frontend/` succeeded after the voice and camera panels changed.
+
+## NOT VERIFIED — the owner has to do these
+- Amharic close phrases (ረዳቱን ዝጋ, ክፍለ ጊዜውን ጨርስ) and the rest of the Amharic lexicon. No recording was played.
+- The 30-minute voice soak, Wi-Fi drop, laptop lid, and headset unplug.
+- A real webcam and real packs. The synthetic numbers above are not that.
+- URSim and the real arm. The station end-to-end file is NOT RUN.
+- Native-speaker review of the zh and ja close phrases. They match as substrings in the tests; that is not a speaker check.

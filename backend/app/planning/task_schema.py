@@ -17,7 +17,8 @@ INTENTS = (
 
 _TOOLS = {
     "propose_skill": "move_skill", "sposta_vassoio": "move_object_tray", "locate_object": "locate_object",
-    "describe_scene": "describe_scene", "learn_model_pack": "learn_product", "analyse_model_pack": "learn_product",
+    "describe_scene": "describe_scene", "identify_zone": "describe_scene", "find_product": "describe_scene",
+    "check_labels": "inspect", "learn_model_pack": "learn_product", "analyse_model_pack": "learn_product",
     "check_label_sheet": "check_label_sheet", "validate_label_sheet": "check_label_sheet",
     "inspect_work_area": "inspect", "request_inspection": "inspect", "propose_labelling_cycle": "inspect_and_sort",
     "explain_inspection": "explain", "status": "status", "cancel": "cancel", "stop": "stop",

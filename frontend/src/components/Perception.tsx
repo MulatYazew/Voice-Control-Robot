@@ -5,14 +5,34 @@ interface Scene {
   available: boolean;
   calibrated: boolean;
   source?: string;
+  simulated?: boolean;
+  label?: string | null;
   has_frame: boolean;
   candidates: { zona: string; colore: string; bbox: number[]; fonti: string[] }[];
 }
 
-/** Live view for Arm 1. Arm 3 has no camera, and the panel says so. */
-export function PerceptionPanel({ config }: { config: Config | null }) {
+interface ZoneRow {
+  zona: string;
+  stato: string;
+  prodotto?: { id?: string | null; nome?: string | null; fonte?: string } | null;
+  tipo?: { valore?: string; fonte?: string } | null;
+  colore?: { nome?: string } | null;
+  etichette?: { fronte?: string; retro?: string };
+  conformita?: { decisione?: string | null } | null;
+  sorgente?: string;
+}
+
+const PRESETS = ["demo", "defects", "ambiguous", "unseen", "empty"];
+
+/** Live view. Arm 3 has no camera. A sim source is a rendered picture, never a real camera. */
+export function PerceptionPanel({ config, gate }: { config: Config | null; gate?: string }) {
   const [scene, setScene] = useState<Scene | null>(null);
-  const open = !!config?.camera_available;
+  const [rows, setRows] = useState<ZoneRow[]>([]);
+  const [flash, setFlash] = useState<string>("");
+  const [stamp, setStamp] = useState(0);
+  const simulated = config?.camera_source === "sim" || scene?.source === "sim";
+  const open = !!config?.camera_available || simulated;
+  const moving = gate === "EXECUTING";
 
   useEffect(() => {
     let stop = false;
@@ -28,7 +48,30 @@ export function PerceptionPanel({ config }: { config: Config | null }) {
   }, []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!simulated) return;
+    let stop = false;
+    const tick = async () => {
+      const r = await fetch("/api/sim/identify").catch(() => null);
+      if (!r || !r.ok || stop) return;
+      const body = await r.json();
+      const next: ZoneRow[] = body.zone || [];
+      setRows((prev) => {
+        const changed = next.find((row, i) => row.prodotto?.id && row.prodotto.id !== prev[i]?.prodotto?.id);
+        if (changed) {
+          setFlash(changed.zona);
+          window.setTimeout(() => setFlash(""), 1600);
+        }
+        return next;
+      });
+    };
+    tick();
+    const t = window.setInterval(tick, 2000);
+    const frame = window.setInterval(() => setStamp(Date.now()), 300);
+    return () => { stop = true; window.clearInterval(t); window.clearInterval(frame); };
+  }, [simulated]);
+
+  useEffect(() => {
+    if (!open || simulated) return;
     let stop = false;
     let stream: MediaStream | null = null;
     const send = async () => {
@@ -50,7 +93,7 @@ export function PerceptionPanel({ config }: { config: Config | null }) {
       (send as unknown as { stop?: () => void }).stop = done;
     }).catch(() => undefined);
     return () => { stop = true; stream?.getTracks().forEach((tr) => tr.stop()); };
-  }, [open]);
+  }, [open, simulated]);
 
   if (!config) return null;
   if (!open) {
@@ -61,16 +104,44 @@ export function PerceptionPanel({ config }: { config: Config | null }) {
       </section>
     );
   }
+
+  const setPreset = (name: string) => {
+    fetch("/api/sim/scene/preset", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }) });
+  };
+
   return (
     <section className="card">
-      <h2>Percezione <span className="sub">{scene?.calibrated ? "zone calibrate" : "zone non calibrate"}</span></h2>
-      {scene?.has_frame && <img className="frame" alt="fotogramma" src={`/api/camera/frame?t=${Date.now()}`} />}
-      {!scene?.has_frame && <div className="empty">Nessun fotogramma recente. Senza immagine non c'è movimento.</div>}
-      <ul className="cands">
-        {(scene?.candidates ?? []).map((c, i) => (
-          <li key={i}><b>{c.zona}</b> {c.colore} {(c.fonti ?? []).map((f) => <span key={f} className="langbadge">{f}</span>)}</li>
-        ))}
-      </ul>
+      <h2>Camera / Station <span className="sub">{scene?.calibrated ? "zone calibrate" : scene?.source || ""}</span></h2>
+      {simulated && <div className="sim-banner">SIMULATED CAMERA · SYNTHETIC PRODUCTS</div>}
+      {simulated && <img className="frame" alt="stazione simulata" src={`/api/camera/frame.jpg?t=${stamp}`} />}
+      {!simulated && scene?.has_frame && <img className="frame" alt="fotogramma" src={`/api/camera/frame?t=${Date.now()}`} />}
+      {!simulated && !scene?.has_frame && <div className="empty">Nessun fotogramma recente. Senza immagine non c'è movimento.</div>}
+      {rows.map((row) => (
+        <div key={row.zona} className={flash === row.zona ? "zone-card flash" : "zone-card"}>
+          <b>{row.zona}</b> {row.stato === "empty" ? "vuota" : (row.tipo?.valore || "tipo non letto")}
+          {" · "}{row.prodotto?.nome || (row.stato === "pack" ? "prodotto sconosciuto" : "")}
+          {" · "}{row.colore?.nome || ""}
+          {" · "}{row.etichette?.fronte || ""} {row.etichette?.retro || ""}
+          {" · "}{row.conformita?.decisione || "conformità non verificabile"}
+          {row.prodotto?.fonte && <span className="langbadge">{row.prodotto.fonte}</span>}
+          {row.sorgente === "SIMULATED CAMERA · SYNTHETIC PRODUCTS" && <span className="langbadge">SIMULATED</span>}
+        </div>
+      ))}
+      {!simulated && (
+        <ul className="cands">
+          {(scene?.candidates ?? []).map((c, i) => (
+            <li key={i}><b>{c.zona}</b> {c.colore} {(c.fonti ?? []).map((f) => <span key={f} className="langbadge">{f}</span>)}</li>
+          ))}
+        </ul>
+      )}
+      {simulated && (
+        <div className="mic-actions">
+          {PRESETS.map((name) => (
+            <button key={name} type="button" disabled={moving} onClick={() => setPreset(name)}>{name}</button>
+          ))}
+          <button type="button" disabled={moving} onClick={() => fetch("/api/sim/scene/reset", { method: "POST" })}>reset</button>
+        </div>
+      )}
     </section>
   );
 }

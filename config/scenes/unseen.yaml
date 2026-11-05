@@ -1,0 +1,6 @@
+# Not in the development catalogue. The renderer draws a card if the photos are absent.
+mirror_view: true
+zones:
+  sinistra: {product: mirto_balsamo_barba, variant: correct_1}
+  centro: null
+  destra: null

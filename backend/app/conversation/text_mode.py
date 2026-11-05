@@ -114,6 +114,20 @@ class TextConversation:
             self.context = None
             return self._out(text, intent, self.t("cancelled") if res.get("annullata") else self.t("nothing"), res)
 
+        if intent.kind == "scene":
+            self.context = None
+            perceive = getattr(g, "perceive", None)
+            answer = getattr(perceive, "answer_scene", None)
+            if answer is None:
+                return self._out(text, intent, self.t("no_camera"), {"ok": False, "esito": "nessuna_telecamera"})
+            res = answer(intent.params)
+            proposal = res.get("propose")
+            if proposal:
+                out = await self._propose(text, Intent("skill", skill=proposal["skill"], params=proposal["params"]))
+                out["reply"] = f"{res.get('messaggio', '')} {out['reply']}".strip()
+                return out
+            return self._out(text, intent, res.get("messaggio") or self.t("repeat"), res)
+
         if intent.kind == "locate":
             self.context = None
             perceive = getattr(g, "perceive", None)
@@ -166,7 +180,9 @@ class TextConversation:
 
     async def _propose(self, text: str, intent: Intent) -> dict[str, Any]:
         g = self.gate
-        res = g.propose(intent.skill, intent.params, source="rules")
+        params = dict(intent.params)
+        evidenza = params.pop("evidenza_id", None)
+        res = g.propose(intent.skill, params, source="rules", evidenza_id=evidenza)
         if res.get("ok"):
             self.context = None
             g.mark_question_asked(res["action_id"])

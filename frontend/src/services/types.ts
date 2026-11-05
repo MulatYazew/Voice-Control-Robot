@@ -34,7 +34,7 @@ export interface Status {
 export interface Config {
   mode: "sim" | "ursim" | "real"; robot_name: string; robot_model: string; polyscope: string; zones: string[];
   directions: string[]; ttl_s: number; grok_model: string; grok_configured: boolean; warnings: string[];
-  camera_available?: boolean; camera_calibrated?: boolean; station?: string; delivery_zone?: string;
+  camera_available?: boolean; camera_source?: string; camera_calibrated?: boolean; station?: string; delivery_zone?: string;
 }
 
 export interface Layout { zones: Record<string, number>; poses: Record<string, number[]> }
