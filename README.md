@@ -136,7 +136,7 @@ All event names were verified live on 2026-11-04 against `grok-voice-3.0` (see `
 
 Use a headset in a noisy room. The mic can be paused or the voice session closed at any time.
 
-Robot STOP does not close the assistant. The STOP button, the Space bar and a spoken stop (`stop`, `fermati`, `停止`, `止まって`, `አቁም`) latch the robot and the assistant keeps listening. The assistant ends only when the operator presses **Chiudi assistente** or says a phrase that names the assistant or the session, such as «chiudi l'assistente» or "close the assistant". A Grok-only drop while the arm is moving also stops the robot, because the spoken STOP spotter depends on the transcript. A dropped Grok link does not restore a pending action: the operator asks again.
+With `safety.end_voice_on_stop` (the default), a spoken STOP or the STOP button stops the robot and then ends the voice session. «Chiudi assistente» / "close the assistant" does the same. A Grok-only drop does not stop the arm: the button remains the STOP. The browser socket dropping while the arm is moving still stops the arm. A dropped link does not restore a pending action.
 
 ## 11. Text simulation mode
 Switch on **Modalità testo** in the UI, or `POST /api/text-command {"text": "...", "engine": "rules"|"grok"}`. It's labelled **TEXT MODE — NOT VOICE** everywhere. The `rules` engine works without Grok. It's for development and evaluation only and is never presented as voice operation.

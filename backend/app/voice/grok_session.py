@@ -51,6 +51,9 @@ class GrokSession:
         self._lock = asyncio.Lock()
         self._closing = False
         self._operator_closed = False
+        self._ending = False
+        self._last_user = ""
+        self._audio_until = 0.0
         self._wake = asyncio.Event()
         self.finished = asyncio.Event()
         self.tool_calls: list[dict[str, Any]] = []     # for text-mode evaluation
@@ -155,6 +158,8 @@ class GrokSession:
                     await self.to_client({"type": "flush"})     # stop local playback immediately
                     if self.resp_active:
                         await self.to_xai({"type": "response.cancel"})
+                elif ev["type"] == "stop_ack" and self._end_voice_on_stop() and self._operator_stop(str(ev.get("source") or "")):
+                    await self.end_session("operator_stop", source=str(ev.get("source") or ""), transcript=str(ev.get("detail") or ""))
         finally:
             self.bus.unsubscribe(q)
 
@@ -198,6 +203,7 @@ class GrokSession:
             ev = json.loads(raw)
             t = ev.get("type", "")
             if t in ("response.output_audio.delta", "response.audio.delta"):
+                self._audio_until = time.monotonic() + 5
                 if self.mode == "voice":
                     await self.to_client(base64.b64decode(ev["delta"]))
             elif t == "input_audio_buffer.speech_started":
@@ -212,7 +218,7 @@ class GrokSession:
             elif t == "conversation.item.input_audio_transcription.updated":
                 txt = ev.get("transcript", "")
                 self.bus.publish("transcript", role="user", text=txt, final=False, source="voice")
-                self.gate.note_partial(txt)
+                self.note_partial(txt)
             elif t == "conversation.item.input_audio_transcription.completed":
                 await self.on_final_transcript(ev.get("transcript", ""))
             elif t == "response.created":
@@ -227,6 +233,7 @@ class GrokSession:
                 await self._function_call(ev)
             elif t == "response.done":
                 self.resp_active = False
+                self._audio_until = time.monotonic() + 0.7
                 if self._cur.strip():
                     self.assistant_text.append(self._cur.strip())
                     self.bus.publish("assistant_done", text=self._cur.strip(), mode=self.mode)
@@ -306,15 +313,43 @@ class GrokSession:
             except Exception:
                 pass
 
-    async def end_session(self, reason: str) -> None:
-        """Operator closed the assistant. Robot STOP is not this path."""
+    def _end_voice_on_stop(self) -> bool:
+        return bool((self.s.robot.get("safety") or {}).get("end_voice_on_stop", True))
+
+    @staticmethod
+    def _operator_stop(source: str) -> bool:
+        return source == "ui" or source.startswith(("ui:", "transcript:", "grok_tool"))
+
+    def note_partial(self, txt: str) -> bool:
+        """Partials heard while the speaker is playing are the assistant, not the operator."""
+        if time.monotonic() < self._audio_until:
+            return False
+        return self.gate.note_partial(txt)
+
+    def _is_echo(self, txt: str) -> bool:
+        spoken = self.assistant_text[-1] if self.assistant_text else ""
+        if not spoken or not txt:
+            return False
+        from ..labelling.ocr import ratio
+        return ratio(txt, spoken) >= 80
+
+    async def end_session(self, reason: str, *, source: str = "", transcript: str = "") -> None:
+        """Close the assistant. A moving robot is stopped first, except when this follows an operator STOP."""
+        if self._ending:
+            return
+        self._ending = True
         self._closing = True
         self._operator_closed = True
+        log_event(log, "session end", source=source or reason, reason=reason, transcript=transcript or self._last_user)
         moving = self.gate.state == GateState.EXECUTING
         robot = getattr(self.gate, "robot_status", None)
-        if moving or (robot is not None and getattr(robot, "moving", False)):
+        if reason not in ("spoken_stop", "operator_stop") and (moving or (robot is not None and getattr(robot, "moving", False))):
             await self.gate.stop("assistant_closed", detail=reason)
-        await self.to_client({"type": "session_end", "reason": reason,
+        banner = ""
+        if reason in ("spoken_stop", "operator_stop"):
+            banner = f'Stopped because: {source or reason} — “{transcript or self._last_user}”'
+            await self.to_client({"type": "notice", "banner": banner})
+        await self.to_client({"type": "session_end", "reason": reason, "banner": banner,
                               "message": "Assistente chiuso / Assistant closed"})
         self._set_status("closed", reason)
         if self.client is not None:
@@ -325,14 +360,25 @@ class GrokSession:
         self._wake.set()
 
     async def on_final_transcript(self, txt: str) -> None:
-        """STOP wins. A close-the-assistant phrase is checked on the final transcript only."""
+        """STOP wins, unless the mic is hearing the assistant. A close phrase is final-only."""
+        self._last_user = txt or ""
         if phrases.is_stop(txt) and self.t_speech_end:
             self.metrics.record("transcript_stop_detect_ms", (time.monotonic() - self.t_speech_end) * 1000)
+        if phrases.is_stop(txt) and self._is_echo(txt):
+            log_event(log, "echo ignored", source="transcript:voice", reason="echo", transcript=txt)
+            self.gate.note_transcript(txt, source="voice", stop_allowed=False)
+            return
         if phrases.is_terminate(txt):
             if phrases.is_stop(txt):
                 await self.gate.stop("transcript:voice", detail=txt or "")
-            self.gate.note_transcript(txt, source="voice")
-            await self.end_session("spoken")
+            self.gate.note_transcript(txt, source="voice", stop_allowed=False)
+            await self.end_session("spoken", source="transcript:voice", transcript=txt)
+            return
+        if phrases.is_stop(txt):
+            await self.gate.stop("transcript:voice", detail=txt or "")
+            self.gate.note_transcript(txt, source="voice", stop_allowed=False)
+            if self._end_voice_on_stop():
+                await self.end_session("spoken_stop", source="transcript:voice", transcript=txt)
             return
         self.gate.note_transcript(txt, source="voice")
 
@@ -366,6 +412,7 @@ class GrokSession:
                     break
                 attempts += 1
                 delay = self._backoff(attempts)
+                log_event(log, "voice reconnect", source="grok", reason=reason, transcript=self._last_user)
                 detail = f"reconnecting (attempt {attempts}, next in {delay:g}s)"
                 self._set_status("reconnecting", detail)
                 await self.to_client({"type": "voice_status", "status": "reconnecting", "detail": detail})
@@ -387,8 +434,11 @@ class GrokSession:
                 pass
         self.xai = None
         self.resp_active = False
-        log_event(log, "voice session dropped", reason=reason, final=final)
-        await self.gate.on_voice_disconnected(reason)
+        log_event(log, "voice session dropped", source="browser" if final else "grok", reason=reason,
+                  transcript=self._last_user, final=final)
+        if not final:
+            await self.to_client({"type": "notice", "banner": "voice STOP temporarily unavailable — use the STOP button"})
+        await self.gate.on_voice_disconnected(reason, stop_motion=False if not final else None)
         if final:
             self._set_status("closed", reason)
 

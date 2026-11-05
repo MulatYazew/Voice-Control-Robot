@@ -7,6 +7,7 @@ registry; unknown tools are rejected.
 
 from __future__ import annotations
 
+import asyncio
 import json
 from pathlib import Path
 from typing import Any
@@ -243,11 +244,11 @@ def _cycle_voice_tool(name: str, args: dict[str, Any], gate: Gate | None, svc: A
         _remember_lingua(gate, args)
         conferme = {
             "it": (f"Avvio il ciclo per {pid}. Pacco a sinistra, centro e destra liberi. "
-                   "Conforme verso destra, non conforme nel contenitore scarti, dubbio: mi fermo. Confermi?"),
+                   "Conforme verso destra, non conforme nel contenitore scarti, dubbio: non proseguo. Confermi?"),
             "en": (f"Starting the cycle for {pid}. Pack on the left, centre and right free. "
-                   "Compliant goes right, non-compliant goes to the reject box, doubt: I stop. Do you confirm?"),
-            "zh": f"开始 {pid} 的循环。包装在左边，中间和右边空着。合格到右边，不合格进废料箱，有疑问就停下。确认吗？",
-            "ja": f"{pid} のサイクルを開始します。左にパック、中央と右は空です。適合は右、不適合は廃棄箱、疑わしいときは止まります。確認しますか？",
+                   "Compliant goes right, non-compliant goes to the reject box, doubt: I do not continue. Do you confirm?"),
+            "zh": f"开始 {pid} 的循环。包装在左边，中间和右边空着。合格到右边，不合格进废料箱，有疑问就不继续。确认吗？",
+            "ja": f"{pid} のサイクルを開始します。左にパック、中央と右は空です。適合は右、不適合は廃棄箱、疑わしいときはそこで終わります。確認しますか？",
             "am": f"ለ {pid} ዑደቱን እጀምራለሁ። ጥቅሉ በግራ ነው። ተስማሚ ወደ ቀኝ፣ ያልተስማማ ወደ ውድቅ፣ ጥርጣሬ ቢኖር እቆማለሁ። ታረጋግጣለህ?",
         }
         return gate.propose_cycle(str(pid), conferme, source="grok")
@@ -304,15 +305,17 @@ async def dispatch(gate: Gate, name: str, args: dict[str, Any], *, source: str =
         if name in ("analyse_model_pack", "validate_label_sheet", "request_inspection", "explain_inspection",
                     "start_sorting_cycle", "list_products", "learn_model_pack", "check_label_sheet",
                     "inspect_work_area", "propose_labelling_cycle"):
+            if name in ("learn_model_pack", "check_label_sheet", "inspect_work_area"):
+                return await asyncio.to_thread(_labelling_tool, name, args, gate)
             return _labelling_tool(name, args, gate)
         if name == "locate_object":
             _remember_lingua(gate, args)
             if PERCEPTION is None or not getattr(PERCEPTION, "available", False):
                 return {"ok": False, "esito": "nessuna_telecamera",
                         "messaggio": "Questa stazione non ha telecamera. Il braccio sposta solo vassoi, non afferra gli oggetti."}
-            return PERCEPTION.locate(args)
+            return await asyncio.to_thread(PERCEPTION.locate, args)
         if name in ("identify_zone", "find_product", "check_labels"):
-            return _perception_tool(name, args)
+            return await asyncio.to_thread(_perception_tool, name, args)
     except Exception as e:  # pragma: no cover - defensive
         return {"ok": False, "esito": "errore_interno", "messaggio": str(e)}
     return {"ok": False, "esito": "strumento_sconosciuto", "messaggio": f"Strumento {name!r} non disponibile."}

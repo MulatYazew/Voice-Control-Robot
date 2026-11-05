@@ -5,13 +5,13 @@ from app.safety.phrases import ABSENT, NEGATIVE, STOP, UNCERTAIN, VALID, confirm
 
 # spec §9: stop expressions
 @pytest.mark.parametrize("t", ["Stop", "Fermati", "Fermati immediatamente", "Ferma", "Basta", "Alt", "Arresta il robot",
-                               "Blocca tutto", "FERMATI IMMEDIATAMENTE!", "fermo!", "stop stop", "halt"])
+                               "Blocca tutto", "FERMATI IMMEDIATAMENTE!", "stop stop", "halt"])
 def test_stop_phrases(t):
     assert is_stop(t)
 
 
 @pytest.mark.parametrize("t", ["solleva il vassoio a sinistra", "indica la zona centrale", "alto", "stoppino", "basso",
-                               "sì confermo"])
+                               "sì confermo", "fermo!", "fermato", "fermo cosi"])
 def test_not_stop(t):
     assert not is_stop(t)
 

@@ -57,4 +57,5 @@ motion:
 safety:
   confirmation_ttl_s: 20
   execution_timeout_margin_s: 5
-  stop_on_voice_loss: true      # voice channel lost while moving -> STOP (fail-safe; STOP button still works)
+  stop_on_voice_loss: true      # the browser socket lost while moving -> STOP. A Grok-only drop does not.
+  end_voice_on_stop: true       # a spoken STOP or the STOP button ends the voice session after the robot has stopped

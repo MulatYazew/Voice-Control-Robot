@@ -7,6 +7,7 @@ export interface VoiceCallbacks {
   onState: (s: VoiceState, detail?: string) => void;
   onLevel: (rms: number) => void;
   onWake?: (state: "on" | "not supported") => void;
+  onBanner?: (text: string) => void;
 }
 
 export class VoiceClient {
@@ -22,6 +23,7 @@ export class VoiceClient {
   private retry = 0;
   private lastRx = 0;
   private pingTimer = 0;
+  private static readonly DEAD_AFTER_MS = 30000;
   private wake: { release: () => Promise<void> } | null = null;
   private online = () => this.reconnectNow();
   private visible = () => { if (document.visibilityState === "visible") { this.reconnectNow(); this.keepAwake(); } };
@@ -91,7 +93,7 @@ export class VoiceClient {
       window.clearInterval(this.pingTimer);
       this.pingTimer = window.setInterval(() => {
         if (ws.readyState !== WebSocket.OPEN) return;
-        if (Date.now() - this.lastRx > 15000) { ws.close(); return; }
+        if (Date.now() - this.lastRx > VoiceClient.DEAD_AFTER_MS) { ws.close(); return; }
         ws.send(JSON.stringify({ type: "ping", t: Date.now() }));
       }, 5000);
     };
@@ -105,8 +107,13 @@ export class VoiceClient {
           if (ev.status === "reconnecting") this.cb.onState("reconnecting", ev.detail);
           else if (!this.paused && this.wanted) this.cb.onState("live");
         }
+        if (ev.type === "notice" && ev.banner) this.cb.onBanner?.(ev.banner);
         if (ev.type === "error") this.cb.onState("reconnecting", ev.message);
-        if (ev.type === "session_end") { this.ended = true; this.wanted = false; this.cb.onState("off", ev.message); }
+        if (ev.type === "session_end") {
+          this.ended = true; this.wanted = false;
+          if (ev.banner) this.cb.onBanner?.(ev.banner);
+          this.cb.onState("off", ev.message);
+        }
       } catch { /* ignore */ }
     };
     ws.onclose = () => {

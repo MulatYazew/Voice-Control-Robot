@@ -17,11 +17,11 @@ LANGS = ("it", "en", "zh", "ja", "am")
 
 T = {
     "stopped": {
-        "it": "Fermato. Nuovi movimenti bloccati fino a RIPRISTINA.",
-        "en": "Stopped. New movements blocked until RESET.",
-        "zh": "已停止。在按下复位之前不能做新的动作。",
-        "ja": "停止しました。復帰するまで新しい動作はできません。",
-        "am": "ቆሟል። እስኪመለስ ድረስ አዲስ እንቅስቃሴ የለም።",
+        "it": "Robot in sicurezza. Nuovi movimenti in attesa di RIPRISTINA.",
+        "en": "Robot halted safely. New movements blocked until RESET.",
+        "zh": "机器人处于安全状态。复位之前不能做新的动作。",
+        "ja": "ロボットは安全な状態です。復帰するまで新しい動作はできません。",
+        "am": "ሮቦቱ በደህንነት ላይ ነው። እስኪመለስ ድረስ አዲስ እንቅስቃሴ የለም።",
     },
     "explicit": {
         "it": "Serve una conferma esplicita: sì o no?",

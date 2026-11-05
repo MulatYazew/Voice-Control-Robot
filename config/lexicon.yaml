@@ -22,7 +22,6 @@ stop:
     - stoppa
     - fermati
     - ferma
-    - fermo
     - fermatevi
     - fermare
     - fermalo
@@ -38,7 +37,6 @@ stop:
     - arresta il robot
     - blocca tutto
     - fermati immediatamente
-    - fermo cosi
   en:
     - halt
     - stopp

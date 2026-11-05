@@ -52,6 +52,7 @@ export default function App() {
   const [voiceDetail, setVoiceDetail] = useState("");
   const [level, setLevel] = useState(0);
   const [wake, setWake] = useState<"" | "on" | "not supported">("");
+  const [banner, setBanner] = useState("");
   const [tab, setTab] = useState<Tab>("voice");
   const voice = useRef<VoiceClient | null>(null);
   const langRef = useRef(lang);
@@ -67,6 +68,7 @@ export default function App() {
         onState: (s, d) => { setVoiceState(s); setVoiceDetail(d ?? ""); },
         onLevel: (l) => setLevel(l),
         onWake: (w) => setWake(w),
+        onBanner: (text) => setBanner(text),
       }, () => voiceRef.current);
     }
     await voice.current.start();
@@ -101,6 +103,7 @@ export default function App() {
         </div>
         <Pipeline ui={ui} metrics={s?.metrics ?? {}} />
         {store.textMode && <div className="global-textmode">TEXT MODE — NOT VOICE</div>}
+        {banner && <div className="sim-banner">{banner}</div>}
         <Nav tab={tab} setTab={setTab} />
         {tab === "voice" && (
           <main className="grid">

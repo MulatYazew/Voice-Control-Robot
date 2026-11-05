@@ -220,9 +220,10 @@ class Gate:
         self.utterance = u
         return u
 
-    def note_transcript(self, text: str | None, *, final: bool = True, source: str = "voice") -> bool:
+    def note_transcript(self, text: str | None, *, final: bool = True, source: str = "voice",
+                        stop_allowed: bool = True) -> bool:
         """Operator transcript. Returns True if it triggered STOP (handled independently of Grok)."""
-        stop = phrases.is_stop(text)
+        stop = stop_allowed and phrases.is_stop(text)
         if final:
             u = self.utterance
             if u is None or u.text is not None or u.source != source:
@@ -249,7 +250,7 @@ class Gate:
         if self.state == GateState.FAULT:
             return _err("guasto", f"Sistema in GUASTO ({self.fault_reason}): serve l'intervento dell'operatore.")
         if self.state == GateState.EXECUTING:
-            return _err("occupato", "Il braccio sta eseguendo un movimento: attendi il risultato o di' stop.")
+            return _err("occupato", "Il braccio sta eseguendo un movimento: attendi il risultato o usa il pulsante rosso.")
         return None
 
     def propose(self, skill: Any, params: dict[str, Any] | None, *, source: str = "grok",
@@ -377,8 +378,8 @@ class Gate:
             self.history.add(kind="scaduta", action=pa.id, skill=pa.action.skill)
             if self.state == GateState.PENDING_CONFIRMATION:
                 self._transition(GateState.IDLE, f"proposta {pa.id} scaduta")
-            self._report("scaduta", f"La proposta {pa.id} è scaduta senza conferma. Nessun movimento.",
-                         text_en=f"Proposal {pa.id} expired without confirmation. No movement.")
+            self._report("scaduta", "La proposta è scaduta, ripeti il comando.",
+                         text_en="The proposal expired, please repeat the command.")
             return True
         return False
 
@@ -535,10 +536,10 @@ class Gate:
             if self.state != GateState.STOPPED:
                 self._transition(GateState.STOPPED, f"{pa.id} interrotta")
             self.history.add(kind="interrotta", action=pa.id, skill=act.skill, steps=res.steps_completed)
-            self._report("fermato", f"FERMATO durante {pa.id} ({act.skill}) dopo {res.steps_completed}/{res.steps_total} "
+            self._report("fermato", f"Robot in sicurezza durante {pa.id} ({act.skill}) dopo {res.steps_completed}/{res.steps_total} "
                                     f"movimenti. Robot: {self._robot_brief(st)}. Serve RIPRISTINA dall'interfaccia.",
-                         text_en=f"STOPPED during {pa.id} ({act.skill}) after {res.steps_completed}/{res.steps_total} movements. "
-                                 f"Robot halted. Press RESET (RIPRISTINA) in the interface.", result=res.to_dict())
+                         text_en=f"Robot halted safely during {pa.id} ({act.skill}) after {res.steps_completed}/{res.steps_total} movements. "
+                                 f"Press RESET (RIPRISTINA) in the interface.", result=res.to_dict())
         elif res.outcome == NOT_STARTED:
             self.note_motion_outcome(act.skill, act.params, "uncertain")
             self.history.add(kind="non_eseguita", action=pa.id, skill=act.skill, error=res.error)
@@ -568,12 +569,12 @@ class Gate:
         self.history.add(kind="guasto", action=pa.id if pa else None, reason=reason)
         if self.state != GateState.STOPPED:
             self._transition(GateState.FAULT, reason)
-        self._report("guasto", f"GUASTO: {reason}. Nessun nuovo tentativo automatico. Serve l'intervento dell'operatore.",
-                     text_en=f"FAULT: {reason}. No automatic retry. Operator intervention required.",
+        self._report("guasto", f"Si è verificato un guasto: {reason}. Serve RIPRISTINA dall'interfaccia. La sessione resta in ascolto.",
+                     text_en=f"A fault occurred: {reason}. Press RESET. The session keeps listening.",
                      result=res.to_dict() if res else None)
 
     def _robot_brief(self, st: RobotStatus) -> str:
-        parts = ["in movimento" if st.moving else "fermo", f"posa {self.world.known_pose or 'non nominata'}"]
+        parts = ["in movimento" if st.moving else "in posizione", f"posa {self.world.known_pose or 'non nominata'}"]
         if st.safety:
             parts.append(f"sicurezza {st.safety}")
         if not st.connected:
@@ -631,15 +632,15 @@ class Gate:
         self.metrics.record(f"stop_ack_ms[{kind}]", ack_ms, source=source)
         if ack.get("halt_latency_ms") is not None:
             self.metrics.record(f"stop_halt_ms[{kind}]", ack["halt_latency_ms"], source=source)
-        log_event(log, "STOP", **{k: v for k, v in info.items() if k != "robot_status"})
+        log_event(log, "STOP", transcript=detail, reason=source, **{k: v for k, v in info.items() if k != "robot_status"})
         self.history.add(kind="stop", source=source, previous=was.value, ack_ms=ack_ms, robot=self._robot_brief(st))
         self.bus.publish("stop_ack", **info)
         self.publish_state()
         if was not in (GateState.EXECUTING, GateState.STOPPED):  # executing: _execute() reports; already stopped: no repeat
-            self._report("fermato", f"STOP ricevuto ({source}). "
+            self._report("fermato", f"Robot in sicurezza ({source}). "
                          + (f"Proposta {pa.id} annullata. " if pa else "")
-                         + f"Robot: {self._robot_brief(st)}. Nuovi movimenti bloccati fino a RIPRISTINA.",
-                         text_en=f"STOP received ({source}). " + (f"Proposal {pa.id} cancelled. " if pa else "")
+                         + f"Robot: {self._robot_brief(st)}. Nuovi movimenti in attesa di RIPRISTINA.",
+                         text_en=f"Robot halted safely ({source}). " + (f"Proposal {pa.id} cancelled. " if pa else "")
                          + "New movements blocked until RESET.")
         _ = m0
         return {"ok": True, "esito": "fermato", **{k: info[k] for k in ("ack_latency_ms", "previous_state")},
@@ -769,8 +770,8 @@ class Gate:
         return {"ok": True, "esito": "posa_salvata", "nome": key, "nota": "Salvata, non eseguita. Usare vai_a_posa."}
 
     # ======================================================= voice session ===
-    async def on_voice_disconnected(self, reason: str) -> None:
-        """Clear pending + invalidate confirmations. Never retried, never restored."""
+    async def on_voice_disconnected(self, reason: str, *, stop_motion: bool | None = None) -> None:
+        """Clear pending. A Grok-only drop passes stop_motion=False. The browser socket keeps the fail-safe."""
         pa = self.pending
         self.pending = None
         if self.utterance:
@@ -778,8 +779,9 @@ class Gate:
         self.utterance = None
         if pa:
             self.history.add(kind="annullata", action=pa.id, reason=f"voce disconnessa: {reason}")
+        halt = self.stop_on_voice_loss if stop_motion is None else stop_motion
         if self.state == GateState.PENDING_CONFIRMATION:
             self._transition(GateState.IDLE, f"voce disconnessa ({reason}): proposta {pa.id if pa else ''} annullata")
-        elif self.state == GateState.EXECUTING and self.stop_on_voice_loss:
+        elif self.state == GateState.EXECUTING and halt:
             await self.stop("voice_lost", detail=reason)
         self.publish_state()

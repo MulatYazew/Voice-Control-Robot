@@ -246,7 +246,7 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
     @app.get("/api/sim/identify")
     async def api_sim_identify() -> dict[str, Any]:
         _sim_open()
-        return {"label": "SIMULATED CAMERA · SYNTHETIC PRODUCTS", "zone": station.zone_rows()}
+        return {"label": "SIMULATED CAMERA · SYNTHETIC PRODUCTS", "zone": await asyncio.to_thread(station.zone_rows)}
 
     @app.get("/api/camera/frame")
     async def api_camera_get() -> Response:
