@@ -178,7 +178,7 @@ To do during the slot: verify model + PolyScope, set `connections.real.host` / `
 | Success only after actual result | TESTED | RTDE completion + final-joint check; FAULT on unknown |
 | Text mode distinguished | TESTED | banner + label on every response |
 | Notebook two cells | TESTED | executed incl. idempotency |
-| Tests | TESTED | 142 passed (26 baseline ported + 116 new) |
+| Tests | TESTED | 185 passed (26 baseline ported + 159 new) |
 | Evaluation | TESTED | 81 cases, rules vs Grok, latency file |
 | Documentation | DONE | README, this file |
 | Real Arm 3 | BLOCKED | supervised slot |
@@ -187,3 +187,71 @@ To do during the slot: verify model + PolyScope, set `connections.real.host` / `
 1. Owner: try the browser UI with your own voice and a headset; record a backup video **with audio**.
 2. Collect 10–20 commands from people outside the team into `eval/testset.csv` (`autore=esterni`) and rerun `python -m eval.run_eval`.
 3. Hardware slot: Phase 8 checklist above.
+
+---
+
+## Phase 10 — Mode B: Smart Labelling + bilingual platform (2026-11-04 evening) — DONE · TESTED (synthetic + URSim)
+Request: add labelling from the model pack (second track brief) + Italian/English everywhere (master prompt v3).
+
+Created: `backend/app/labelling/{vision,ocr,grok_vision,specification,model_reader,label_verification,compliance,service,sorting}.py`,
+`backend/app/api/labelling.py`, `config/{labelling,camera}.yaml`, `scripts/make_synthetic_packs.py`, `eval/labelling/run_eval.py`,
+`frontend/src/{i18n/strings.ts,services/labelling.ts,labelling/Labelling.tsx}`, `tests/{test_labelling,test_bilingual}.py`.
+Modified: gate (cycle authorisation: `authorize_cycle` / `run_cycle_step` / STOP ends it), world (push `scarto` = into reject box),
+robot.yaml + poses.yaml (direction `scarto`, URSim placeholder poses), phrases + rules (English), skills.yaml (English wording),
+text mode (bilingual), Grok session (`?lang=it|en|auto`, English reports), prompt (bilingual + labelling tools), UI (6 sections, language selector).
+
+Environment added: Tesseract 5.5.4 (ita+eng, Homebrew), OpenCV 5.0, pytesseract, rapidfuzz, python-multipart.
+Grok vision verified live: `grok-4.7` (image+text in, strict `json_schema` out), ≈6–50 s per call depending on load.
+
+### What was verified
+- Unit/integration tests: **185 passed** (`pytest -q tests`), incl. 18 labelling (decisions, approval blockers, Grok downgrade-only,
+  sheet MATCH/MISMATCH, cycle accept / reject / review-hold / STOP abort / out-of-cycle move refused) and 25 bilingual.
+- **URSim desktop app, through the real UI (headless Chromium):** learn held-out product → approve → sheet MATCH → AVVIA CICLO →
+  fork moved pack left→centre (9.6 s) → photos → COMPLIANT → fork centre→right. Then a wrong-INCI pack → NON_COMPLIANT →
+  `spingi centro scarto` executed on URSim. TESTED.
+- English through Grok text mode: "Lift the tray on the left." → `solleva_vassoio{posizione: sinistra}` proposed, English reply. TESTED.
+
+### Honest findings from held-out products (each found a real problem; each was then fixed generically)
+| Run | Held-out product | Finding | Fix |
+|---|---|---|---|
+| 1 | nebbia_tonico_rosa | **1 FALSE ACCEPTANCE**: bubbles on a pale label below the residual threshold (45) | threshold 30, validated: 0/40 undamaged labels with any residual |
+| 1 | (dev) | creased label accepted (area threshold 0.4% too high for thin creases) | any crease-shaped residual or > 0.1% → NON_COMPLIANT |
+| 2 | ambra_balsamo_labbra | 0 false acceptances, but black pack flagged "bad exposure"; blurred photo called "missing label" | exposure judged on the whole photo; blurred unmatched region → REVIEW |
+| 3 | salvia_shampoo_solido | **spec could not be extracted** (sage pack on grey-green table: pack/background contrast too low) — safe failure, nothing approved | multi-threshold pack segmentation; low dynamic range no longer = bad exposure |
+After each fix the product joined the dev set; results of run 4 below are therefore all on products seen during development.
+**No truly unseen-product result exists after the last fix** — the jury's pack will be the first.
+
+### Not done / not verified
+- No real camera photos, no real packs (Cristina Portinaro), no compliance-mentor review of thresholds. BLOCKED on hardware/station access.
+- Bottle_defect dataset not downloaded (needs Roboflow API key). CosIng not integrated.
+- Station camera model/resolution/calibration UNKNOWN; reject-box position UNKNOWN (placeholder `scarto` poses).
+- Stretch goals (check after each label, sheet run-out detection, learning from video): NOT DONE.
+
+### Run 4 (final, 2026-11-04 17:48, with Grok) — TESTED on synthetic data
+False acceptance 0/54 · false rejection 0/18 · 1/18 compliant held for review (Grok) · exact 71/72 · defects P 1.00 R 0.92 ·
+spec extraction 100 % (6/6, exact INCI + legal) · sheets 17/18 (one REVIEW, safe). All 6 products were seen during development.
+Known residual issues: bubbles can corrupt OCR of the front label (rejected as "wrong label" instead of "bubble");
+Grok second opinion occasionally flags a correct pack (→ REVIEW, throughput cost).
+
+### Test count
+`pytest -q tests` → **185 passed** (voice 142 incl. 26 ported baseline · labelling 18 · bilingual 25).
+
+## WP-1 — Multilingual deterministic phrases (2026-11-05) — DONE · TESTED
+
+`config/lexicon.yaml` holds stop / affirm / negative / uncertain / cancel / zones / directions for it, en, zh, ja, am.
+`phrases.normalize` uses NFKC, strips combining marks only on Latin letters, and keeps Han, Hiragana, Katakana and Ethiopic.
+Latin and Ethiopic match as tokens; Han and Kana match as substrings. Verdict order is unchanged: STOP → NEGATIVE → UNCERTAIN → AFFIRM → ABSENT.
+
+Evidence:
+```
+$ .venv/bin/python -I -c "from app.safety.phrases import is_stop; print(is_stop('停下！'), is_stop('止まって'), is_stop('አቁም'))"
+True True True
+$ .venv/bin/python -m pytest -q tests/test_phrases.py tests/test_multilingual_phrases.py tests/test_registry.py tests/test_bilingual.py tests/test_conversation.py tests/test_baseline_ported.py tests/test_gate.py
+226 passed
+```
+`reviewed_by` is null for zh, ja and am. Those lists are used and are **UNVERIFIED** until a native speaker fills `reviewed_by` in `config/lexicon.yaml`. Amharic romanisations (`aqum`, `awo`, `ay`, `minalbat`, …) are fallbacks for an ASR that does not emit Ethiopic.
+
+### Next steps for Smart Labelling (before the jury)
+1. Station slot: photograph real model packs + defective examples with camera 1; re-run `eval/labelling/run_eval.py`-style checks on them; re-tune `config/labelling.yaml` thresholds with the Cristina Portinaro mentor.
+2. Record real poses incl. the reject-box push (`*_spinta_scarto_*`) with `scripts/record_pose.py`.
+3. Provide a Roboflow key to import Bottle_defect for defect-recall testing on real photos.

@@ -1,0 +1,225 @@
+# Deterministic phrase lexicon. Matching is language-independent:
+# STOP, then negative, then uncertain, then affirm.
+# Amharic (am) is UNVERIFIED until reviewed_by.am is filled by a native speaker.
+# zh and ja lists were entered by the development team on 2026-11-05, not by a
+# native-speaker review. They are used, and listed as UNVERIFIED in PROJECT_STATUS.md
+# until reviewed_by is a person's name.
+
+reviewed_by:
+  it: team
+  en: team
+  zh: null
+  ja: null
+  am: null
+
+# Latin / Ethiopic entries are whitespace tokens (multi-word entries are phrases).
+# Han / Kana entries are substrings. Longer negatives are listed so they win
+# over affirmatives they contain (不好 / 不可以 / 不对 / いいえ).
+
+stop:
+  it:
+    - stop
+    - stoppa
+    - fermati
+    - ferma
+    - fermo
+    - fermatevi
+    - fermare
+    - fermalo
+    - basta
+    - alt
+    - arresta
+    - arrestati
+    - arresto
+    - blocca
+    - bloccati
+    - bloccalo
+    - emergenza
+    - arresta il robot
+    - blocca tutto
+    - fermati immediatamente
+    - fermo cosi
+  en:
+    - halt
+    - stopp
+    - arrete
+    - arretez
+    - detente
+    - freeze
+    - emergency
+    - abort
+    - stop now
+    - stop immediately
+    - stop the robot
+  zh: [停, 停下, 停止, 别动, 住手, 暂停, 紧急]
+  ja: [止まれ, 止まって, 止めて, ストップ, 停止, やめて, 緊急]
+  am: [አቁም, አቁሚ, ቁም, ቁሚ, በቃ, ተው, aqum, akum, beka]
+
+affirm:
+  it:
+    - si
+    - confermo
+    - conferma
+    - confermato
+    - confermata
+    - confermare
+    - confermi
+    - confermiamo
+    - procedi
+    - procedere
+    - prosegui
+    - vai
+    - ok
+    - okay
+    - certo
+    - esatto
+    - fallo
+    - fai
+    - d'accordo
+    - perfetto
+    - avanti
+    - affermativo
+    - accordo
+    - corretto
+    - giusto
+    - certamente
+    - assolutamente
+    - va bene
+    - puoi farlo
+    - puoi procedere
+    - fai pure
+    - vai pure
+    - dai pure
+    - d accordo
+  en:
+    - "yes"
+    - yeah
+    - yep
+    - confirm
+    - confirmed
+    - proceed
+    - go
+    - sure
+    - oui
+    - ja
+    - go ahead
+    - do it
+    - yes please
+    - that s right
+    - sounds good
+  # 行 is affirm only when 不 is absent; 不 is negative and is checked first.
+  # 大丈夫 is deliberately NOT here.
+  zh: [是, 是的, 对, 好, 好的, 确认, 可以, 行, 执行, 继续]
+  ja: [はい, ええ, うん, お願いします, 確認, 実行, どうぞ, オーケー, いいよ]
+  am: [አዎ, አዎን, እሺ, ትክክል, ቀጥል, አረጋግጣለሁ, awo, ishi]
+
+negative:
+  it: ["no", non, annulla, annullare, annullato, annulliamo, negativo, cancella, niente, lascia, mai]
+  en: [cancel, nope, nein, dont, not, never]
+  zh: [不, 没, 别, 取消, 算了]
+  ja: [いいえ, いや, だめ, ダメ, キャンセル, 取り消し, しないで]
+  am: [አይ, አይደለም, አልፈልግም, ሰርዝ, ay, aydelem]
+
+uncertain:
+  it:
+    - forse
+    - magari
+    - credo
+    - penso
+    - boh
+    - dubbio
+    - aspetta
+    - aspettate
+    - attimo
+    - momento
+    - sicuro
+    - sicura
+    - probabilmente
+    - mah
+    - vediamo
+    - dipende
+    - quasi
+    - ehm
+  en: [maybe, perhaps, wait, possibly, unsure, hold, hmm, uncertain, might]
+  # 吗 is a substring. Sentence-final か is handled in code (bare か is not listed:
+  # it occurs inside unrelated words). ？ is folded to ? by NFKC.
+  zh: [也许, 可能, 等一下, 等等, 大概, 吗]
+  ja: [たぶん, 多分, 待って, ちょっと, かな, かも]
+  am: [ምናልባት, ቆይ, እስኪ, minalbat, koy]
+
+cancel:
+  it: [annulla, lascia perdere, non farlo, cancella, lascia stare, non importa]
+  en: [cancel, never mind, forget it, don t do it, do not do it, no thanks]
+  zh: [取消, 算了, 不要]
+  ja: [キャンセル, 取り消し, やめる]
+  am: [ሰርዝ, ay, aydelem]
+
+# Canonical zone ids stay Italian. Aliases are what the operator may say.
+zones:
+  sinistra:
+    it: [sinistra, a sinistra, zona sinistra, sx]
+    en: [left]
+    zh: [左, 左边]
+    ja: [左, ひだり, 左側]
+    am: [ግራ]
+    other: [izquierda, gauche, links]
+  centro:
+    it: [centro, centrale, al centro, zona centrale, zona centro, in mezzo, mezzo]
+    en: [center, centre, middle, central]
+    zh: [中间, 中央]
+    ja: [真ん中, 中央]
+    am: [መሃል]
+  destra:
+    it: [destra, a destra, zona destra, dx]
+    en: [right]
+    zh: [右, 右边]
+    ja: [右, みぎ]
+    am: [ቀኝ]
+    other: [derecha, droite, rechts]
+
+directions:
+  sinistra:
+    it: [sinistra, a sinistra, sx]
+    en: [left]
+    zh: [左, 左边]
+    ja: [左, ひだり]
+    am: [ግራ]
+  destra:
+    it: [destra, a destra, dx]
+    en: [right]
+    zh: [右, 右边]
+    ja: [右, みぎ]
+    am: [ቀኝ]
+  scarto:
+    it: [scarto]
+    en: [scarto]
+    zh: [scarto]
+    ja: [scarto]
+    am: [scarto]
+
+# Substring / token triggers for the rules engine (TEXT MODE). Canonical skill ids.
+skill_triggers:
+  solleva_vassoio:
+    zh: [抬起来, 抬起, 举起, 拿起, 抬]
+    ja: [持ち上げて, 持ち上げ, 上げて]
+    am: [አንሳ]
+  appoggia_vassoio:
+    zh: [放下, 放回, 放下来]
+    ja: [置いて, 下ろして]
+    am: [አስቀምጥ]
+  spingi:
+    zh: [推过去, 推]
+    ja: [押して, 押す]
+    am: [ግፋ]
+  indica:
+    zh: [指一下, 指示, 指着, 指]
+    ja: [指して, 示して]
+    am: [አመልክት]
+  vai_a_posa:
+    zh: [回家, 回到, 回到原点]
+    ja: [戻って, ホーム]
+    am: [ቤት ተመለስ]
+  sposta_vassoio:
+    zh: [搬到, 移到, 拿到]
+    ja: [移動して, 持っていって]
+    am: [አንቀሳቅስ]

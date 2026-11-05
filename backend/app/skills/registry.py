@@ -8,12 +8,11 @@ the conversation.
 
 from __future__ import annotations
 
-import re
-import unicodedata
 from dataclasses import dataclass, field
 from typing import Any
 
 from ..config import Settings
+from ..safety.phrases import direction_aliases, normalize, zone_aliases
 from .world import WorldModel
 
 # result codes (Italian, as required by the spec)
@@ -38,17 +37,12 @@ class SkillError(Exception):
 
 
 def norm(s: Any) -> str:
-    t = unicodedata.normalize("NFKD", str(s).lower())
-    t = "".join(c for c in t if not unicodedata.combining(c))
-    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9_ ]", " ", t)).strip()
+    """Unicode-safe normaliser. Han, Kana and Ethiopic are kept; '_' becomes a space."""
+    return normalize(s)
 
 
-ZONE_ALIASES = {
-    "sinistra": ["sinistra", "a sinistra", "zona sinistra", "sx", "left", "izquierda", "gauche", "links"],
-    "centro": ["centro", "centrale", "al centro", "zona centrale", "zona centro", "in mezzo", "mezzo", "center", "centre",
-               "middle", "central"],
-    "destra": ["destra", "a destra", "zona destra", "dx", "right", "derecha", "droite", "rechts"],
-}
+ZONE_ALIASES = zone_aliases()
+DIRECTION_ALIASES = direction_aliases()
 
 
 @dataclass(frozen=True)
@@ -76,6 +70,8 @@ class Skill:
     conferma: str
     risultato: str
     in_caso_di_errore: str = "fault"
+    conferma_en: str = ""
+    risultato_en: str = ""
 
 
 @dataclass
@@ -88,10 +84,20 @@ class ValidatedAction:
     risultato: str
     strumento: str | None = None
     extra: dict[str, Any] = field(default_factory=dict)
+    conferma_en: str = ""
+    risultato_en: str = ""
 
     def public(self) -> dict[str, Any]:
         return {"skill": self.skill, "parametri": self.params, "strumento": self.strumento,
-                "conferma": self.conferma, "sequenza": [m.public() for m in self.motion], "timeout_s": self.timeout_s}
+                "conferma": self.conferma, "conferma_en": self.conferma_en, "sequenza": [m.public() for m in self.motion], "timeout_s": self.timeout_s}
+
+
+_EN_VALUES = {"sinistra": "left", "centro": "centre", "destra": "right", "scarto": "the reject box", "attesa": "waiting",
+              "sinistra sopra": "above left", "centro sopra": "above centre", "destra sopra": "above right"}
+
+
+def _en(fmt: dict[str, str]) -> dict[str, str]:
+    return {k: _EN_VALUES.get(v, v) for k, v in fmt.items()}
 
 
 class Registry:
@@ -104,7 +110,8 @@ class Registry:
                 parametri={k: v["tipo"] for k, v in (raw.get("parametri") or {}).items()},
                 precondizioni=list(raw.get("precondizioni") or []), sequenza=list(raw["sequenza"]),
                 timeout_s=float(raw.get("timeout_s", 30)), conferma=raw["conferma"], risultato=raw["risultato"],
-                in_caso_di_errore=raw.get("in_caso_di_errore", "fault"))
+                in_caso_di_errore=raw.get("in_caso_di_errore", "fault"),
+                conferma_en=raw.get("conferma_en", raw["conferma"]), risultato_en=raw.get("risultato_en", raw["risultato"]))
 
     # ------------------------------------------------------------ domains ---
     def selectable_poses(self) -> list[str]:
@@ -128,7 +135,8 @@ class Registry:
             return None
         if tipo in ("zona", "direzione"):
             dom = self.domain(tipo)
-            for canon, aliases in ZONE_ALIASES.items():
+            table = ZONE_ALIASES if tipo == "zona" else DIRECTION_ALIASES
+            for canon, aliases in table.items():
                 if canon in dom and (n == canon or n in aliases):
                     return canon
             return n if n in dom else None
@@ -171,7 +179,8 @@ class Registry:
         fmt = {k: v.replace("_", " ") for k, v in resolved.items()}
         return ValidatedAction(skill=sid, params=resolved, motion=motion, timeout_s=sk.timeout_s,
                                conferma=sk.conferma.format(**fmt), risultato=sk.risultato.format(**fmt),
-                               strumento=sk.strumento)
+                               strumento=sk.strumento, conferma_en=sk.conferma_en.format(**_en(fmt)),
+                               risultato_en=sk.risultato_en.format(**_en(fmt)))
 
     def _options(self, sid: str, pname: str, tipo: str, world: WorldModel) -> list[str]:
         dom = self.domain(tipo)
