@@ -330,3 +330,28 @@ def confirmation_verdict(text: str | None) -> str:
     if toks & c.affirm_tokens or _has_phrase(base, c.affirm_phrases) or _substring_hit(base, c.affirm_cjk):
         return VALID
     return ABSENT
+
+
+# Words the recogniser should expect in the language the operator selected.
+KEYTERMS = {
+    "it": ["sinistra", "destra", "avanti", "indietro", "su", "giù", "centimetri", "gradi", "base", "spalla",
+           "confermo", "annulla", "fermati", "vassoio"],
+    "en": ["left", "right", "forward", "back", "up", "down", "centimetres", "degrees", "base", "shoulder",
+           "confirm", "cancel", "stop", "tray"],
+    "zh": ["向左", "向右", "向前", "向后", "向上", "向下", "厘米", "度", "底座", "肩膀", "确认", "取消", "停", "托盘"],
+    "es": ["izquierda", "derecha", "adelante", "atrás", "arriba", "abajo", "centímetros", "grados", "base",
+           "hombro", "confirma", "cancela", "para", "bandeja"],
+    "fr": ["gauche", "droite", "avant", "arrière", "haut", "bas", "centimètres", "degrés", "base", "épaule",
+           "confirme", "annule", "arrête", "plateau"],
+    "de": ["links", "rechts", "vorne", "hinten", "oben", "unten", "Zentimeter", "Grad", "Basis", "Schulter",
+           "bestätige", "abbrechen", "halt", "Tablett"],
+    "ja": ["左", "右", "前", "後ろ", "上", "下", "センチ", "度", "ベース", "肩", "はい", "キャンセル", "止まって", "トレイ"],
+    "am": ["ግራ", "ቀኝ", "አቁም", "አዎ"],
+}
+
+
+def keyterms_for(lang: str | None) -> list[str]:
+    """Active language first, then a few stop words from every language."""
+    primary = KEYTERMS.get(lang or "", KEYTERMS["en"])
+    stops = ["stop", "halt", "停", "止まって", "arrête", "para", "fermati"]
+    return list(dict.fromkeys([*primary, *stops]))

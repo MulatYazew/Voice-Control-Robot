@@ -42,6 +42,11 @@ class WorldModel:
             self.trays_at.discard(params["origine"])
             self.trays_at.add(params["destinazione"])
             self.holding_tray = False
+        elif skill == "porta_in_ispezione":
+            self.trays_at.discard(params["posizione"])
+            self.holding_tray = True
+        elif skill == "smista":
+            self.holding_tray = False
         # vai_a_posa / indica / other pushes: no change to the assumed layout (push effect UNVERIFIED)
 
     def match_pose(self, joints: list[float] | None, poses: dict[str, Any], tol: float) -> str | None:

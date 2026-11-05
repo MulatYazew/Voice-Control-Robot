@@ -156,3 +156,9 @@ poses:
     selezionabile: false
     fonte: placeholder_ursim
     verificata_reale: false
+  ispezione:
+    # Item on the fork held in front of the static camera. Placeholder until recorded on the arm.
+    joints: [-1.5708, -1.45, 1.35, -1.47, -1.5708, 0.0]
+    selezionabile: false
+    fonte: placeholder_ursim
+    verificata_reale: false

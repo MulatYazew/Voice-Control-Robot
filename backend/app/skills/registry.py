@@ -44,6 +44,13 @@ def norm(s: Any) -> str:
 
 ZONE_ALIASES = zone_aliases()
 DIRECTION_ALIASES = direction_aliases()
+INSPECTION_PRECONDITIONS = {"zona_di_ingresso", "zona_di_uscita"}
+TRAY_WORDS = ["vassoio", "tray", "bandeja", "plateau", "schale", "托盘", "盘", "トレイ"]
+
+
+def tray_aliases(label: str) -> list[str]:
+    lab = norm(label)
+    return [lab] + [f"{w} {lab}" for w in TRAY_WORDS] + [f"{w}{lab}" for w in TRAY_WORDS] + [f"{lab}{w}" for w in TRAY_WORDS]
 
 
 @dataclass(frozen=True)
@@ -54,6 +61,7 @@ class MotionStep:
     speed: float = 0.0
     accel: float = 0.0
     seconds: float = 0.0
+    blend: float = 0.0
 
     def public(self) -> dict[str, Any]:
         return {"move": self.move, "posa": self.pose, "secondi": self.seconds or None}
@@ -140,6 +148,11 @@ class Registry:
             for canon, aliases in table.items():
                 if canon in dom and (n == canon or n in aliases):
                     return canon
+            if tipo == "zona":
+                for z in dom:
+                    aliases = tray_aliases(self.s.zone_label(z))
+                    if n in aliases or n.replace(" ", "") in aliases:
+                        return z
             return n if n in dom else None
         if tipo == "posa":
             for k in self.selectable_poses():
@@ -196,9 +209,19 @@ class Registry:
                                conferma_en=conferma_en, risultato_en=risultato_en,
                                extra={"conferme": conferme, "risultati": risultati})
 
+    def _io_zones(self) -> tuple[str | None, list[str]]:
+        insp = self.s.inspection
+        return insp.get("input_zone"), [z for z in (insp.get("pass_zone"), insp.get("fail_zone")) if z]
+
     def _options(self, sid: str, pname: str, tipo: str, world: WorldModel) -> list[str]:
         dom = self.domain(tipo)
         sk = self.skills[sid]
+        if pname == "posizione":
+            inp, outs = self._io_zones()
+            if "zona_di_ingresso" in sk.precondizioni and inp:
+                dom = [z for z in dom if z == inp]
+            if "zona_di_uscita" in sk.precondizioni:
+                dom = [z for z in dom if z in outs]
         if pname in ("posizione", "origine") and "vassoio_presunto_in_zona" in sk.precondizioni:
             return [z for z in dom if z in world.trays_at]
         if pname in ("posizione", "destinazione") and "zona_libera" in sk.precondizioni:
@@ -206,7 +229,15 @@ class Registry:
         return dom
 
     def _check_preconditions(self, sk: Skill, p: dict[str, str], world: WorldModel) -> None:
+        inp, outs = self._io_zones()
         for pc in sk.precondizioni:
+            if pc == "zona_di_ingresso" and p.get("posizione") != inp:
+                raise SkillError(PRECONDIZIONE, f"Il vassoio di ingresso è {self.s.zone_label(inp or '')} ({inp}).",
+                                 param="posizione", options=[inp] if inp else [])
+            if pc == "zona_di_uscita" and p.get("posizione") not in outs:
+                raise SkillError(PRECONDIZIONE, "Il pezzo va depositato nel vassoio approvati o scartati: "
+                                 + ", ".join(f"{self.s.zone_label(z)} ({z})" for z in outs) + ".",
+                                 param="posizione", options=outs)
             if pc == "forca_libera" and world.holding_tray:
                 raise SkillError(PRECONDIZIONE, "C'è già un vassoio sulla forca: va prima appoggiato.",
                                  options=[z for z in self.s.zones if z not in world.trays_at])

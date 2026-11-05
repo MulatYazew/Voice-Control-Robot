@@ -24,6 +24,7 @@ from typing import Any, Callable
 from ..config import Settings
 from ..monitoring.events import EventBus, History, Metrics, log_event
 from ..robot.base import COMPLETED, FAILED, NOT_STARTED, STOPPED, UNKNOWN, ExecutionResult, RobotAdapter, RobotStatus
+from ..robot.base import result as _exec_result
 from ..skills.registry import Registry, SkillError, ValidatedAction
 from ..skills.world import WorldModel, joints_close
 from . import phrases
@@ -56,6 +57,7 @@ class PendingAction:
     created: float
     source: str
     question_asked_at: float | None = None
+    question_after_utt: int = 0
     used: bool = False
     plan_id: str | None = None
     step_index: int = 0
@@ -77,7 +79,10 @@ def _err(code: str, msg: str, **kw: Any) -> dict[str, Any]:
     return {"ok": False, "esito": code, "messaggio": msg, **kw}
 
 
-class Gate:
+from .motion import InspectionState, MotionMixin  # noqa: E402  — after the types the mixin imports
+
+
+class Gate(MotionMixin):
     STATUS_POLL_S = 0.5
 
     def __init__(self, settings: Settings, registry: Registry, adapter: RobotAdapter, bus: EventBus,
@@ -109,6 +114,21 @@ class Gate:
         self._bg: list[asyncio.Task] = []
         self._report_cbs: list[Callable[[dict[str, Any]], Any]] = []
         self.cycle: dict[str, Any] | None = None
+        self.camera: Any = None
+        self.inspector: Any = None
+        self.inspection = InspectionState()
+        self._inspect_task: asyncio.Task | None = None
+        from ..skills.cartesian import Planner
+        from ..vision.table_calib import TableCalibration
+        self.planner = Planner(settings)
+        self._motion_guard = None
+        self.table_cal = TableCalibration.load(settings.data_dir / "table_calibration.json")
+        self._last_amount: dict[str, float] = {}
+        self._calib_corners: list[dict[str, Any]] | None = None
+        self._marker: dict[str, Any] = {"center": None, "axis": None}
+        self.voice_fast_utt: int | None = None
+        self._partial_gen = 0
+        self.cups: Any = None
 
     # ================================================================ infra ===
     def _transition(self, new: GateState, reason: str, **data: Any) -> None:
@@ -129,7 +149,7 @@ class Gate:
                 "mode": self.s.mode, "fault": self.fault_reason, "last_stop": self.last_stop,
                 "last_result": self.last_result.to_dict() if self.last_result else None,
                 "metrics": self.metrics.summary(), "history": self.history.list()[:30],
-                "cycle": self.cycle}
+                "cycle": self.cycle, "inspection": self.inspection.public()}
 
     def on_report(self, cb: Callable[[dict[str, Any]], Any]) -> Callable[[], None]:
         self._report_cbs.append(cb)
@@ -221,7 +241,7 @@ class Gate:
         return u
 
     def note_transcript(self, text: str | None, *, final: bool = True, source: str = "voice",
-                        stop_allowed: bool = True) -> bool:
+                        stop_allowed: bool = True, auto_act: bool = False) -> bool:
         """Operator transcript. Returns True if it triggered STOP (handled independently of Grok)."""
         stop = stop_allowed and phrases.is_stop(text)
         if final:
@@ -232,9 +252,20 @@ class Gate:
             u.done.set()
             self.bus.publish("transcript", role="user", text=text, final=True, source=source)
             self.history.add(kind="utterance", source=source, text=text)
+            log_event(log, "operator said", text=text, source=source)   # traceability (local log only)
         if stop:
             asyncio.ensure_future(self.stop(f"transcript:{source}", detail=text or ""))
-        return stop
+            return True
+        if final and auto_act:
+            self._bg.append(asyncio.ensure_future(self.act_on_voice(text or "")))
+        return False
+
+    async def act_on_voice(self, text: str) -> None:
+        """Rules may propose a finished sentence without waiting for another model turn."""
+        if self.state in (GateState.STOPPED, GateState.FAULT, GateState.EXECUTING):
+            return
+        from ..conversation.fast_voice import propose_if_complete
+        await propose_if_complete(self, text)
 
     def note_partial(self, text: str | None, *, source: str = "voice") -> bool:
         """Interim transcript: only used to catch STOP as early as possible."""
@@ -249,7 +280,7 @@ class Gate:
             return _err("sistema_fermo", "Sistema in STOP: serve il ripristino da parte dell'operatore dall'interfaccia.")
         if self.state == GateState.FAULT:
             return _err("guasto", f"Sistema in GUASTO ({self.fault_reason}): serve l'intervento dell'operatore.")
-        if self.state == GateState.EXECUTING:
+        if self.state == GateState.EXECUTING or getattr(self.inspection, "running", False):
             return _err("occupato", "Il braccio sta eseguendo un movimento: attendi il risultato o usa il pulsante rosso.")
         return None
 
@@ -258,11 +289,18 @@ class Gate:
         b = self._blocked()
         if b:
             return b
+        if skill == "porta_in_ispezione" and not self.inspection.rule:
+            return _err("regola_mancante", "Per portare un pezzo in ispezione usa start_inspection con la regola.")
         try:
             act = self.reg.validate(skill, params, self.world)
         except SkillError as e:
             self.bus.publish("proposal_rejected", skill=str(skill), params=params, result=e.to_dict())
             return e.to_dict()
+        if act.skill == "vai_a_posa" and self.world.known_pose == act.params.get("posa") and self.robot_status.joints:
+            p_ = act.params["posa"]
+            return _err("gia_in_posa", f"Il braccio è già nella posa {p_.replace('_', ' ')} (verificato dai giunti): "
+                        f"nessun movimento necessario.", messaggio_en=f"The arm is already at pose {p_.replace('_', ' ')} "
+                        f"(verified by joint feedback): no movement needed.", posa_attuale=p_)
         if evidenza_id:
             err = self._check_evidence(evidenza_id, act.params)
             if err:
@@ -323,6 +361,8 @@ class Gate:
             return b
         if not steps or len(steps) > 5:
             return _err("sequenza_non_valida", "La sequenza deve avere da 1 a 5 passi.")
+        if any((st.get("skill") in ("porta_in_ispezione", "smista")) for st in steps):
+            return _err("sequenza_non_valida", "L'ispezione e lo smistamento non possono stare in una sequenza.")
         sim = self.world.copy()
         acts: list[ValidatedAction] = []
         for i, st in enumerate(steps):
@@ -469,12 +509,20 @@ class Gate:
     async def _execute(self, pa: PendingAction, cancel: threading.Event, t_req: float) -> None:
         act = pa.action
         loop = asyncio.get_running_loop()
-        timeout = act.timeout_s + float(self.s.robot["safety"].get("execution_timeout_margin_s", 5))
+        run_for = float(act.timeout_s)
+        timeout = run_for + float(self.s.robot["safety"].get("execution_timeout_margin_s", 5))
         res: ExecutionResult | None = None
+        motion, rejected = await self._guarded_motion(act, cancel)
         try:
-            res = await asyncio.wait_for(
-                loop.run_in_executor(self._exec_pool, self.robot.execute, act.skill, act.params, act.motion, cancel,
-                                     act.timeout_s), timeout)
+            if motion is None:
+                stopped = cancel.is_set()
+                res = _exec_result(act.skill, act.params, time.time(), STOPPED if stopped else NOT_STARTED, {},
+                                   error="fermato prima del movimento" if stopped else rejected,
+                                   total=len(act.motion))
+            else:
+                res = await asyncio.wait_for(
+                    loop.run_in_executor(self._exec_pool, self.robot.execute, act.skill, act.params, motion, cancel,
+                                         run_for), timeout)
         except asyncio.TimeoutError:
             cancel.set()
             await self._robot_stop("execution timeout")
@@ -508,6 +556,8 @@ class Gate:
                              duration_s=res.duration)
             if self.state == GateState.EXECUTING:
                 self._transition(GateState.IDLE, f"{pa.id} completata")
+            if act.skill == "porta_in_ispezione" and self.state == GateState.IDLE:
+                self._begin_inspection()
             text = (f"COMPLETATO {pa.id}: {act.risultato} Eseguita la sequenza di movimento configurata in "
                     f"{res.duration:.1f}s, confermata dal feedback del robot. Non ci sono sensori sul vassoio: il suo "
                     f"stato è presunto. Posa attuale: {self.world.known_pose or 'non nominata'}.")
@@ -587,12 +637,16 @@ class Gate:
         loop = asyncio.get_running_loop()
         fut: asyncio.Future = loop.create_future()
 
+        def deliver(value: dict[str, Any]) -> None:
+            if not fut.done():          # the caller may already have timed out
+                fut.set_result(value)
+
         def run() -> None:
             try:
                 ack = self.robot.stop()
-                loop.call_soon_threadsafe(fut.set_result, ack.to_dict())
+                loop.call_soon_threadsafe(deliver, ack.to_dict())
             except Exception as e:  # stop must never raise into the caller
-                loop.call_soon_threadsafe(fut.set_result, {"acknowledged": False, "detail": f"stop fallito: {e}"})
+                loop.call_soon_threadsafe(deliver, {"acknowledged": False, "detail": f"stop fallito: {e}"})
 
         threading.Thread(target=run, name="robot-stop", daemon=True).start()
         try:

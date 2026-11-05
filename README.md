@@ -1,6 +1,8 @@
 # VOCE — Intelligent Robotic Assistant
 
-*One platform, five languages, eyes on Arm 1, voice on both.*
+*One platform, five languages, eyes on Arm 1, voice on both. The grokarm cell (cup gripper, motion guard, inspection camera) runs on the same macOS app.*
+
+The motion, vision and semicircle-gripper code from [grokarm-ur3e](https://github.com/13032585789-spec/grokarm-ur3e) is merged in here. This tree keeps the voice session (it stays up until a real STOP or an explicit close), the labelling station and the simulated camera. macOS starts with `./start.sh sim` or `./start.sh ursim` (`::1`, so Docker URSim is not confused with URSim.app). The motion guard is in `config/robot.yaml` as `guard.enabled: false` until the cell poses are taught; set it to `true` to re-check every confirmed path. See `docs/MOTION_GUARD.md` and `docs/STEREO_DEPTH.md`. `python -m grokarm_vision` and `python -m stereo_depth` are the extra camera services.
 
 The operator speaks Italian, English, Mandarin, Japanese or Amharic. Grok proposes. The deterministic backend validates. The operator confirms. The arm executes a named skill, or one labelling cycle. STOP works in every language and does not depend on Grok.
 
@@ -119,6 +121,8 @@ Or from Jupyter, with `notebooks/run_application.ipynb` and the kernel **Python 
 5. `handle.stop()`.
 
 All logic lives in `backend/app/preflight.py` and `backend/app/launcher.py`.
+
+VOCE runs in its **own process**. *Run All*, restarting the kernel or closing the notebook do not stop it, and a new kernel reconnects to it. It stops only when you set `STOP_VOCE = True` in the last cell, or by Ctrl+C when started with `./start.sh`. The server log is in `logs/server.log`, and every shutdown records who asked for it.
 
 ## 9. Grok configuration
 Realtime WebSocket `wss://api.x.ai/v1/realtime?model=grok-voice-latest`, Bearer auth from the backend. Session settings:

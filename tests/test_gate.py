@@ -209,3 +209,17 @@ async def test_robot_unavailable_blocks_confirmation(gate, sim):
     await say(gate, "sì")
     r = await gate.confirm(aid)
     assert not r["ok"] and r["esito"] == "robot_non_disponibile"
+
+
+async def test_already_at_pose_is_not_a_movement(gate, sim):
+    """2026-11-05: 'move to the right' while already at destra_sopra was sent to the robot and misreported."""
+    aid = await propose_and_ask(gate, "vai_a_posa", {"posa": "destra_sopra"})
+    await say(gate, "sì")
+    assert (await gate.confirm(aid))["ok"]
+    assert await wait_state(gate, "IDLE")
+    await gate.refresh_robot()
+    assert gate.world.known_pose == "destra_sopra"
+    r = gate.propose("vai_a_posa", {"posa": "destra_sopra"})
+    assert not r["ok"] and r["esito"] == "gia_in_posa" and "already" in r["messaggio_en"]
+    assert gate.pending is None and gate.state == GateState.IDLE
+    assert gate.propose("vai_a_posa", {"posa": "home"})["ok"]        # a different pose is still proposed normally

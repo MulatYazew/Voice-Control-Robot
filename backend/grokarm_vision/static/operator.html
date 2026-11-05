@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GrokArm vision</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b0f14; --panel: #111827; --line: #1f2937; --muted: #9ca3af; --text: #e5e7eb;
+    --ok: #34d399; --warn: #fbbf24; --bad: #f87171; --accent: #60a5fa;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 16px; margin: 0 12px 0 0; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
+    background: var(--panel); border: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+  .pill i { width: 8px; height: 8px; border-radius: 50%; background: #6b7280; }
+  .pill.ok i { background: var(--ok); } .pill.warn i { background: var(--warn); } .pill.bad i { background: var(--bad); }
+  header .spacer { flex: 1; }
+  select, input, button { font: inherit; color: var(--text); }
+  select, input[type=text], input[type=number] { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 7px 9px; }
+  button { border: 0; border-radius: 8px; padding: 8px 14px; background: #1f2937; cursor: pointer; font-weight: 600; }
+  button:hover { background: #273449; }
+  button.primary { background: var(--accent); color: #0b0f14; }
+  button.primary:hover { background: #93c5fd; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; padding: 16px 20px; }
+  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  .viewer { position: relative; }
+  .viewer .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .tabs button { padding: 6px 12px; font-weight: 500; background: transparent; border: 1px solid var(--line); }
+  .tabs button.active { background: #1e293b; border-color: #334155; }
+  .stage { position: relative; background: #000; border-radius: 10px; overflow: hidden; min-height: 240px;
+    display: flex; align-items: center; justify-content: center; }
+  .stage img { display: block; width: 100%; height: auto; }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .stage.picking { cursor: crosshair; }
+  .empty { color: var(--muted); padding: 40px 20px; text-align: center; }
+  .empty code { color: var(--text); }
+  .side { display: flex; flex-direction: column; gap: 16px; }
+  h2 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  h2 .n { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: #1e293b; font-size: 12px; }
+  h2 .done { background: var(--ok); color: #0b0f14; }
+  .help { color: var(--muted); margin: 0 0 10px; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 4px 4px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  td input { width: 78px; padding: 4px 6px; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .row .grow { flex: 1; min-width: 160px; }
+  .msg { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #0f172a; border-left: 3px solid #334155; }
+  .msg.ok { border-color: var(--ok); } .msg.bad { border-color: var(--bad); } .msg.warn { border-color: var(--warn); }
+  .msg .big { font-size: 16px; font-weight: 600; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin-top: 8px; color: var(--muted); font-size: 12px; }
+  .kv b { color: var(--text); font-weight: 500; }
+  .x { background: transparent; color: var(--muted); padding: 2px 6px; }
+  .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid #334155; border-top-color: var(--accent);
+    border-radius: 50%; animation: s 0.8s linear infinite; vertical-align: -2px; }
+  @keyframes s { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<header>
+  <h1 data-t="title"></h1>
+  <span class="pill" id="p-frame"><i></i><span></span></span>
+  <span class="pill" id="p-cal"><i></i><span></span></span>
+  <span class="pill" id="p-bg"><i></i><span></span></span>
+  <span class="pill" id="p-res"><i></i><span></span></span>
+  <span class="spacer"></span>
+  <select id="ui-lang" aria-label="Language"><option value="zh">中文</option><option value="en">English</option><option value="it">Italiano</option></select>
+</header>
+<main>
+  <section class="card viewer">
+    <div class="tabs">
+      <button id="tab-live" class="active" data-t="live"></button>
+      <button id="tab-result" data-t="result"></button>
+    </div>
+    <div class="stage" id="stage">
+      <div class="empty" id="no-frame"></div>
+      <img id="img" alt="" hidden>
+      <svg id="overlay" preserveAspectRatio="none"></svg>
+    </div>
+    <p class="help" id="picking-hint" style="margin-top:8px" hidden></p>
+  </section>
+
+  <aside class="side">
+    <section class="card">
+      <h2><span class="n" id="n-cal">1</span><span data-t="calTitle"></span></h2>
+      <p class="help" data-t="calHelp"></p>
+      <table>
+        <thead><tr><th>#</th><th data-t="pixel"></th><th>X mm</th><th>Y mm</th><th></th></tr></thead>
+        <tbody id="points"></tbody>
+      </table>
+      <div class="row">
+        <button id="pick" data-t="addPoint"></button>
+        <span class="grow"></span>
+        <button id="save-cal" class="primary" data-t="saveCal"></button>
+      </div>
+      <div id="cal-msg"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n" id="n-bg">2</span><span data-t="bgTitle"></span></h2>
+      <p class="help" data-t="bgHelp"></p>
+      <button id="bg" class="primary" data-t="bgBtn"></button>
+      <div id="bg-msg"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">3</span><span data-t="testTitle"></span></h2>
+      <p class="help" data-t="testHelp"></p>
+      <div class="row">
+        <input type="text" id="query" class="grow">
+        <select id="q-lang" aria-label="Command language">
+          <option value="zh">中文</option><option value="en">English</option><option value="it">Italiano</option>
+          <option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option>
+          <option value="ja">日本語</option>
+        </select>
+        <button id="locate" class="primary" data-t="locate"></button>
+      </div>
+      <div id="loc-msg"></div>
+    </section>
+  </aside>
+</main>
+<script>
+const T = {
+  zh: {
+    title: "GrokArm 视觉", live: "实时画面", result: "上次定位结果",
+    noFrame: "还没有相机画面。在手机上打开启动时打印的地址，或设置 <code>CAMERA_SOURCE=url</code> 使用 IP Webcam。",
+    frameOk: "相机 {age}s 前", frameOld: "相机画面过旧", frameNone: "无相机",
+    calOk: "已标定 · 误差 {e}", calUnmeasured: "已标定 · 误差未测（需≥5点）", calNone: "未标定",
+    bgOk: "有空桌背景", bgNone: "无背景", resGrok: "理解：Grok", resOffline: "理解：离线规则",
+    calTitle: "标定（像素 → 机器人坐标）",
+    calHelp: "在桌上贴 5–6 个标记，分散在工作区四周和中间。对每个标记：用 freedrive 把工具尖放到标记上，在示教器读取 Base 坐标系的 X、Y（mm），点「添加点」再点画面中的标记，填入 X、Y。保存前把手臂移出画面。",
+    pixel: "像素", addPoint: "添加点", cancelPick: "取消", saveCal: "保存标定",
+    pickHint: "点击画面中的标记中心。", needPoints: "至少需要 4 个点，建议 5–6 个以便测量误差。",
+    calSaved: "标定已保存。最大留一误差 {e}。", calSaved4: "标定已保存，但只有 4 个点，无法测量误差。",
+    bgTitle: "拍摄空桌背景", bgHelp: "清空桌面，手臂移出画面，然后拍摄。灯光变化后要重拍。",
+    bgBtn: "拍摄背景", bgSaved: "背景已保存。",
+    testTitle: "测试定位（不会动手臂）",
+    testHelp: "输入一句指令，看系统会选中哪个物体。这里只做识别，不会发送任何运动。",
+    placeholder: "指向红色的杯子", locate: "定位",
+    target: "目标", status: "状态", source: "理解方式", drift: "相机偏移", time: "耗时", cands: "候选",
+  },
+  en: {
+    title: "GrokArm vision", live: "Live", result: "Last locate",
+    noFrame: "No camera picture yet. Open the address printed at start-up on the phone, or set <code>CAMERA_SOURCE=url</code> for IP Webcam.",
+    frameOk: "camera {age}s ago", frameOld: "camera frame is old", frameNone: "no camera",
+    calOk: "calibrated · error {e}", calUnmeasured: "calibrated · error not measured (needs ≥5 points)", calNone: "not calibrated",
+    bgOk: "empty-table background", bgNone: "no background", resGrok: "understanding: Grok", resOffline: "understanding: offline rules",
+    calTitle: "Calibrate (pixel → robot)",
+    calHelp: "Tape 5–6 marks on the table, spread over the corners and middle of the workspace. For each mark: freedrive the tool tip onto it, read X and Y (Base frame, mm) on the pendant, press “Add point”, click the mark in the picture, type X and Y. Move the arm out of view before saving.",
+    pixel: "pixel", addPoint: "Add point", cancelPick: "Cancel", saveCal: "Save calibration",
+    pickHint: "Click the centre of the mark in the picture.", needPoints: "Need at least 4 points; 5–6 let us measure the error.",
+    calSaved: "Calibration saved. Worst leave-one-out error {e}.", calSaved4: "Calibration saved, but with only 4 points the error cannot be measured.",
+    bgTitle: "Capture the empty table", bgHelp: "Clear the table and move the arm out of view, then capture. Capture again if the light changes.",
+    bgBtn: "Capture background", bgSaved: "Background saved.",
+    testTitle: "Test locate (never moves the arm)",
+    testHelp: "Type a command and see which object would be chosen. This only looks; no motion is sent.",
+    placeholder: "point at the red cup", locate: "Locate",
+    target: "target", status: "status", source: "understood by", drift: "camera drift", time: "time", cands: "candidates",
+  },
+  it: {
+    title: "GrokArm visione", live: "Dal vivo", result: "Ultima ricerca",
+    noFrame: "Ancora nessuna immagine. Apri sul telefono l'indirizzo stampato all'avvio, oppure imposta <code>CAMERA_SOURCE=url</code> per IP Webcam.",
+    frameOk: "fotocamera {age}s fa", frameOld: "immagine vecchia", frameNone: "nessuna fotocamera",
+    calOk: "calibrato · errore {e}", calUnmeasured: "calibrato · errore non misurato (servono ≥5 punti)", calNone: "non calibrato",
+    bgOk: "sfondo tavolo vuoto", bgNone: "nessuno sfondo", resGrok: "comprensione: Grok", resOffline: "comprensione: regole offline",
+    calTitle: "Calibrazione (pixel → robot)",
+    calHelp: "Metti 5–6 segni sul tavolo, sparsi ai bordi e al centro. Per ogni segno: porta la punta dell'utensile sul segno in freedrive, leggi X e Y (frame Base, mm) sul pendant, premi “Aggiungi punto”, clicca il segno nell'immagine, scrivi X e Y. Sposta il braccio fuori dall'immagine prima di salvare.",
+    pixel: "pixel", addPoint: "Aggiungi punto", cancelPick: "Annulla", saveCal: "Salva calibrazione",
+    pickHint: "Clicca il centro del segno nell'immagine.", needPoints: "Servono almeno 4 punti; con 5–6 si misura l'errore.",
+    calSaved: "Calibrazione salvata. Errore massimo leave-one-out {e}.", calSaved4: "Calibrazione salvata, ma con 4 punti l'errore non si può misurare.",
+    bgTitle: "Foto del tavolo vuoto", bgHelp: "Svuota il tavolo e sposta il braccio fuori dall'immagine. Ripeti se cambia la luce.",
+    bgBtn: "Salva sfondo", bgSaved: "Sfondo salvato.",
+    testTitle: "Prova di ricerca (non muove il braccio)",
+    testHelp: "Scrivi un comando e guarda quale oggetto verrebbe scelto. Nessun movimento viene inviato.",
+    placeholder: "indica la tazza rossa", locate: "Cerca",
+    target: "obiettivo", status: "stato", source: "capito da", drift: "spostamento camera", time: "tempo", cands: "candidati",
+  },
+};
+
+const $ = (id) => document.getElementById(id);
+let ui = localStorage.getItem("ui-lang") || ((navigator.language || "").startsWith("zh") ? "zh" : (navigator.language || "en").slice(0, 2));
+if (!T[ui]) ui = "en";
+let view = "live", picking = false, points = [], status = null, frameSize = null, liveTimer = null;
+
+const t = (k, v = {}) => (T[ui][k] || k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? "");
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function applyLang() {
+  document.documentElement.lang = ui;
+  $("ui-lang").value = ui;
+  document.querySelectorAll("[data-t]").forEach((el) => (el.textContent = t(el.dataset.t)));
+  $("no-frame").innerHTML = t("noFrame");
+  $("query").placeholder = t("placeholder");
+  $("pick").textContent = picking ? t("cancelPick") : t("addPoint");
+  $("picking-hint").textContent = t("pickHint");
+  if (!localStorage.getItem("q-lang")) $("q-lang").value = ui;
+  renderStatus();
+}
+
+function pill(id, kind, text) { const p = $(id); p.className = "pill " + kind; p.querySelector("span").textContent = text; }
+
+function renderStatus() {
+  if (!status) return;
+  const f = status.frame;
+  if (!f) pill("p-frame", "bad", t("frameNone"));
+  else if (f.age_s > 2) pill("p-frame", "warn", t("frameOld"));
+  else pill("p-frame", "ok", t("frameOk", { age: f.age_s.toFixed(1) }));
+  const c = status.calibration;
+  if (!c) pill("p-cal", "bad", t("calNone"));
+  else if (c.loo_max_mm == null) pill("p-cal", "warn", t("calUnmeasured"));
+  else pill("p-cal", "ok", t("calOk", { e: c.loo_max_mm.toFixed(1) + " mm" }));
+  pill("p-bg", status.background ? "ok" : "bad", status.background ? t("bgOk") : t("bgNone"));
+  pill("p-res", status.resolver === "grok" ? "ok" : "warn", status.resolver === "grok" ? t("resGrok") : t("resOffline"));
+  $("n-cal").className = "n" + (c ? " done" : "");
+  $("n-bg").className = "n" + (status.background ? " done" : "");
+}
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, { headers: { "Content-Type": "application/json" }, ...opts });
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.error || r.statusText);
+  return body;
+}
+
+async function refreshStatus() {
+  try { status = await api("/api/status"); renderStatus(); } catch (_) {}
+}
+
+function refreshImage() {
+  const src = view === "live" ? "/api/frame.jpg" : "/api/locate/last.jpg";
+  const probe = new Image();
+  probe.onload = () => {
+    const img = $("img");
+    img.src = probe.src; img.hidden = false; $("no-frame").hidden = true;
+    frameSize = [probe.naturalWidth, probe.naturalHeight];
+    drawOverlay();
+  };
+  probe.onerror = () => { if (view === "live") { $("img").hidden = true; $("no-frame").hidden = false; } };
+  probe.src = src + "?t=" + Date.now();
+}
+
+function drawOverlay() {
+  const svg = $("overlay");
+  if (!frameSize || view !== "live") { svg.innerHTML = ""; return; }
+  svg.setAttribute("viewBox", `0 0 ${frameSize[0]} ${frameSize[1]}`);
+  const r = frameSize[0] / 90;
+  svg.innerHTML = points.map((p, i) => `
+    <circle cx="${p.px[0]}" cy="${p.px[1]}" r="${r}" fill="none" stroke="#60a5fa" stroke-width="${r / 3}"/>
+    <line x1="${p.px[0] - r * 1.8}" y1="${p.px[1]}" x2="${p.px[0] + r * 1.8}" y2="${p.px[1]}" stroke="#60a5fa" stroke-width="${r / 5}"/>
+    <line x1="${p.px[0]}" y1="${p.px[1] - r * 1.8}" x2="${p.px[0]}" y2="${p.px[1] + r * 1.8}" stroke="#60a5fa" stroke-width="${r / 5}"/>
+    <text x="${p.px[0] + r * 1.4}" y="${p.px[1] - r * 1.4}" fill="#60a5fa" font-size="${r * 2.4}" font-weight="700">${i + 1}</text>`).join("");
+}
+
+function renderPoints() {
+  $("points").innerHTML = points.map((p, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${Math.round(p.px[0])}, ${Math.round(p.px[1])}</td>
+      <td><input type="number" step="0.1" data-i="${i}" data-k="0" value="${p.mm[0] ?? ""}"></td>
+      <td><input type="number" step="0.1" data-i="${i}" data-k="1" value="${p.mm[1] ?? ""}"></td>
+      <td><button class="x" data-del="${i}" aria-label="remove">✕</button></td>
+    </tr>`).join("");
+  drawOverlay();
+}
+
+function setView(v) {
+  view = v;
+  $("tab-live").classList.toggle("active", v === "live");
+  $("tab-result").classList.toggle("active", v === "result");
+  refreshImage();
+}
+
+function setPicking(on) {
+  picking = on;
+  if (on) setView("live");
+  $("stage").classList.toggle("picking", on);
+  $("picking-hint").hidden = !on;
+  $("pick").textContent = on ? t("cancelPick") : t("addPoint");
+}
+
+function showMsg(id, kind, html) { $(id).innerHTML = `<div class="msg ${kind}">${html}</div>`; }
+
+$("stage").addEventListener("click", (e) => {
+  if (!picking || !frameSize) return;
+  const rect = $("img").getBoundingClientRect();
+  const u = ((e.clientX - rect.left) / rect.width) * frameSize[0];
+  const v = ((e.clientY - rect.top) / rect.height) * frameSize[1];
+  if (u < 0 || v < 0 || u > frameSize[0] || v > frameSize[1]) return;
+  points.push({ px: [u, v], mm: [null, null] });
+  setPicking(false);
+  renderPoints();
+  const inputs = $("points").querySelectorAll(`input[data-i="${points.length - 1}"]`);
+  inputs[0]?.focus();
+});
+
+$("points").addEventListener("input", (e) => {
+  const el = e.target;
+  if (el.dataset.i == null) return;
+  points[+el.dataset.i].mm[+el.dataset.k] = el.value === "" ? null : parseFloat(el.value);
+});
+$("points").addEventListener("click", (e) => {
+  const d = e.target.dataset.del;
+  if (d != null) { points.splice(+d, 1); renderPoints(); }
+});
+
+$("pick").onclick = () => setPicking(!picking);
+$("tab-live").onclick = () => setView("live");
+$("tab-result").onclick = () => setView("result");
+$("ui-lang").onchange = (e) => { ui = e.target.value; localStorage.setItem("ui-lang", ui); applyLang(); };
+$("q-lang").onchange = (e) => localStorage.setItem("q-lang", e.target.value);
+
+$("save-cal").onclick = async () => {
+  const ready = points.filter((p) => p.mm[0] != null && p.mm[1] != null && !isNaN(p.mm[0]) && !isNaN(p.mm[1]));
+  if (ready.length < 4 || ready.length !== points.length) { showMsg("cal-msg", "warn", esc(t("needPoints"))); return; }
+  $("save-cal").disabled = true;
+  try {
+    const r = await api("/api/calibration", { method: "POST",
+      body: JSON.stringify({ points: ready.map((p) => ({ px: p.px, robot_mm: p.mm })) }) });
+    const e = r.calibration.loo_max_mm;
+    showMsg("cal-msg", e == null ? "warn" : "ok", esc(e == null ? t("calSaved4") : t("calSaved", { e: e.toFixed(1) + " mm" })));
+  } catch (err) { showMsg("cal-msg", "bad", esc(err.message)); }
+  finally { $("save-cal").disabled = false; refreshStatus(); }
+};
+
+$("bg").onclick = async () => {
+  $("bg").disabled = true;
+  try { await api("/api/background", { method: "POST" }); showMsg("bg-msg", "ok", esc(t("bgSaved"))); }
+  catch (err) { showMsg("bg-msg", "bad", esc(err.message)); }
+  finally { $("bg").disabled = false; refreshStatus(); }
+};
+
+async function locate() {
+  const query = $("query").value.trim() || $("query").placeholder;
+  $("locate").disabled = true;
+  $("loc-msg").innerHTML = `<div class="msg"><span class="spin"></span></div>`;
+  try {
+    const r = await api("/api/locate", { method: "POST", body: JSON.stringify({ query, lang: $("q-lang").value }) });
+    const kind = r.ok ? "ok" : r.status === "ambiguous" ? "warn" : "bad";
+    const rows = [
+      [t("status"), r.status],
+      r.target_mm && [t("target"), `X ${r.target_mm[0]} mm · Y ${r.target_mm[1]} mm`],
+      r.resolution && [t("source"), r.resolution.source + (r.resolution.note ? " — " + r.resolution.note : "")],
+      r.drift_px != null && [t("drift"), r.drift_px + " px"],
+      r.timing_ms?.total != null && [t("time"), r.timing_ms.total + " ms"],
+      r.candidates?.length && [t("cands"), r.candidates.map((c) => `${c.id}:${c.colour}`).join("  ")],
+    ].filter(Boolean);
+    showMsg("loc-msg", kind, `<div class="big">${esc(r.message)}</div>
+      <div class="kv">${rows.map(([k, v]) => `<span>${esc(k)}</span><b>${esc(v)}</b>`).join("")}</div>`);
+    if (r.candidates?.length) setView("result");
+  } catch (err) { showMsg("loc-msg", "bad", esc(err.message)); }
+  finally { $("locate").disabled = false; }
+}
+$("locate").onclick = locate;
+$("query").addEventListener("keydown", (e) => { if (e.key === "Enter") locate(); });
+
+async function loadSavedPoints() {
+  try {
+    const r = await api("/api/calibration");
+    if (r.points) { points = r.points.map((p) => ({ px: p.px, mm: p.robot_mm })); renderPoints(); }
+  } catch (_) {}
+}
+
+const savedQ = localStorage.getItem("q-lang");
+if (savedQ) $("q-lang").value = savedQ;
+applyLang();
+loadSavedPoints();
+refreshStatus();
+refreshImage();
+setInterval(refreshStatus, 1500);
+setInterval(() => { if (view === "live" && !document.hidden) refreshImage(); }, 500);
+</script>
+</body>
+</html>

@@ -425,3 +425,33 @@ Before this prompt the suite was **296 passed**. The warning is Starlette's http
 - A real webcam and real packs. The synthetic numbers above are not that.
 - URSim and the real arm. The station end-to-end file is NOT RUN.
 - Native-speaker review of the zh and ja close phrases. They match as substrings in the tests; that is not a speaker check.
+
+---
+
+## Incident 2026-11-05 — voice assistant "stopping" without STOP — FIXED · TESTED
+**Symptom:** the voice session ended during use although no STOP word, STOP button or Grok stop tool was used.
+**Evidence (logs/voce.jsonl):** zero STOP events all day; every end of a voice session (11:48, 11:52, 11:55, 12:31, 12:52, 15:33,
+16:01) = `voice session dropped (browser disconnesso)` + server `shutdown` in the same second. 16:00–16:01 run: notebook cells
+31–35 executed back-to-back (Run All) → `handle.stop()` ran 84 s after start, during pending proposal A7.
+**Root causes:** (1) "Run All" executed the final `handle.stop()` cell; (2) VOCE ran inside the Jupyter kernel, so kernel restart /
+closing the notebook also killed the server (and its logs leaked into whatever cell was running).
+**Fixes:** `app/launcher.py` runs VOCE in its own process (own session, pid file `logs/voce_server.json`, log `logs/server.log`);
+`start()` re-attaches from any kernel/terminal; `handle.stop()` = SIGTERM → graceful lifespan shutdown (motion stopped first) and
+records the reason in both logs. Notebook: stop and test cells guarded by `STOP_VOCE = False` / `RUN_TESTS = False`; new status/log cell.
+Operator and assistant transcripts are now written to `logs/voce.jsonl` (to explain cancellations like A2–A5).
+Bug found while fixing: stop() waited 20 s then SIGKILLed an already-exited child (zombie answered kill(pid,0)) → now reaped.
+**Verified:** Run All + kernel shutdown → VOCE still running; live voice session stayed connected while a new kernel ran start();
+`tests/test_launcher.py` (re-attach, survive caller, mode switch refused, traceable stop); full suite 329 passed.
+
+## Incident 2026-11-05 16:19 — "voice assistant not controlling the movement" — FIXED · TESTED on URSim
+**Trace (logs/voce.jsonl):** voice pipeline worked (heard → `vai_a_posa destra_sopra` proposed → "Yes, I confirm." validated →
+program sent), but A2/A3 ended "non avviata: il controller non ha avviato il programma (Remote Control?)". RTDE showed the arm
+was ALREADY at `destra_sopra` (distance 0.0000 rad, moved there at 16:01:23). A movej to the current pose finishes faster than
+the 8 ms feedback period, so the adapter never saw `runtime_state = RUNNING` and wrongly reported a controller failure.
+A probe program was accepted by URSim at the same time (Remote Control was fine).
+**Fixes:** (1) gate: `vai_a_posa` to the pose the arm is verifiably at → `gia_in_posa` (IT/EN), no confirmation, no motion;
+(2) URAdapter: not observed running but joints at the final target → COMPLETED (verified by feedback), never "not started";
+(3) `_robot_stop` delivered a result to a timed-out future (InvalidStateError in server.log at the 16:20 STOP) → guarded;
+(4) prompt rule for `gia_in_posa`; (5) English rules "go above / move the arm above <zone>".
+**Verified on URSim:** same-pose execute → completed in 0.03 s; "Move the arm of the robot to the right." via Grok →
+"already at pose destra sopra… where would you like to move it?"; "Go home" → real move completed. Tests: 330 passed.

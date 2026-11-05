@@ -200,16 +200,21 @@ class Dashboard:
 
 
 # -------------------------------------------------------------- adapter ---
-def urscript(motion: Sequence[MotionStep], name: str = "voce_skill") -> str:
-    """Fixed program from validated steps only. Numbers are formatted from floats — no text from the conversation."""
+def urscript(motion: Sequence[MotionStep], name: str = "voce_skill", gripper: dict | None = None) -> str:
+    """Fixed program from validated steps only. Numbers are formatted from floats — no text from the conversation.
+    With a gripper configured, its mass is set first: a wrong payload makes the controller see a collision."""
     lines = [f"def {name}():"]
+    if gripper and gripper.get("enabled") and gripper.get("mass_kg") is not None:
+        cog = ", ".join(f"{float(c):.5f}" for c in (gripper.get("cog_m") or [0, 0, 0.03]))
+        lines.append(f"  set_payload({float(gripper['mass_kg']):.5f}, [{cog}])")
     for m in motion:
         if m.move == "wait":
             lines.append(f"  sleep({float(m.seconds):.3f})")
             continue
         q = ", ".join(f"{float(x):.5f}" for x in m.joints)
         fn = "movej" if m.move == "movej" else "movel"   # movel with a joint vector: FK computes the target pose
-        lines.append(f"  {fn}([{q}], a={float(m.accel):.3f}, v={float(m.speed):.3f})")
+        blend = f", r={float(m.blend):.4f}" if getattr(m, "blend", 0.0) > 0 else ""
+        lines.append(f"  {fn}([{q}], a={float(m.accel):.3f}, v={float(m.speed):.3f}{blend})")
     lines.append("end")
     return "\n".join(lines) + "\n"
 
@@ -361,7 +366,7 @@ class URAdapter:
         if cancel.is_set():
             return result(skill, params, t0, STOPPED, state(), error="fermato prima del movimento", total=total)
         try:
-            self._send_script(urscript(motion, f"voce_{skill}"))
+            self._send_script(urscript(motion, f"voce_{skill}", self.s.robot.get("gripper")))
         except OSError as e:
             return result(skill, params, t0, NOT_STARTED, state(), error=f"invio programma fallito: {e}", total=total)
 
@@ -379,6 +384,11 @@ class URAdapter:
                     break
                 time.sleep(0.008)
             if not started:
+                q = self.rtde.latest.get("actual_q") if self.rtde.fresh() else None
+                if q and targets and all(abs(a - b) <= self.tol for a, b in zip(q, targets[-1])):
+                    # the program ran (or had nothing to do) faster than the 8 ms feedback period:
+                    # the robot IS at the final target, verified by joint feedback -> completed, not "not started"
+                    return result(skill, params, t0, COMPLETED, state(), done=total, total=total)
                 return result(skill, params, t0, NOT_STARTED, state(),
                               error="il controller non ha avviato il programma (Remote Control? modalità?)", total=total)
             # 2. follow progress until the program ends

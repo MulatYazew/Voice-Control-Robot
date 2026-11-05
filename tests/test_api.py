@@ -34,7 +34,8 @@ def test_capabilities_arm3_has_no_camera(client):
 def test_status(client):
     s = client.get("/api/status").json()
     assert s["gate"] == "IDLE" and s["config"]["mode"] == "sim" and "xai" not in str(s["config"]).lower()
-    assert set(s["catalogue"]) == {"vai_a_posa", "indica", "solleva_vassoio", "appoggia_vassoio", "spingi", "sposta_vassoio"}
+    assert set(s["catalogue"]) == {"vai_a_posa", "indica", "solleva_vassoio", "appoggia_vassoio", "spingi",
+                                    "sposta_vassoio", "porta_in_ispezione", "smista"}
 
 
 def test_camera_off_exposes_no_frame(client):

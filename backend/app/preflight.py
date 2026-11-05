@@ -170,9 +170,14 @@ def check_port(host: str, port: int) -> dict[str, str]:
         busy = s.connect_ex((host, port)) == 0
     if not busy:
         return _row("port", OK, f"{host}:{port} free")
+    from .launcher import running_instance
+    inst = running_instance()
+    if inst:
+        return _row("port", OK, f"VOCE already running on :{port} (pid {inst.pid}, mode {inst.mode}): start() will reconnect")
     try:
         urllib.request.urlopen(f"http://{host}:{port}/api/status", timeout=2)
-        return _row("port", WARN, f"VOCE already running on :{port} (start() will refuse a second copy: pkill -f app.launcher)")
+        return _row("port", WARN, f"a VOCE without pid file is on :{port} (started by an older launcher): stop it with "
+                                  f"pkill -f app.launcher")
     except Exception:
         return _row("port", FAIL, f"{host}:{port} used by another program")
 

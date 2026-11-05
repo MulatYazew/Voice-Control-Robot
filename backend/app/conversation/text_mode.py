@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..safety.gate import Gate, GateState
-from .rules import Intent, detect_language, parse
+from .rules import Intent, detect_language, parse, parse_cup, parse_jog, parse_jog_batch
 
 TEXT_MODE_LABEL = "TEXT MODE — NOT VOICE"
 LANGS = ("it", "en", "zh", "ja", "am")
@@ -100,13 +100,17 @@ class TextConversation:
             self.context = None
             return self._out(text, Intent("stop"), self.t("stopped"), None)
 
+        jogged = await self._jog(text)
+        if jogged is not None:
+            return jogged
+
         intent = parse(text, poses=g.s.poses, pending=g.pending is not None)
 
         if intent.kind == "confirm":
             if intent.verdict != "valida":
                 return self._out(text, intent, self.t("explicit"), None)
             res = await g.confirm(g.pending.id if g.pending else None, source="rules")
-            reply = self.t("proceed") if res.get("ok") else res.get("messaggio", self.t("bad_confirm"))
+            reply = self.t("proceed") if res.get("ok") else (res.get("messaggio_en") if self.lang == "en" else None) or res.get("messaggio", self.t("bad_confirm"))
             return self._out(text, intent, reply, res)
 
         if intent.kind == "cancel":
@@ -170,6 +174,48 @@ class TextConversation:
 
         return self._out(text, intent, self.t("repeat"), None)
 
+    async def _jog(self, text: str) -> dict[str, Any] | None:
+        """Cartesian jogs and cup commands from grokarm, before the tray-skill parser."""
+        g = self.gate
+        cup = parse_cup(text)
+        if cup is not None:
+            res = await g.point_at_cup(cup.params.get("colore"), source="rules")
+            if res.get("ok"):
+                g.mark_question_asked(res.get("action_id"))
+            return self._out(text, cup, self._phrase(res) if res.get("ok") else res.get("messaggio", ""), res)
+        batch = parse_jog_batch(text)
+        if batch:
+            steps = []
+            for jog in batch:
+                p = jog.params
+                if jog.kind == "rotate":
+                    steps.append({"kind": "rotate", "giunto": p.get("giunto"), "verso": p.get("verso")})
+                else:
+                    steps.append({"kind": "move", "direzione": p.get("direzione")})
+            res = await g.propose_batch(steps, source="rules")
+            if res.get("ok"):
+                g.mark_question_asked(res.get("action_id"))
+            intent = Intent("skill", skill="sequenza", params={"passi": str(len(steps))})
+            return self._out(text, intent, self._phrase(res) if res.get("ok") else res.get("messaggio", ""), res)
+        jog = parse_jog(text)
+        if jog is None or jog.kind not in ("move", "rotate", "touch", "grab", "place"):
+            return None
+        p = jog.params
+        if jog.kind == "move":
+            res = await g.propose_move(p.get("direzione"), source="rules")
+        elif jog.kind == "rotate":
+            res = await g.propose_rotate(p.get("giunto"), p.get("verso"), source="rules")
+        elif jog.kind == "touch":
+            res = await g.touch_cup(p.get("colore"), source="rules")
+        elif jog.kind == "grab":
+            res = await g.grab_cup(p.get("colore"), source="rules")
+        else:
+            res = await g.place_cup(source="rules")
+        if res.get("ok"):
+            g.mark_question_asked(res.get("action_id"))
+        intent = Intent(jog.kind, params=dict(p))
+        return self._out(text, intent, self._phrase(res) if res.get("ok") else res.get("messaggio", ""), res)
+
     def _map_param(self, skill: str, p: dict[str, str]) -> dict[str, str]:
         z = p.get("posizione")
         if skill == "vai_a_posa" and z:
@@ -192,7 +238,7 @@ class TextConversation:
             opts = res.get("opzioni_valide") or []
             q = res["messaggio"] + (f" {self.t('options')}: {', '.join(opts)}." if opts else "")
             return self._out(text, intent, q, res)
-        return self._out(text, intent, res.get("messaggio", "Richiesta non valida."), res)
+        return self._out(text, intent, (res.get("messaggio_en") if self.lang == "en" else None) or res.get("messaggio", "Richiesta non valida."), res)
 
     def _out(self, text: str, intent: Intent, reply: str, result: dict[str, Any] | None) -> dict[str, Any]:
         self.gate.bus.publish("assistant_done", text=reply, mode=TEXT_MODE_LABEL)

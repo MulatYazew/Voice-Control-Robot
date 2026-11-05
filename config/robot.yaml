@@ -40,10 +40,12 @@ tool:
   # TCP offsets [x, y, z, rx, ry, rz] in m / rad relative to the flange.
   # null = UNKNOWN. Motion uses recorded joint targets, so offsets are not required to move,
   # but they must be measured before any Cartesian feature is added.
+  gripper: false                 # the fork stays the tray tool; the semicircle gripper is gripper.enabled below
   tcp_offsets:
     forca: null
     spintore: null
     punta: null
+  tip_length_m: null
 
 motion:
   # Joint-space speed/acceleration (rad/s, rad/s^2) and linear (m/s, m/s^2).
@@ -57,5 +59,111 @@ motion:
 safety:
   confirmation_ttl_s: 20
   execution_timeout_margin_s: 5
+  motion_timeout_s: 300
   stop_on_voice_loss: true      # the browser socket lost while moving -> STOP. A Grok-only drop does not.
   end_voice_on_stop: true       # a spoken STOP or the STOP button ends the voice session after the robot has stopped
+
+# --- merged from grokarm-ur3e: gripper, guard, inspection camera, cups. Real host stays opt-in. ---
+gripper:
+  enabled: true
+  plate_radius_m: 0.0315
+  ring_offset_m: 0.1115
+  ring_axial_m: 0.012
+  ring_outer_radius_m: 0.0335
+  ring_inner_radius_m: 0.0265
+  ring_height_m: 0.010
+  offset_axis_flange: null
+  table_clearance_m: 0.002
+  self_margin_m: 0.01
+  mass_kg: 0.08
+  cog_m: [0.0, 0.0, 0.03]
+grasp:
+  cup_height_m: 0.08
+  cup_bottom_diameter_m: 0.048
+  cup_top_diameter_m: 0.072
+  entry_margin_m: 0.0005
+  approach_gap_m: 0.015
+  above_clear_m: 0.03
+  slide_speed: 0.02
+  lift_m: 0.08
+  lift_speed: 0.03
+relative:
+  max_deg: 360
+  max_joint_change_rad: 6.283185
+  min_wrist_sin: 0.12
+  reach_min_m: 0.12
+  reach_max_m: 0.50
+  table_z_m: 0.0
+  tip_clearance_m: 0.02
+  joint_clearance_m: 0.04
+  assumed_tip_length_m: 0.15
+  frame:
+    sinistra: [0, -1, 0]
+    destra:   [0, 1, 0]
+    avanti:   [-1, 0, 0]
+    indietro: [1, 0, 0]
+    su:       [0, 0, 1]
+    giu:      [0, 0, -1]
+  joint_sides:
+    base:   {sinistra: 1, destra: -1}
+    spalla: {su: -1, giu: 1}
+    gomito: {su: -1, giu: 1}
+    polso1: {su: -1, giu: 1}
+    polso3: {sinistra: 1, destra: -1}
+calib:
+  lift_m: 0.02
+  max_m: 0.9
+marker:
+  size_m: 0.05
+camera_intrinsics:
+  fx: 1127.53
+  fy: 1127.53
+  cx: 857.02
+  cy: 642.36
+guard:
+  # Off until a cell is taught. Turn it on to re-check every confirmed path (docs/MOTION_GUARD.md).
+  enabled: false
+  tool_length_m: null
+  table_z_m: null
+  link_clearance_m: 0.03
+  joint_limits_rad: [6.23, 6.23, 2.8, 6.23, 6.23, 6.23]
+  min_wrist_sin: 0.10
+  min_elbow_sin: 0.12
+  movel_max_rad_per_m: 15
+  hubs: [home, attesa]
+  obstacles: []
+  max_plan_s: 3.0
+  blend_m: 0.02
+stereo:
+  url: null
+  timeout_s: 1.5
+  min_height_m: 0.03
+  max_height_m: 0.35
+touch:
+  object_height_m: 0.09
+  touch_offset_m: 0.005
+  approach_above_m: 0.08
+  descent_speed: 0.03
+  hold_s: 0.5
+  workspace_margin_mm: 10
+  max_joint_change_rad: 1.2
+  cup_point: bottom
+inspection:
+  input_zone: sinistra
+  pass_zone: centro
+  fail_zone: destra
+  labels: {sinistra: A, centro: B, destra: C}
+  inspect_pose: ispezione
+  settle_s: 0.8
+  max_frame_age_s: 2.0
+cups:
+  image_zone_order: [sinistra, centro, destra]
+  zone_cuts: [0.3333, 0.6667]
+  roi: [0.0, 0.0, 1.0, 1.0]
+  min_saturation: 50
+  min_value: 40
+  min_area_frac: 0.002
+  max_area_frac: 0.25
+  max_frame_age_s: 2.0
+  diff_threshold: 30
+  grok_fallback: true

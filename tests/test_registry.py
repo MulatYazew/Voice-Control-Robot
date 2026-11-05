@@ -11,7 +11,8 @@ def world(settings):
 
 
 def test_registration_and_config_loading(registry):
-    assert set(registry.skills) == {"vai_a_posa", "indica", "solleva_vassoio", "appoggia_vassoio", "spingi", "sposta_vassoio"}
+    assert set(registry.skills) == {"vai_a_posa", "indica", "solleva_vassoio", "appoggia_vassoio", "spingi",
+                                    "sposta_vassoio", "porta_in_ispezione", "smista"}
     assert registry.skills["spingi"].parametri == {"posizione": "zona", "direzione": "direzione"}
     assert registry.domain("zona") == ["sinistra", "centro", "destra"]
     assert "home" in registry.selectable_poses()

@@ -236,6 +236,7 @@ class GrokSession:
                 self._audio_until = time.monotonic() + 0.7
                 if self._cur.strip():
                     self.assistant_text.append(self._cur.strip())
+                    log_event(log, "assistant said", text=self._cur.strip()[:500], mode=self.mode)
                     self.bus.publish("assistant_done", text=self._cur.strip(), mode=self.mode)
                 self._cur = ""
                 pa = self.gate.pending

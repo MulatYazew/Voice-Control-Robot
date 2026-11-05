@@ -13,6 +13,7 @@ where = ["backend"]
 
 [tool.setuptools.package-data]
 app = ["voice/*.md"]
+grokarm_vision = ["static/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

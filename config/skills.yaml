@@ -109,3 +109,38 @@ skills:
     conferma_en: "Moving the tray from the {origine} zone to the {destinazione} zone. Do you confirm?"
     risultato_en: "Move completed from {origine} to {destinazione}."
     in_caso_di_errore: fault
+
+  porta_in_ispezione:
+    descrizione: "Preleva con la forca il pezzo dal vassoio di ingresso e lo tiene davanti alla telecamera."
+    strumento: forca
+    parametri:
+      posizione: {tipo: zona}
+    precondizioni: [forca_libera, vassoio_presunto_in_zona, zona_di_ingresso]
+    sequenza:
+      - {move: movej, posa: "{posizione}_sopra"}
+      - {move: movel, posa: "{posizione}_presa"}
+      - {move: movel, posa: "{posizione}_sopra"}
+      - {move: movej, posa: "ispezione"}
+    timeout_s: 60
+    conferma: "Prelevo il pezzo dal vassoio {posizione} e lo porto davanti alla telecamera. Confermi?"
+    risultato: "Il pezzo è davanti alla telecamera."
+    conferma_en: "Picking the part from tray {posizione} and holding it in front of the camera. Do you confirm?"
+    risultato_en: "The part is in front of the camera."
+    in_caso_di_errore: fault
+
+  smista:
+    descrizione: "Deposita il pezzo ispezionato nel vassoio approvati o scartati."
+    strumento: forca
+    parametri:
+      posizione: {tipo: zona}
+    precondizioni: [vassoio_sulla_forca, zona_di_uscita]
+    sequenza:
+      - {move: movej, posa: "{posizione}_sopra"}
+      - {move: movel, posa: "{posizione}_presa"}
+      - {move: movel, posa: "{posizione}_sopra"}
+    timeout_s: 60
+    conferma: "Deposito il pezzo nel vassoio {posizione}. Confermi?"
+    risultato: "Pezzo depositato nel vassoio {posizione}."
+    conferma_en: "Placing the part in tray {posizione}. Do you confirm?"
+    risultato_en: "Part placed in tray {posizione}."
+    in_caso_di_errore: fault

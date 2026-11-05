@@ -17,7 +17,8 @@ from ..safety.gate import Gate
 
 PROMPT_FILE = Path(__file__).resolve().parents[1] / "voice" / "prompt_it.md"
 
-SKILL_IDS = ["vai_a_posa", "indica", "solleva_vassoio", "appoggia_vassoio", "spingi", "sposta_vassoio"]
+SKILL_IDS = ["vai_a_posa", "indica", "solleva_vassoio", "appoggia_vassoio", "spingi", "sposta_vassoio",
+             "porta_in_ispezione", "smista"]
 PERCEPTION = None          # Station, set by main.create_app
 LANGS = ["it", "en", "zh", "ja", "am"]
 LABELLING: tuple | None = None   # (LabellingService, SortingCycle), set by main.create_app
@@ -69,6 +70,36 @@ def tool_schemas(s: Settings, poses: list[str], *, stretch: bool = True) -> list
             {"type": "function", "name": "save_pose",
              "description": "Salva la posizione attuale del robot con un nome, per vai_a_posa. Non muove il robot.",
              "parameters": {"type": "object", "properties": {"nome": {"type": "string"}}, "required": ["nome"]}},
+            {"type": "function", "name": "point_at_cup",
+             "description": "Indica un bicchiere colorato visto dalla telecamera. Non muove finché l'operatore non conferma.",
+             "parameters": {"type": "object", "properties": {"colore": {"type": "string"}}, "required": ["colore"]}},
+            {"type": "function", "name": "touch_cup",
+             "description": "Proponi di toccare il bordo di un bicchiere visto dalla telecamera calibrata.",
+             "parameters": {"type": "object", "properties": {"colore": {"type": "string"}, "posizione": {"type": "string"}},
+                            "required": ["colore"]}},
+            {"type": "function", "name": "grab_cup",
+             "description": "Proponi di prendere un bicchiere di carta con la pinza a semicerchio. Solo se la pinza è montata.",
+             "parameters": {"type": "object", "properties": {"colore": {"type": "string"}, "posizione": {"type": "string"}},
+                            "required": ["colore"]}},
+            {"type": "function", "name": "place_cup",
+             "description": "Proponi di posare il bicchiere tenuto dalla pinza.",
+             "parameters": {"type": "object", "properties": {}}},
+            {"type": "function", "name": "move_tip",
+             "description": "Proponi uno spostamento rettilineo della punta. La distanza la legge il backend dalle parole dell'operatore.",
+             "parameters": {"type": "object", "properties": {"direzione": {"type": "string"}}, "required": ["direzione"]}},
+            {"type": "function", "name": "rotate_joint",
+             "description": "Proponi la rotazione di un giunto. L'angolo lo legge il backend dalle parole dell'operatore.",
+             "parameters": {"type": "object", "properties": {"giunto": {"type": "string"}, "verso": {"type": "string"}},
+                            "required": ["giunto", "verso"]}},
+            {"type": "function", "name": "look_cups",
+             "description": "Elenca i bicchieri colorati visibili. Non muove il robot.",
+             "parameters": {"type": "object", "properties": {}}},
+            {"type": "function", "name": "start_inspection",
+             "description": "Avvia l'ispezione qualità: prima il pezzo va alla telecamera, poi il verdetto, poi lo smistamento. Ogni movimento si conferma.",
+             "parameters": {"type": "object", "properties": {"regola": {"type": "string"}}}},
+            {"type": "function", "name": "propose_batch",
+             "description": "Più spostamenti o rotazioni in una frase. Una sola conferma li esegue in ordine.",
+             "parameters": {"type": "object", "properties": {"passi": {"type": "array"}}, "required": ["passi"]}},
         ]
     pid = {"type": "object", "properties": {"product_id": {"type": "string"}}}
     tools += [
@@ -302,6 +333,25 @@ async def dispatch(gate: Gate, name: str, args: dict[str, Any], *, source: str =
             return gate.propose_sequence(steps, source=source)
         if name == "save_pose":
             return await gate.save_pose(str(args.get("nome") or ""))
+        if name == "propose_batch":
+            return await gate.propose_batch(args.get("passi") or [], source=source)
+        if name == "point_at_cup":
+            return await gate.point_at_cup(args.get("colore") or args.get("colour"), source=source)
+        if name == "touch_cup":
+            return await gate.touch_cup(args.get("colore") or args.get("colour"), zone=args.get("posizione"), source=source)
+        if name == "grab_cup":
+            return await gate.grab_cup(args.get("colore") or args.get("colour"), zone=args.get("posizione"), source=source)
+        if name == "place_cup":
+            return await gate.place_cup(source=source)
+        if name == "move_tip":
+            return await gate.propose_move(args.get("direzione"), source=source)
+        if name == "rotate_joint":
+            return await gate.propose_rotate(args.get("giunto"), args.get("verso"), source=source)
+        if name == "look_cups":
+            found = gate.scan_cups()
+            return {k: v for k, v in found.items() if k != "frame_id"}
+        if name == "start_inspection":
+            return gate.start_inspection(args.get("regola") or args.get("rule"), source=source)
         if name in ("analyse_model_pack", "validate_label_sheet", "request_inspection", "explain_inspection",
                     "start_sorting_cycle", "list_products", "learn_model_pack", "check_label_sheet",
                     "inspect_work_area", "propose_labelling_cycle"):

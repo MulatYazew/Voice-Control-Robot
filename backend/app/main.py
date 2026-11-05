@@ -14,11 +14,13 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from .config import FRONTEND_DIST, ROOT, Settings, load_settings
+from .config import FRONTEND_DIST, LANGUAGES, ROOT, Settings, load_settings
 from .conversation.text_mode import TEXT_MODE_LABEL, TextConversation
 from .monitoring.events import EventBus, History, Metrics, log_event, setup_logging
 from .safety.gate import Gate
 from .skills.registry import Registry
+from .vision.camera import CameraHub
+from .vision.inspector import GrokInspector, MockInspector
 from .voice.grok_session import GrokSession
 from .api.labelling import make_router
 from .conversation import tools as tools_mod
@@ -52,6 +54,38 @@ class StopBody(BaseModel):
 
 class ResetBody(BaseModel):
     operator_confirmed: bool = Field(..., description="Must be true: deliberate operator action from the UI")
+
+
+class LangBody(BaseModel):
+    lang: str = Field(..., min_length=2, max_length=5)
+
+
+class CupBody(BaseModel):
+    colour: str = Field(..., min_length=2, max_length=20)
+
+
+class InspectionBody(BaseModel):
+    rule: str | None = Field(None, max_length=300)
+
+
+class TouchBody(BaseModel):
+    colour: str = Field(..., min_length=2, max_length=20)
+    zone: str | None = Field(None, max_length=20)
+
+
+class CalPointBody(BaseModel):
+    u: float
+    v: float
+
+
+class ConfirmBody(BaseModel):
+    action_id: str | None = None
+
+
+def make_inspector(s: Settings):
+    if s.inspector == "grok" and s.xai_api_key:
+        return GrokInspector(s.xai_api_key, s.xai_vision_model, s.xai_base_url)
+    return MockInspector(s.mock_verdict)
 
 
 class TextBody(BaseModel):
@@ -112,15 +146,19 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
         station.sim.on_robot(skill, params, outcome)
 
     gate.on_verified_motion = _scene_outcome
+    cell_camera = CameraHub(s)
+    gate.attach_vision(cell_camera, make_inspector(s))
     state: dict[str, Any] = {"voice": None, "grok_text": None, "voice_status": "disconnected"}
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         log_event(log, "startup", mode=s.mode, warnings=s.warnings)
         await gate.start()                     # never resumes old pending actions (pending is in-memory only)
+        cell_camera.start()
         watcher = asyncio.ensure_future(_stop_aborts_cycle())
         yield
         watcher.cancel()
+        cell_camera.stop()
         if cycle.phase not in ("IDLE", "DONE", "ABORTED"):
             cycle.abort("shutdown")
         log_event(log, "shutdown")
@@ -291,6 +329,121 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
             return {"ok": False, "esito": "zone_non_calibrate"}
         station.camera.save_zones({z: body.zones[z] for z in needed})
         return {"ok": True, "calibrated_at": station.camera.cfg.get("calibrated_at")}
+
+    def _mark_if_silent(r: dict[str, Any]) -> JSONResponse:
+        if r.get("ok") and r.get("action_id") and not state["voice"] and not state["grok_text"]:
+            gate.mark_question_asked(r["action_id"])
+        return JSONResponse(r, status_code=200 if r.get("ok") else 409)
+
+    @app.post("/api/language")
+    async def api_language(body: LangBody) -> dict[str, Any]:
+        lang = body.lang.lower()[:2]
+        if lang not in LANGUAGES:
+            raise HTTPException(400, f"lang must be one of {list(LANGUAGES)}")
+        s.lang = lang
+        bus.publish("lang", lang=lang)
+        gate.publish_state()
+        return {"ok": True, "lang": lang}
+
+    @app.post("/api/vision/frame")
+    async def api_vision_frame(request: Request) -> dict[str, Any]:
+        data = await request.body()
+        try:
+            frame = await asyncio.to_thread(cell_camera.push, data)
+        except ValueError as e:
+            raise HTTPException(400, str(e)) from e
+        return {"ok": True, "frame_id": frame.frame_id, "size": list(frame.size)}
+
+    @app.get("/api/vision/frame.jpg")
+    async def api_vision_jpg() -> Response:
+        frame = cell_camera.store.latest()
+        if frame is None:
+            raise HTTPException(404, "no camera frame yet")
+        return Response(frame.jpeg, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
+
+    @app.get("/api/inspection/last.jpg")
+    async def api_inspection_jpg() -> Response:
+        if gate.inspection.last_jpeg is None:
+            raise HTTPException(404, "no inspection yet")
+        return Response(gate.inspection.last_jpeg, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
+
+    @app.get("/api/vision/cups")
+    async def api_cups() -> JSONResponse:
+        r = await asyncio.to_thread(gate.scan_cups)
+        return JSONResponse(r, status_code=200 if r.get("ok") else 409)
+
+    @app.post("/api/vision/point")
+    async def api_point_cup(body: CupBody) -> JSONResponse:
+        return _mark_if_silent(await gate.point_at_cup(body.colour, source="ui"))
+
+    @app.post("/api/vision/touch")
+    async def api_touch_cup(body: TouchBody) -> JSONResponse:
+        return _mark_if_silent(await gate.touch_cup(body.colour, zone=body.zone, source="ui"))
+
+    @app.post("/api/vision/grab")
+    async def api_grab_cup(body: TouchBody) -> JSONResponse:
+        return _mark_if_silent(await gate.grab_cup(body.colour, zone=body.zone, source="ui"))
+
+    @app.post("/api/vision/place")
+    async def api_place_cup() -> JSONResponse:
+        return _mark_if_silent(await gate.place_cup(source="ui"))
+
+    @app.get("/api/calibration")
+    async def api_calibration() -> dict[str, Any]:
+        return {"ok": True, **gate.table_cal.public(), "tip_length_measured": gate.planner.tip_length_measured,
+                "marker": gate.marker_status()}
+
+    @app.get("/api/calibration/marker.png")
+    async def api_marker_png() -> Response:
+        from .vision.marker import sheet_png
+        return Response(sheet_png(float((gate.s.robot.get("marker") or {}).get("size_m", 0.05))),
+                        media_type="image/png")
+
+    @app.post("/api/calibration/marker/{which}")
+    async def api_marker_record(which: str) -> JSONResponse:
+        r = await gate.marker_record(which)
+        return JSONResponse(r, status_code=200 if r.get("ok") else 409)
+
+    @app.post("/api/calibration/corners")
+    async def api_calibration_corners() -> JSONResponse:
+        r = await gate.calibration_corners()
+        return JSONResponse(r, status_code=200 if r.get("ok") else 409)
+
+    @app.post("/api/calibration/point")
+    async def api_calibration_point(body: CalPointBody) -> JSONResponse:
+        r = await gate.calibration_add(body.u, body.v)
+        return JSONResponse(r, status_code=200 if r.get("ok") else 409)
+
+    @app.post("/api/calibration/{action}")
+    async def api_calibration_edit(action: str) -> JSONResponse:
+        if action not in ("undo", "clear"):
+            raise HTTPException(404, "unknown calibration action")
+        return JSONResponse(gate.calibration_edit(action))
+
+    @app.post("/api/vision/cups/background")
+    async def api_cups_background(clear: bool = False) -> JSONResponse:
+        r = gate.cups_background(clear=clear)
+        return JSONResponse(r, status_code=200 if r.get("ok") else 409)
+
+    @app.get("/api/vision/cups.jpg")
+    async def api_cups_jpg() -> Response:
+        if gate.cups is None or gate.cups.last_jpeg is None:
+            raise HTTPException(404, "no scan yet")
+        return Response(gate.cups.last_jpeg, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
+
+    @app.post("/api/inspection/start")
+    async def api_inspection_start(body: InspectionBody) -> JSONResponse:
+        return _mark_if_silent(gate.start_inspection(body.rule, source="ui"))
+
+    @app.post("/api/world/part-ready")
+    async def api_part_ready() -> JSONResponse:
+        r = gate.part_ready(operator="ui")
+        return JSONResponse(r, status_code=200 if r.get("ok") else 409)
+
+    @app.post("/api/confirm-button")
+    async def api_confirm_button(body: ConfirmBody) -> JSONResponse:
+        r = await gate.confirm_from_button(body.action_id)
+        return JSONResponse(r, status_code=200 if r.get("ok") else 409)
 
     @app.get("/api/eval/latest")
     async def api_eval() -> JSONResponse:

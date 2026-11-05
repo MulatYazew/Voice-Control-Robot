@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ActionPanel } from "./components/ActionPanel";
+import { CellPanel } from "./components/CellPanel";
 import { Conversation } from "./components/Conversation";
 import { Header } from "./components/Header";
 import { MicPanel } from "./components/MicPanel";
@@ -126,7 +127,10 @@ export default function App() {
         {tab === "hist" && <InspectionHistory />}
         {tab === "robot" && (
           <main className="grid">
-            <div className="col"><RobotPanel status={s} layout={store.layout} joints={store.joints} /></div>
+            <div className="col">
+              <RobotPanel status={s} layout={store.layout} joints={store.joints} />
+              <CellPanel />
+            </div>
             <div className="col"><Metrics metrics={s?.metrics ?? {}} /><History items={s?.history ?? []} /></div>
           </main>
         )}
