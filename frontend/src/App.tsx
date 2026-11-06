@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ActionPanel } from "./components/ActionPanel";
+import { CameraPanel } from "./components/CameraPanel";
 import { CellPanel } from "./components/CellPanel";
+import { InspectionPanel } from "./components/InspectionPanel";
 import { Conversation } from "./components/Conversation";
 import { Header } from "./components/Header";
 import { MicPanel } from "./components/MicPanel";
@@ -12,11 +14,11 @@ import { LangCtx, type Lang, storeLang, storedLang, useT } from "./i18n/strings"
 import { InspectionHistory, ProductSpecs, SmartLabelling } from "./labelling/Labelling";
 import { VoiceClient, type VoiceState } from "./services/voice";
 
-type Tab = "voice" | "label" | "specs" | "hist" | "robot" | "eval";
+type Tab = "voice" | "camera" | "label" | "specs" | "hist" | "robot" | "eval";
 
 function Nav({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
   const t = useT();
-  const items: [Tab, Parameters<typeof t>[0]][] = [["voice", "nav_voice"], ["label", "nav_label"], ["specs", "nav_specs"],
+  const items: [Tab, Parameters<typeof t>[0]][] = [["voice", "nav_voice"], ["camera", "nav_camera"], ["label", "nav_label"], ["specs", "nav_specs"],
     ["hist", "nav_hist"], ["robot", "nav_robot"], ["eval", "nav_eval"]];
   return (
     <nav className="tabs">
@@ -118,6 +120,18 @@ export default function App() {
             <div className="col">
               <PerceptionPanel config={store.config} gate={s?.gate} />
               <RobotPanel status={s} layout={store.layout} joints={store.joints} />
+              <History items={s?.history ?? []} />
+            </div>
+          </main>
+        )}
+        {tab === "camera" && (
+          <main className="grid">
+            <div className="col">
+              <CameraPanel camera={s?.camera} source={store.config?.cell_camera_source ?? "browser"}
+                zoneLabels={store.config?.inspection?.labels} canPoint={s?.gate === "IDLE"} phoneUrls={store.config?.phone_urls} />
+            </div>
+            <div className="col">
+              {s && <InspectionPanel status={s} config={store.config as any} />}
               <History items={s?.history ?? []} />
             </div>
           </main>

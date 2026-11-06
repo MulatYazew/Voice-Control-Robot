@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..safety.gate import Gate, GateState
-from .rules import Intent, detect_language, parse, parse_cup, parse_jog, parse_jog_batch
+from .rules import Intent, detect_language, earlier_utterance, parse, parse_cup, parse_jog, parse_jog_batch
 
 TEXT_MODE_LABEL = "TEXT MODE — NOT VOICE"
 LANGS = ("it", "en", "zh", "ja", "am")
@@ -46,6 +46,13 @@ T = {
         "zh": "这个我做不到。我只能：去一个姿势、指向一个区域、抬起、放下或推动托盘。不能直接抓取物体。",
         "ja": "それはできません。できるのは、ポーズへ移動、ゾーンを指す、トレイを持ち上げる・置く・押すだけです。物を直接つかむことはできません。",
         "am": "ይህን ማድረግ አልችልም። ወደ አቀማመጥ መሄድ፣ ክልል ማመልከት፣ ትሪ ማንሳት፣ ማስቀመጥ ወይም መግፋት ብቻ ነው።",
+    },
+    "capabilities": {
+        "it": "Posso: andare in una posa (home, attesa, sopra una zona), indicare una zona, sollevare, appoggiare o spingere un vassoio. Zone: sinistra, centro, destra. Ogni movimento chiede conferma; STOP è sempre attivo.",
+        "en": "I can: go to a pose (home, waiting, above a zone), point at a zone, lift, put down or push a tray. Zones: left, centre, right. Every movement asks for confirmation; STOP always works.",
+        "zh": "我可以：去一个姿势（初始位置、等待位置、区域上方）、指向一个区域、抬起、放下或推动托盘。区域：左边、中间、右边。每个动作都要确认，随时可以说停。",
+        "ja": "できること：ポーズへ移動、ゾーンを指す、トレイを持ち上げる・置く・押す。ゾーンは左、中央、右。動作ごとに確認し、停止はいつでも有効です。",
+        "am": "ማድረግ የምችለው፡ ወደ አቀማመጥ መሄድ፣ ክልል ማመልከት፣ ትሪ ማንሳት፣ ማስቀመጥ ወይም መግፋት። እያንዳንዱ እንቅስቃሴ ማረጋገጫ ይጠይቃል።",
     },
     "vague": {
         "it": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
@@ -104,7 +111,12 @@ class TextConversation:
         if jogged is not None:
             return jogged
 
-        intent = parse(text, poses=g.s.poses, pending=g.pending is not None)
+        intent = parse(text, poses=g.s.poses, pending=g.pending is not None,
+                       prior=earlier_utterance(g.history.items, text))   # "the other one" = flip the previous command
+
+        if intent.kind == "capabilities":
+            self.context = None
+            return self._out(text, intent, self.t("capabilities"), None)
 
         if intent.kind == "confirm":
             if intent.verdict != "valida":

@@ -45,7 +45,13 @@ ZONE_WORDS = {
     "centro": [r"\bcentr\w*", r"\bin mezzo\b", r"\bmezzo\b", r"\bmiddle\b", r"\bcenter\b", r"\bcentre\b"],
     "destra": [r"\bdestr\w*", r"\bdx\b", r"\bright\b"],
 }
-DIR_MARKERS = r"\b(verso|in direzione|direzione|spostandolo|spingendolo|towards?|to the)\b"
+DIR_MARKERS = r"\b(verso|in direzione|direzione|spostandolo|spingendolo|towards?|to the)\b|往|向"
+CAPABILITY_Q = [r"\bcosa (sai|puoi) fare\b", r"\bwhat can you do\b", r"\bwhat do you do\b",
+                "你能干什么", "你会什么", "你能做什么", "你可以做什么", "能做什么"]
+CORRECTION = r"不对|不是|改成|换成"
+_OTHER_SIDE = {"sinistra": "destra", "destra": "sinistra"}
+_OTHER_WORDS = re.compile(r"另一个|另外一个|换另一|换一个|\bl altr[oa]\b|\bthe other (one|tray|side)\b")
+_NARRATIVE = re.compile(r"昨天|手动|\bieri\b|\byesterday\b")
 
 
 @dataclass
@@ -92,12 +98,32 @@ def _zones_in(t: str) -> list[tuple[int, str]]:
     return sorted(set(found))
 
 
+def _pose_pat(c: str) -> str:
+    """CJK has no word boundaries: match those aliases as substrings."""
+    if re.search(r"[\u3040-\u30ff\u3400-\u9fff]", c):
+        return re.escape(c)
+    return rf"\b{re.escape(c)}\b"
+
+
+def _flip_prior(prior: str | None) -> Intent:
+    """'换另一个' / "l'altro": the other side of the PREVIOUS command. Without one, ask (never guess)."""
+    p = _n(prior or "")
+    previous = _zones_in(p)
+    flipped = _OTHER_SIDE.get(previous[-1][1]) if previous else None
+    if flipped is None:
+        return Intent("clarify", note="altro lato")
+    skill = _skill_of(p) or "solleva_vassoio"
+    if skill == "vai_a_posa":
+        skill = "solleva_vassoio"
+    return Intent("skill", skill=skill, params={"posizione": flipped})
+
+
 def _pose_in(t: str, poses: dict[str, Any]) -> str | None:
     for name, p in poses.items():
         if not p.get("selezionabile"):
             continue
         cands = [name.replace("_", " ")] + [phrases.normalize(a) for a in p.get("alias", [])]
-        if any(re.search(rf"\b{re.escape(c)}\b", t) for c in cands if c):
+        if any(re.search(_pose_pat(c), t) for c in cands if c):
             return name
     return None
 
@@ -216,27 +242,38 @@ def parse(text: str, *, poses: dict[str, Any] | None = None, pending: bool = Fal
         return Intent("none")
     if phrases.is_stop(text):
         return Intent("stop")
-    if any(w in t for w in _UNREACHABLE):
-        return Intent("out_of_scope")
+    if any(w in t for w in _UNREACHABLE) or _NARRATIVE.search(t):
+        return Intent("out_of_scope")   # unreachable place, or a report of what someone else did
     scene = _scene_intent(t)
     if scene:
         return scene
+    wants_other = bool(_OTHER_WORDS.search(t))
+    correcting = bool(re.search(CORRECTION, t))
+    correction = correcting and bool(_zones_in(t))
     if pending:
         v = phrases.confirmation_verdict(text)
-        if v == phrases.VALID:
+        if v == phrases.VALID and not correction:
             return Intent("confirm", verdict=v)
-        if v in (phrases.NEGATIVE, phrases.UNCERTAIN) and not _skill_of(t):
+        if v in (phrases.NEGATIVE, phrases.UNCERTAIN) and not _skill_of(t) and not wants_other and not correction:
             return Intent("cancel" if v == phrases.NEGATIVE else "confirm", verdict=v)
-    elif phrases.is_cancel(text) and not _skill_of(t):
+        if phrases.is_cancel(text) and not _skill_of(t) and not wants_other:   # "forget it" while a question is open
+            return Intent("cancel")
+    elif phrases.is_cancel(text) and not _skill_of(t) and not wants_other:
         return Intent("cancel")
+    if not pending and _any(CAPABILITY_Q, t) and _skill_of(t) is None:
+        return Intent("capabilities")
     located = _object_intent(t)
     if located:
         return located
     labelled = _label_intent(t)
     if labelled:
         return labelled
-    skill = _skill_of(t)
+    skill = _skill_of(t, last=correcting)
+    if skill is None and correction:          # '不是中间，是左边' = point at the corrected zone
+        return Intent("skill", skill="indica", params={"posizione": _zones_in(t)[-1][1]})
     if skill is None:
+        if wants_other:
+            return _flip_prior(prior)
         moved = _tray_move(t)
         if moved:
             return moved
@@ -259,6 +296,13 @@ def parse(text: str, *, poses: dict[str, Any] | None = None, pending: bool = Fal
                 params["posa"] = f"{z[0][1]}_sopra"
     else:
         zones = _zones_in(t)
+        if correction:
+            zones = zones[-1:]                # '抬左边的，哦不对，右边的' -> the zone after the correction
+        if wants_other and not zones:
+            flipped = _flip_prior(prior)
+            if flipped.kind != "skill":
+                return flipped
+            return Intent("skill", skill=skill if skill != "vai_a_posa" else flipped.skill, params=flipped.params)
         if skill == "spingi":
             m = re.search(DIR_MARKERS, t)
             if m:
@@ -272,6 +316,11 @@ def parse(text: str, *, poses: dict[str, Any] | None = None, pending: bool = Fal
                 params["posizione"], params["direzione"] = zones[0][1], zones[1][1]
             elif zones:
                 params["posizione"] = zones[0][1]
+            leftover = [z for _, z in zones if z not in params.values()]   # '往右推，左边那个托盘'
+            if "posizione" not in params and leftover:
+                params["posizione"] = leftover.pop(0)
+            if "direzione" not in params and leftover:
+                params["direzione"] = leftover.pop(0)
         elif zones:
             params["posizione"] = zones[0][1]
     return Intent("skill", skill=skill, params=params)
@@ -299,16 +348,26 @@ def _scene_intent(t: str) -> Intent | None:
     return None
 
 
-def _skill_of(t: str) -> str | None:
+def _skill_of(t: str, last: bool = False) -> str | None:
+    """The skill named in the sentence. last=True (after '不对'): the one named LAST, i.e. the correction."""
+    found: list[tuple[int, str]] = []
     for skill, pats in SKILL_PATTERNS:
-        if _any(pats, t):
-            return skill
-    for skill, words in skill_triggers().items():
-        if skill == "sposta_vassoio":
-            continue
-        if any(w and w in t for w in words):
-            return skill
-    return None
+        for p in pats:
+            m = re.search(p, t)
+            if m:
+                found.append((m.start(), skill))
+                break
+    if not found or last:
+        for skill, words in skill_triggers().items():
+            if skill == "sposta_vassoio":
+                continue
+            hits = [t.find(w) for w in words if w and w in t]
+            if hits:
+                found.append((max(hits) if last else min(hits), skill))
+    if not found:
+        return None
+    found.sort()
+    return found[-1][1] if last else found[0][1]
 
 
 # ------------------------------------------------------------------ inspection (text mode only, not in the eval baseline)

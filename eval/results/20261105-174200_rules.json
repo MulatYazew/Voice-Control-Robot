@@ -1,0 +1,4190 @@
+{
+ "engine": "rules",
+ "config": {
+  "grok_model": "grok-voice-latest",
+  "voice": "eve",
+  "lang_hint": "it",
+  "prompt_file": "backend/app/voice/prompt_it.md",
+  "prompt_sha256": "da77f8357c1d9d0f97b8897a636094136fdec80e94b12f790767a1da34b892fb",
+  "robot": "SimAdapter (fast) — conversation/gate evaluation, not robot timing",
+  "n_cases": 153
+ },
+ "prompt": null,
+ "summary": {
+  "overall": {
+   "selezione_skill": {
+    "ok": 39,
+    "n": 47,
+    "rate": 0.83
+   },
+   "estrazione_parametri": {
+    "ok": 38,
+    "n": 47,
+    "rate": 0.809
+   },
+   "chiarimento_corretto": {
+    "ok": 23,
+    "n": 23,
+    "rate": 1.0
+   },
+   "rifiuto_fuori_ambito": {
+    "ok": 17,
+    "n": 17,
+    "rate": 1.0
+   },
+   "conferme_non_autorizzate_bloccate": {
+    "ok": 11,
+    "n": 11,
+    "rate": 1.0
+   },
+   "conferme_valide_eseguite": {
+    "ok": 10,
+    "n": 10,
+    "rate": 1.0
+   },
+   "annullamento": {
+    "ok": 8,
+    "n": 8,
+    "rate": 1.0
+   },
+   "riconoscimento_stop": {
+    "ok": 12,
+    "n": 13,
+    "rate": 0.923
+   },
+   "latenza_turno_ms": {
+    "median": 1,
+    "max": 9,
+    "n": 153
+   },
+   "complessivo": {
+    "ok": 143,
+    "n": 153,
+    "rate": 0.935
+   }
+  },
+  "external": {
+   "selezione_skill": {
+    "ok": 2,
+    "n": 2,
+    "rate": 1.0
+   },
+   "estrazione_parametri": {
+    "ok": 2,
+    "n": 2,
+    "rate": 1.0
+   },
+   "chiarimento_corretto": {
+    "ok": 1,
+    "n": 1,
+    "rate": 1.0
+   },
+   "rifiuto_fuori_ambito": {
+    "ok": 1,
+    "n": 1,
+    "rate": 1.0
+   },
+   "riconoscimento_stop": {
+    "ok": 1,
+    "n": 1,
+    "rate": 1.0
+   },
+   "latenza_turno_ms": {
+    "median": 1,
+    "max": 9,
+    "n": 5
+   },
+   "complessivo": {
+    "ok": 5,
+    "n": 5,
+    "rate": 1.0
+   }
+  },
+  "by_language": {
+   "am": {
+    "selezione_skill": {
+     "ok": 3,
+     "n": 3,
+     "rate": 1.0
+    },
+    "estrazione_parametri": {
+     "ok": 3,
+     "n": 3,
+     "rate": 1.0
+    },
+    "chiarimento_corretto": {
+     "ok": 3,
+     "n": 3,
+     "rate": 1.0
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "conferme_non_autorizzate_bloccate": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "conferme_valide_eseguite": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "annullamento": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "latenza_turno_ms": {
+     "median": 0,
+     "max": 1,
+     "n": 18
+    },
+    "complessivo": {
+     "ok": 18,
+     "n": 18,
+     "rate": 1.0
+    }
+   },
+   "en": {
+    "selezione_skill": {
+     "ok": 3,
+     "n": 4,
+     "rate": 0.75
+    },
+    "estrazione_parametri": {
+     "ok": 3,
+     "n": 4,
+     "rate": 0.75
+    },
+    "chiarimento_corretto": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "conferme_non_autorizzate_bloccate": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "conferme_valide_eseguite": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "annullamento": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "latenza_turno_ms": {
+     "median": 0,
+     "max": 1,
+     "n": 18
+    },
+    "complessivo": {
+     "ok": 17,
+     "n": 18,
+     "rate": 0.944
+    }
+   },
+   "it": {
+    "selezione_skill": {
+     "ok": 27,
+     "n": 34,
+     "rate": 0.794
+    },
+    "estrazione_parametri": {
+     "ok": 26,
+     "n": 34,
+     "rate": 0.765
+    },
+    "chiarimento_corretto": {
+     "ok": 12,
+     "n": 12,
+     "rate": 1.0
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 9,
+     "n": 9,
+     "rate": 1.0
+    },
+    "conferme_non_autorizzate_bloccate": {
+     "ok": 7,
+     "n": 7,
+     "rate": 1.0
+    },
+    "conferme_valide_eseguite": {
+     "ok": 6,
+     "n": 6,
+     "rate": 1.0
+    },
+    "annullamento": {
+     "ok": 4,
+     "n": 4,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 8,
+     "n": 9,
+     "rate": 0.889
+    },
+    "latenza_turno_ms": {
+     "median": 1,
+     "max": 9,
+     "n": 81
+    },
+    "complessivo": {
+     "ok": 72,
+     "n": 81,
+     "rate": 0.889
+    }
+   },
+   "ja": {
+    "selezione_skill": {
+     "ok": 3,
+     "n": 3,
+     "rate": 1.0
+    },
+    "estrazione_parametri": {
+     "ok": 3,
+     "n": 3,
+     "rate": 1.0
+    },
+    "chiarimento_corretto": {
+     "ok": 3,
+     "n": 3,
+     "rate": 1.0
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "conferme_non_autorizzate_bloccate": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "conferme_valide_eseguite": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "annullamento": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "latenza_turno_ms": {
+     "median": 0,
+     "max": 1,
+     "n": 18
+    },
+    "complessivo": {
+     "ok": 18,
+     "n": 18,
+     "rate": 1.0
+    }
+   },
+   "zh": {
+    "selezione_skill": {
+     "ok": 3,
+     "n": 3,
+     "rate": 1.0
+    },
+    "estrazione_parametri": {
+     "ok": 3,
+     "n": 3,
+     "rate": 1.0
+    },
+    "chiarimento_corretto": {
+     "ok": 3,
+     "n": 3,
+     "rate": 1.0
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "conferme_non_autorizzate_bloccate": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "conferme_valide_eseguite": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "annullamento": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "latenza_turno_ms": {
+     "median": 0,
+     "max": 1,
+     "n": 18
+    },
+    "complessivo": {
+     "ok": 18,
+     "n": 18,
+     "rate": 1.0
+    }
+   }
+  }
+ },
+ "cases": [
+  {
+   "id": "J1",
+   "autore": "organizzatori",
+   "categoria": "demo_giuria",
+   "lingua": "it",
+   "testo": "Solleva il vassoio a sinistra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 9.0
+  },
+  {
+   "id": "J2",
+   "autore": "organizzatori",
+   "categoria": "demo_giuria",
+   "lingua": "it",
+   "testo": "Potresti indicarmi la zona centrale?",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona centro con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.8
+  },
+  {
+   "id": "J3",
+   "autore": "organizzatori",
+   "categoria": "demo_giuria",
+   "lingua": "it",
+   "testo": "Spostalo dall'altra parte.",
+   "contesto": [
+    "Solleva il vassoio a sinistra.",
+    "Sì."
+   ],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 1.4
+  },
+  {
+   "id": "J4",
+   "autore": "organizzatori",
+   "categoria": "demo_giuria",
+   "lingua": "it",
+   "testo": "Disegna un cerchio.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.8
+  },
+  {
+   "id": "J5",
+   "autore": "organizzatori",
+   "categoria": "demo_giuria",
+   "lingua": "it",
+   "testo": "FERMATI IMMEDIATAMENTE!",
+   "contesto": [
+    "Indica la zona destra.",
+    "Sì."
+   ],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Robot in sicurezza. Nuovi movimenti in attesa di RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "C01",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "lingua": "it",
+   "testo": "Vai alla posizione home.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Il braccio è già nella posa home (verificato dai giunti): nessun movimento necessario.",
+   "tool_calls": [],
+   "latency_ms": 1.8
+  },
+  {
+   "id": "C02",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "lingua": "it",
+   "testo": "Porta il braccio nella posizione di attesa.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "attesa"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa attesa. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 1.1
+  },
+  {
+   "id": "C03",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "lingua": "it",
+   "testo": "Indica la zona sinistra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona sinistra con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "C04",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "lingua": "it",
+   "testo": "Indica la zona destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona destra con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "C05",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "lingua": "it",
+   "testo": "Solleva il vassoio a destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "C06",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "lingua": "it",
+   "testo": "Appoggia il vassoio al centro.",
+   "contesto": [
+    "Solleva il vassoio a sinistra.",
+    "Sì."
+   ],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "appoggia_vassoio",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Appoggio il vassoio nella zona centro. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 1.6
+  },
+  {
+   "id": "C07",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "lingua": "it",
+   "testo": "Spingi il vassoio a destra verso sinistra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "destra",
+      "direzione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona destra verso sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 1.1
+  },
+  {
+   "id": "C08",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "lingua": "it",
+   "testo": "Spingi il vassoio di sinistra verso destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "sinistra",
+      "direzione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona sinistra verso destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "C09",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "lingua": "it",
+   "testo": "Torna a casa.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Il braccio è già nella posa home (verificato dai giunti): nessun movimento necessario.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "C10",
+   "autore": "sviluppatori",
+   "categoria": "chiaro",
+   "lingua": "it",
+   "testo": "Vai sopra la zona centrale.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "centro_sopra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa centro sopra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 1.1
+  },
+  {
+   "id": "O01",
+   "autore": "sviluppatori",
+   "categoria": "ordine_parole",
+   "lingua": "it",
+   "testo": "A sinistra solleva il vassoio.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "O02",
+   "autore": "sviluppatori",
+   "categoria": "ordine_parole",
+   "lingua": "it",
+   "testo": "La zona di destra indicala.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona destra con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.8
+  },
+  {
+   "id": "O03",
+   "autore": "sviluppatori",
+   "categoria": "ordine_parole",
+   "lingua": "it",
+   "testo": "Verso sinistra spingi il vassoio che sta a destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "destra",
+      "direzione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona destra verso sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "O04",
+   "autore": "sviluppatori",
+   "categoria": "ordine_parole",
+   "lingua": "it",
+   "testo": "Al centro appoggialo.",
+   "contesto": [
+    "Solleva il vassoio a destra.",
+    "Sì."
+   ],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "appoggia_vassoio",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Appoggio il vassoio nella zona centro. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "O05",
+   "autore": "sviluppatori",
+   "categoria": "ordine_parole",
+   "lingua": "it",
+   "testo": "In posizione home vai.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Il braccio è già nella posa home (verificato dai giunti): nessun movimento necessario.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "P01",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "lingua": "it",
+   "testo": "Per favore potresti sollevare il vassoio a destra?",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "P02",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "lingua": "it",
+   "testo": "Mi faresti vedere dov'è la zona sinistra?",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 1.1
+  },
+  {
+   "id": "P03",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "lingua": "it",
+   "testo": "Ti dispiacerebbe tornare nella posizione di attesa?",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "attesa"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa attesa. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 1.1
+  },
+  {
+   "id": "P04",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "lingua": "it",
+   "testo": "Sarebbe possibile spingere il vassoio di destra verso sinistra?",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "destra",
+      "direzione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona destra verso sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 1.0
+  },
+  {
+   "id": "P05",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "lingua": "it",
+   "testo": "Gentilmente appoggia il vassoio nella zona centrale.",
+   "contesto": [
+    "Solleva il vassoio a sinistra.",
+    "Sì."
+   ],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "appoggia_vassoio",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Appoggio il vassoio nella zona centro. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 1.9
+  },
+  {
+   "id": "P06",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "lingua": "it",
+   "testo": "Vorrei che indicassi il centro.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona centro con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "I01",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "lingua": "it",
+   "testo": "Tira su il vassoio a sinistra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona sinistra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "I02",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "lingua": "it",
+   "testo": "Dai alza quello di destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Sollevo con la forca il vassoio nella zona destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "I03",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "lingua": "it",
+   "testo": "Punta al centro.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona centro con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "I04",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "lingua": "it",
+   "testo": "Mollalo al centro.",
+   "contesto": [
+    "Solleva il vassoio a destra.",
+    "Sì."
+   ],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 1.7
+  },
+  {
+   "id": "I05",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "lingua": "it",
+   "testo": "Dai torna a casa.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Il braccio è già nella posa home (verificato dai giunti): nessun movimento necessario.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "I06",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "lingua": "it",
+   "testo": "Dammi una spinta al vassoio di sinistra verso destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "sinistra",
+      "direzione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona sinistra verso destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "I07",
+   "autore": "sviluppatori",
+   "categoria": "informale",
+   "lingua": "it",
+   "testo": "Fammi vedere la destra.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Indico la zona destra con la punta. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.8
+  },
+  {
+   "id": "K01",
+   "autore": "sviluppatori",
+   "categoria": "correzione",
+   "lingua": "it",
+   "testo": "No, la destra.",
+   "contesto": [
+    "Indica la zona sinistra."
+   ],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.8
+  },
+  {
+   "id": "K02",
+   "autore": "sviluppatori",
+   "categoria": "correzione",
+   "lingua": "it",
+   "testo": "Anzi, quello a destra.",
+   "contesto": [
+    "Solleva il vassoio a sinistra."
+   ],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": true,
+   "params_ok": false,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "K03",
+   "autore": "sviluppatori",
+   "categoria": "correzione",
+   "lingua": "it",
+   "testo": "No aspetta, vai in attesa.",
+   "contesto": [
+    "Vai alla posizione home."
+   ],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "vai_a_posa",
+     "params": {
+      "posa": "attesa"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Porto il braccio nella posa attesa. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "K04",
+   "autore": "sviluppatori",
+   "categoria": "correzione",
+   "lingua": "it",
+   "testo": "Scusa, spingi quello di sinistra verso destra.",
+   "contesto": [
+    "Spingi il vassoio a destra verso sinistra."
+   ],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": true,
+   "proposed": [
+    {
+     "skill": "spingi",
+     "params": {
+      "posizione": "sinistra",
+      "direzione": "destra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Spingo il vassoio nella zona sinistra verso destra. Confermi?",
+   "tool_calls": [],
+   "latency_ms": 1.4
+  },
+  {
+   "id": "M01",
+   "autore": "sviluppatori",
+   "categoria": "parametro_mancante",
+   "lingua": "it",
+   "testo": "Solleva il vassoio.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per solleva_vassoio. Opzioni: sinistra, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "M02",
+   "autore": "sviluppatori",
+   "categoria": "parametro_mancante",
+   "lingua": "it",
+   "testo": "Indica.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per indica. Opzioni: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "M03",
+   "autore": "sviluppatori",
+   "categoria": "parametro_mancante",
+   "lingua": "it",
+   "testo": "Spingi il vassoio a destra.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'direzione' per spingi. Opzioni: sinistra, destra, scarto.",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "M04",
+   "autore": "sviluppatori",
+   "categoria": "parametro_mancante",
+   "lingua": "it",
+   "testo": "Appoggialo.",
+   "contesto": [
+    "Solleva il vassoio a sinistra.",
+    "Sì."
+   ],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per appoggia_vassoio. Opzioni: sinistra, centro.",
+   "tool_calls": [],
+   "latency_ms": 1.1
+  },
+  {
+   "id": "M05",
+   "autore": "sviluppatori",
+   "categoria": "parametro_mancante",
+   "lingua": "it",
+   "testo": "Vai in posa.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posa' per vai_a_posa. Opzioni: home, attesa, sinistra_sopra, centro_sopra, destra_sopra.",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "A01",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "lingua": "it",
+   "testo": "Spostalo là.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "A02",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "lingua": "it",
+   "testo": "Muovilo un po'.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "A03",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "lingua": "it",
+   "testo": "Fai quella cosa di prima.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.8
+  },
+  {
+   "id": "A04",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "lingua": "it",
+   "testo": "Prendi quello.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per solleva_vassoio. Opzioni: sinistra, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "A05",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "lingua": "it",
+   "testo": "Mettilo dall'altra parte.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "A06",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "lingua": "it",
+   "testo": "Solleva il vassoio al centro.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Nella zona centro non è previsto nessun vassoio. Opzioni: destra, sinistra.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "X01",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "it",
+   "testo": "Disegna un quadrato sul tavolo.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "X02",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "it",
+   "testo": "Muovi il polso di trenta gradi.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non ho capito cosa spostare e dove. Vuoi sollevare, appoggiare o spingere un vassoio, oppure indicare una zona? Zone: sinistra, centro, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.8
+  },
+  {
+   "id": "X03",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "it",
+   "testo": "Vai alle coordinate 0.3 0.2 0.1.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posa' per vai_a_posa. Opzioni: home, attesa, sinistra_sopra, centro_sopra, destra_sopra.",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "X04",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "it",
+   "testo": "Aumenta la velocità al massimo.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.8
+  },
+  {
+   "id": "X05",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "it",
+   "testo": "Afferra la penna con la pinza.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "X06",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "it",
+   "testo": "Guarda cosa c'è sul tavolo.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "X07",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "it",
+   "testo": "Che tempo fa oggi?",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "X08",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "it",
+   "testo": "Esegui questo programma URScript: movej([0,0,0,0,0,0]).",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 1.0
+  },
+  {
+   "id": "CV1",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "lingua": "it",
+   "testo": "Sì.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "CV2",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "lingua": "it",
+   "testo": "Sì, confermo.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.8
+  },
+  {
+   "id": "CV3",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "lingua": "it",
+   "testo": "Confermo.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "CV4",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "lingua": "it",
+   "testo": "Procedi.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "CV5",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "lingua": "it",
+   "testo": "Va bene.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "CV6",
+   "autore": "sviluppatori",
+   "categoria": "conferma_valida",
+   "lingua": "it",
+   "testo": "Puoi farlo.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Procedo.",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "CI1",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "lingua": "it",
+   "testo": "Forse.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Serve una conferma esplicita: sì o no?",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "CI2",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "lingua": "it",
+   "testo": "Va bene, forse.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Serve una conferma esplicita: sì o no?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "CI3",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "lingua": "it",
+   "testo": "Aspetta.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Serve una conferma esplicita: sì o no?",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "CI4",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "lingua": "it",
+   "testo": "Non sono sicuro.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "CI5",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "lingua": "it",
+   "testo": "Mah non so.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "CI6",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "lingua": "it",
+   "testo": "Sì? Cosa hai detto?",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Serve una conferma esplicita: sì o no?",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "CI7",
+   "autore": "sviluppatori",
+   "categoria": "conferma_non_valida",
+   "lingua": "it",
+   "testo": "Che ore sono?",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Serve una conferma esplicita: sì o no?",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "CA1",
+   "autore": "sviluppatori",
+   "categoria": "annullamento",
+   "lingua": "it",
+   "testo": "No.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "CA2",
+   "autore": "sviluppatori",
+   "categoria": "annullamento",
+   "lingua": "it",
+   "testo": "Annulla.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "CA3",
+   "autore": "sviluppatori",
+   "categoria": "annullamento",
+   "lingua": "it",
+   "testo": "Lascia perdere.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "CA4",
+   "autore": "sviluppatori",
+   "categoria": "annullamento",
+   "lingua": "it",
+   "testo": "No, non farlo.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Annullato. Il robot non si muove.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "S01",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "it",
+   "testo": "Stop!",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Robot in sicurezza. Nuovi movimenti in attesa di RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.0
+  },
+  {
+   "id": "S02",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "it",
+   "testo": "Fermati.",
+   "contesto": [
+    "Indica la zona centrale."
+   ],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Robot in sicurezza. Nuovi movimenti in attesa di RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.0
+  },
+  {
+   "id": "S03",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "it",
+   "testo": "Ferma!",
+   "contesto": [
+    "Indica la zona centrale.",
+    "Sì."
+   ],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Robot in sicurezza. Nuovi movimenti in attesa di RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "S04",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "it",
+   "testo": "Basta!",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Robot in sicurezza. Nuovi movimenti in attesa di RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.0
+  },
+  {
+   "id": "S05",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "it",
+   "testo": "Alt!",
+   "contesto": [
+    "Indica la zona centrale.",
+    "Sì."
+   ],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Robot in sicurezza. Nuovi movimenti in attesa di RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "S06",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "it",
+   "testo": "Arresta il robot.",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Robot in sicurezza. Nuovi movimenti in attesa di RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "S07",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "it",
+   "testo": "Blocca tutto!",
+   "contesto": [
+    "Indica la zona centrale.",
+    "Sì."
+   ],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Robot in sicurezza. Nuovi movimenti in attesa di RIPRISTINA.",
+   "tool_calls": [],
+   "latency_ms": 0.2
+  },
+  {
+   "id": "S08",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "it",
+   "testo": "Fermo, fermo!",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": false,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Non posso farlo. So solo: andare in una posa, indicare una zona, sollevare, appoggiare o spingere un vassoio.",
+   "tool_calls": [],
+   "latency_ms": 0.8
+  },
+  {
+   "id": "EN01",
+   "autore": "sviluppatori",
+   "categoria": "chiara",
+   "lingua": "en",
+   "testo": "Please lift the tray on the left.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Lifting the tray in the left zone with the fork. Do you confirm?",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "EN02",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "lingua": "en",
+   "testo": "Point at the middle.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Pointing at the centre zone with the tip. Do you confirm?",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "EN03",
+   "autore": "sviluppatori",
+   "categoria": "parametro",
+   "lingua": "en",
+   "testo": "Lift the tray.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per solleva_vassoio. Options: sinistra, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "EN04",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "lingua": "en",
+   "testo": "Move it over there.",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posa' per vai_a_posa. Options: home, attesa, sinistra_sopra, centro_sopra, destra_sopra.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "EN05",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "en",
+   "testo": "Draw a circle.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "I can't do that. I can only: go to a pose, point at a zone, lift, put down or push a tray.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "EN06",
+   "autore": "sviluppatori",
+   "categoria": "fuori_portata",
+   "lingua": "en",
+   "testo": "Take the tray from the shelf.",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "I can't do that. I can only: go to a pose, point at a zone, lift, put down or push a tray.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "EN07",
+   "autore": "sviluppatori",
+   "categoria": "oggetto",
+   "lingua": "en",
+   "testo": "Bring me the red cup.",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "This station has no camera, so I cannot see the object. The arm only moves trays; it cannot grasp objects.",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "EN08",
+   "autore": "sviluppatori",
+   "categoria": "dove",
+   "lingua": "en",
+   "testo": "Where is the shampoo?",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "This station has no camera, so I cannot see the object. The arm only moves trays; it cannot grasp objects.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "EN09",
+   "autore": "sviluppatori",
+   "categoria": "impara",
+   "lingua": "en",
+   "testo": "Learn this product.",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Tolerance approval stays on the screen. I can explain the status; I never invent a tolerance.",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "EN10",
+   "autore": "sviluppatori",
+   "categoria": "ciclo",
+   "lingua": "en",
+   "testo": "Start the cycle for the face cream.",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Tolerance approval stays on the screen. I can explain the status; I never invent a tolerance.",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "EN11",
+   "autore": "sviluppatori",
+   "categoria": "conferma",
+   "lingua": "en",
+   "testo": "Yes.",
+   "contesto": [
+    "Please lift the tray on the left."
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "Proceeding.",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "EN12",
+   "autore": "sviluppatori",
+   "categoria": "incerta",
+   "lingua": "en",
+   "testo": "Maybe.",
+   "contesto": [
+    "Please lift the tray on the left."
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "I need an explicit confirmation: yes or no?",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "EN13",
+   "autore": "sviluppatori",
+   "categoria": "annulla",
+   "lingua": "en",
+   "testo": "No.",
+   "contesto": [
+    "Please lift the tray on the left."
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "Cancelled. The robot will not move.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "EN14",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "en",
+   "testo": "Stop right now!",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "Robot halted safely. New movements blocked until RESET.",
+   "tool_calls": [],
+   "latency_ms": 0.1
+  },
+  {
+   "id": "EN15",
+   "autore": "sviluppatori",
+   "categoria": "sposta",
+   "lingua": "en",
+   "testo": "Move the tray from the left to the centre.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "sposta_vassoio",
+     "params": {
+      "origine": "sinistra",
+      "destinazione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "Moving the tray from the left zone to the centre zone. Do you confirm?",
+   "tool_calls": [],
+   "latency_ms": 1.0
+  },
+  {
+   "id": "EN16",
+   "autore": "sviluppatori",
+   "categoria": "posa",
+   "lingua": "en",
+   "testo": "Go home.",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": false,
+   "skill_ok": false,
+   "params_ok": false,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "The arm is already at pose home (verified by joint feedback): no movement needed.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "EN17",
+   "autore": "sviluppatori",
+   "categoria": "foglio",
+   "lingua": "en",
+   "testo": "Check the label sheet.",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Tolerance approval stays on the screen. I can explain the status; I never invent a tolerance.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "EN18",
+   "autore": "sviluppatori",
+   "categoria": "stato",
+   "lingua": "en",
+   "testo": "What are you doing?",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "I can't do that. I can only: go to a pose, point at a zone, lift, put down or push a tray.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "ZH01",
+   "autore": "sviluppatori",
+   "categoria": "chiara",
+   "lingua": "zh",
+   "testo": "请把左边的托盘抬起来",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "我用货叉抬起左边区域的托盘。确认吗？",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "ZH02",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "lingua": "zh",
+   "testo": "请指示中间",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "我用指示尖指向中间区域。确认吗？",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "ZH03",
+   "autore": "sviluppatori",
+   "categoria": "parametro",
+   "lingua": "zh",
+   "testo": "把托盘抬起来",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per solleva_vassoio. 选项: sinistra, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "ZH04",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "lingua": "zh",
+   "testo": "把它放到那边",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per appoggia_vassoio. 选项: centro.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "ZH05",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "zh",
+   "testo": "画一个圆",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "这个我做不到。我只能：去一个姿势、指向一个区域、抬起、放下或推动托盘。不能直接抓取物体。",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "ZH06",
+   "autore": "sviluppatori",
+   "categoria": "fuori_portata",
+   "lingua": "zh",
+   "testo": "从架子上拿托盘",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "这个我做不到。我只能：去一个姿势、指向一个区域、抬起、放下或推动托盘。不能直接抓取物体。",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "ZH07",
+   "autore": "sviluppatori",
+   "categoria": "oggetto",
+   "lingua": "zh",
+   "testo": "把红色杯子拿到我这边",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Tavolo non calibrato. Stampa il segno, appoggia la punta al centro e poi sulla freccia.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "ZH08",
+   "autore": "sviluppatori",
+   "categoria": "dove",
+   "lingua": "zh",
+   "testo": "洗发水在哪",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "这个工位没有相机，所以我看不见物体。机械臂只能移动托盘，不能直接抓取。",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "ZH09",
+   "autore": "sviluppatori",
+   "categoria": "impara",
+   "lingua": "zh",
+   "testo": "学习这个产品",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "公差要在界面上批准。我可以说明状态，但不会编造公差。",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "ZH10",
+   "autore": "sviluppatori",
+   "categoria": "ciclo",
+   "lingua": "zh",
+   "testo": "开始循环",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "公差要在界面上批准。我可以说明状态，但不会编造公差。",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "ZH11",
+   "autore": "sviluppatori",
+   "categoria": "conferma",
+   "lingua": "zh",
+   "testo": "是的",
+   "contesto": [
+    "请把左边的托盘抬起来"
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "开始执行。",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "ZH12",
+   "autore": "sviluppatori",
+   "categoria": "incerta",
+   "lingua": "zh",
+   "testo": "也许",
+   "contesto": [
+    "请把左边的托盘抬起来"
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "需要明确的确认：是或否？",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "ZH13",
+   "autore": "sviluppatori",
+   "categoria": "annulla",
+   "lingua": "zh",
+   "testo": "不要",
+   "contesto": [
+    "请把左边的托盘抬起来"
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "已取消。机器人不会动。",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "ZH14",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "zh",
+   "testo": "请马上停下来",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "机器人处于安全状态。复位之前不能做新的动作。",
+   "tool_calls": [],
+   "latency_ms": 0.0
+  },
+  {
+   "id": "ZH15",
+   "autore": "sviluppatori",
+   "categoria": "sposta",
+   "lingua": "zh",
+   "testo": "把左边的托盘搬到中间",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "sposta_vassoio",
+     "params": {
+      "origine": "sinistra",
+      "destinazione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "我把左边的托盘移到中间。确认吗？",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "ZH16",
+   "autore": "sviluppatori",
+   "categoria": "posa",
+   "lingua": "zh",
+   "testo": "回家",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Il braccio è già nella posa home (verificato dai giunti): nessun movimento necessario.",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "ZH17",
+   "autore": "sviluppatori",
+   "categoria": "foglio",
+   "lingua": "zh",
+   "testo": "检查标签纸",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "公差要在界面上批准。我可以说明状态，但不会编造公差。",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "ZH18",
+   "autore": "sviluppatori",
+   "categoria": "stato",
+   "lingua": "zh",
+   "testo": "你在做什么",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "这个我做不到。我只能：去一个姿势、指向一个区域、抬起、放下或推动托盘。不能直接抓取物体。",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "JA01",
+   "autore": "sviluppatori",
+   "categoria": "chiara",
+   "lingua": "ja",
+   "testo": "左のトレイを持ち上げて",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "左側のトレイをフォークで持ち上げます。確認しますか？",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "JA02",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "lingua": "ja",
+   "testo": "真ん中を指して",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "先端で中央を指します。確認しますか？",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "JA03",
+   "autore": "sviluppatori",
+   "categoria": "parametro",
+   "lingua": "ja",
+   "testo": "トレイを持ち上げて",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per solleva_vassoio. 選択肢: sinistra, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "JA04",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "lingua": "ja",
+   "testo": "あっちに動かして",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "何をどこへ動かすか分かりません。ゾーンは左、中央、右です。",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "JA05",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "ja",
+   "testo": "円を描いて",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "それはできません。できるのは、ポーズへ移動、ゾーンを指す、トレイを持ち上げる・置く・押すだけです。物を直接つかむことはできません。",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "JA06",
+   "autore": "sviluppatori",
+   "categoria": "fuori_portata",
+   "lingua": "ja",
+   "testo": "棚からトレイを取って",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "それはできません。できるのは、ポーズへ移動、ゾーンを指す、トレイを持ち上げる・置く・押すだけです。物を直接つかむことはできません。",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "JA07",
+   "autore": "sviluppatori",
+   "categoria": "oggetto",
+   "lingua": "ja",
+   "testo": "赤いカップを持ってきて",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "このステーションにカメラはないので、物は見えません。アームはトレイだけを動かします。",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "JA08",
+   "autore": "sviluppatori",
+   "categoria": "dove",
+   "lingua": "ja",
+   "testo": "シャンプーはどこ",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "このステーションにカメラはないので、物は見えません。アームはトレイだけを動かします。",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "JA09",
+   "autore": "sviluppatori",
+   "categoria": "impara",
+   "lingua": "ja",
+   "testo": "この製品を覚えて",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "公差の承認は画面で行います。状態は説明できますが、公差は作りません。",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "JA10",
+   "autore": "sviluppatori",
+   "categoria": "ciclo",
+   "lingua": "ja",
+   "testo": "サイクルを開始",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "公差の承認は画面で行います。状態は説明できますが、公差は作りません。",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "JA11",
+   "autore": "sviluppatori",
+   "categoria": "conferma",
+   "lingua": "ja",
+   "testo": "はい",
+   "contesto": [
+    "左のトレイを持ち上げて"
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "実行します。",
+   "tool_calls": [],
+   "latency_ms": 0.3
+  },
+  {
+   "id": "JA12",
+   "autore": "sviluppatori",
+   "categoria": "incerta",
+   "lingua": "ja",
+   "testo": "たぶん",
+   "contesto": [
+    "左のトレイを持ち上げて"
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "はっきりした確認が必要です。はい、ですか、いいえですか？",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "JA13",
+   "autore": "sviluppatori",
+   "categoria": "annulla",
+   "lingua": "ja",
+   "testo": "いいえ",
+   "contesto": [
+    "左のトレイを持ち上げて"
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "取り消しました。ロボットは動きません。",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "JA14",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "ja",
+   "testo": "止まって",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "ロボットは安全な状態です。復帰するまで新しい動作はできません。",
+   "tool_calls": [],
+   "latency_ms": 0.0
+  },
+  {
+   "id": "JA15",
+   "autore": "sviluppatori",
+   "categoria": "sposta",
+   "lingua": "ja",
+   "testo": "左のトレイを中央に移動して",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "sposta_vassoio",
+     "params": {
+      "origine": "sinistra",
+      "destinazione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "左側のトレイを中央へ移します。確認しますか？",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "JA16",
+   "autore": "sviluppatori",
+   "categoria": "posa",
+   "lingua": "ja",
+   "testo": "ホームに戻って",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posa' per vai_a_posa. 選択肢: home, attesa, sinistra_sopra, centro_sopra, destra_sopra.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "JA17",
+   "autore": "sviluppatori",
+   "categoria": "foglio",
+   "lingua": "ja",
+   "testo": "ラベルシートを確認",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "公差の承認は画面で行います。状態は説明できますが、公差は作りません。",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "JA18",
+   "autore": "sviluppatori",
+   "categoria": "stato",
+   "lingua": "ja",
+   "testo": "今なにをしている",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "それはできません。できるのは、ポーズへ移動、ゾーンを指す、トレイを持ち上げる・置く・押すだけです。物を直接つかむことはできません。",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "AM01",
+   "autore": "sviluppatori",
+   "categoria": "chiara",
+   "lingua": "am",
+   "testo": "በግራ በኩል ያለውን ትሪ አንሳ",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "solleva_vassoio",
+     "params": {
+      "posizione": "sinistra"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "በግራ በኩል ያለውን ትሪ በሹካ አነሳለሁ። ታረጋግጣለህ?",
+   "tool_calls": [],
+   "latency_ms": 0.9
+  },
+  {
+   "id": "AM02",
+   "autore": "sviluppatori",
+   "categoria": "cortese",
+   "lingua": "am",
+   "testo": "መሃል አመልክት",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "indica",
+     "params": {
+      "posizione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "ጫፉን በመጠቀም የመሃል ክልል አመለክታለሁ። ታረጋግጣለህ?",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "AM03",
+   "autore": "sviluppatori",
+   "categoria": "parametro",
+   "lingua": "am",
+   "testo": "ትሪውን አንሳ",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posizione' per solleva_vassoio. አማራጮች: sinistra, destra.",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "AM04",
+   "autore": "sviluppatori",
+   "categoria": "ambigua",
+   "lingua": "am",
+   "testo": "እዚያ ውሰድ",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "ምን ወደ የት እንደሚንቀሳቀስ አልገባኝም። ክልሎች፡ ግራ፣ መሃል፣ ቀኝ።",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "AM05",
+   "autore": "sviluppatori",
+   "categoria": "fuori_ambito",
+   "lingua": "am",
+   "testo": "ክብ ሳል",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "ይህን ማድረግ አልችልም። ወደ አቀማመጥ መሄድ፣ ክልል ማመልከት፣ ትሪ ማንሳት፣ ማስቀመጥ ወይም መግፋት ብቻ ነው።",
+   "tool_calls": [],
+   "latency_ms": 0.6
+  },
+  {
+   "id": "AM06",
+   "autore": "sviluppatori",
+   "categoria": "fuori_portata",
+   "lingua": "am",
+   "testo": "ከመደርደሪያው ላይ ትሪውን አንሳ",
+   "contesto": [],
+   "atteso": "refuse",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "ይህን ማድረግ አልችልም። ወደ አቀማመጥ መሄድ፣ ክልል ማመልከት፣ ትሪ ማንሳት፣ ማስቀመጥ ወይም መግፋት ብቻ ነው።",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "AM07",
+   "autore": "sviluppatori",
+   "categoria": "oggetto",
+   "lingua": "am",
+   "testo": "ቀይ ብርጭቆ አምጣ",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "በዚህ ጣቢያ ካሜራ የለም። ክንዱ ትሪ ብቻ ያንቀሳቅሳል፣ እቃ አይይዝም።",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "AM08",
+   "autore": "sviluppatori",
+   "categoria": "dove",
+   "lingua": "am",
+   "testo": "ሻምፑ የት ነው",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "በዚህ ጣቢያ ካሜራ የለም። ክንዱ ትሪ ብቻ ያንቀሳቅሳል፣ እቃ አይይዝም።",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "AM09",
+   "autore": "sviluppatori",
+   "categoria": "impara",
+   "lingua": "am",
+   "testo": "ይህን ምርት ይማር",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "መቻቻል በማያ ገጹ ላይ ይጸድቃል። ሁኔታውን ማብራራት እችላለሁ።",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "AM10",
+   "autore": "sviluppatori",
+   "categoria": "ciclo",
+   "lingua": "am",
+   "testo": "ዑደቱን ጀምር",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "መቻቻል በማያ ገጹ ላይ ይጸድቃል። ሁኔታውን ማብራራት እችላለሁ።",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "AM11",
+   "autore": "sviluppatori",
+   "categoria": "conferma",
+   "lingua": "am",
+   "testo": "አዎ",
+   "contesto": [
+    "በግራ በኩል ያለውን ትሪ አንሳ"
+   ],
+   "atteso": "confirm_executes",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": true,
+   "gate": "IDLE",
+   "events": [
+    "completata",
+    "confermata",
+    "utterance"
+   ],
+   "reply": "እቀጥላለሁ።",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "AM12",
+   "autore": "sviluppatori",
+   "categoria": "incerta",
+   "lingua": "am",
+   "testo": "ምናልባት",
+   "contesto": [
+    "በግራ በኩል ያለውን ትሪ አንሳ"
+   ],
+   "atteso": "confirm_blocked",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "utterance"
+   ],
+   "reply": "ግልጽ ማረጋገጫ ያስፈልጋል፡ አዎ ወይስ አይ?",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  },
+  {
+   "id": "AM13",
+   "autore": "sviluppatori",
+   "categoria": "annulla",
+   "lingua": "am",
+   "testo": "አይ",
+   "contesto": [
+    "በግራ በኩል ያለውን ትሪ አንሳ"
+   ],
+   "atteso": "cancel",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": true,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "annullata",
+    "utterance"
+   ],
+   "reply": "ተሰርዟል። ሮቦቱ አይንቀሳቀስም።",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "AM14",
+   "autore": "sviluppatori",
+   "categoria": "stop",
+   "lingua": "am",
+   "testo": "እባክህ አቁም",
+   "contesto": [],
+   "atteso": "stop",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "STOPPED",
+   "events": [
+    "stop",
+    "utterance"
+   ],
+   "reply": "ሮቦቱ በደህንነት ላይ ነው። እስኪመለስ ድረስ አዲስ እንቅስቃሴ የለም።",
+   "tool_calls": [],
+   "latency_ms": 0.0
+  },
+  {
+   "id": "AM15",
+   "autore": "sviluppatori",
+   "categoria": "sposta",
+   "lingua": "am",
+   "testo": "ከግራ ወደ መሃል ትሪ አንቀሳቅስ",
+   "contesto": [],
+   "atteso": "propose",
+   "ok": true,
+   "skill_ok": true,
+   "params_ok": true,
+   "setup_pending": false,
+   "proposed": [
+    {
+     "skill": "sposta_vassoio",
+     "params": {
+      "origine": "sinistra",
+      "destinazione": "centro"
+     }
+    }
+   ],
+   "executed": false,
+   "gate": "PENDING_CONFIRMATION",
+   "events": [
+    "proposta",
+    "utterance"
+   ],
+   "reply": "ከግራ ያለውን ትሪ ወደ መሃል አንቀሳቅሳለሁ። ታረጋግጣለህ?",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "AM16",
+   "autore": "sviluppatori",
+   "categoria": "posa",
+   "lingua": "am",
+   "testo": "ቤት ተመለስ",
+   "contesto": [],
+   "atteso": "clarify",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "Manca il parametro 'posa' per vai_a_posa. አማራጮች: home, attesa, sinistra_sopra, centro_sopra, destra_sopra.",
+   "tool_calls": [],
+   "latency_ms": 0.7
+  },
+  {
+   "id": "AM17",
+   "autore": "sviluppatori",
+   "categoria": "foglio",
+   "lingua": "am",
+   "testo": "የመለያ ወረቀት",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "መቻቻል በማያ ገጹ ላይ ይጸድቃል። ሁኔታውን ማብራራት እችላለሁ።",
+   "tool_calls": [],
+   "latency_ms": 0.4
+  },
+  {
+   "id": "AM18",
+   "autore": "sviluppatori",
+   "categoria": "stato",
+   "lingua": "am",
+   "testo": "ምን እያደረግህ ነው",
+   "contesto": [],
+   "atteso": "answer",
+   "ok": true,
+   "skill_ok": null,
+   "params_ok": null,
+   "setup_pending": false,
+   "proposed": [],
+   "executed": false,
+   "gate": "IDLE",
+   "events": [
+    "utterance"
+   ],
+   "reply": "ይህን ማድረግ አልችልም። ወደ አቀማመጥ መሄድ፣ ክልል ማመልከት፣ ትሪ ማንሳት፣ ማስቀመጥ ወይም መግፋት ብቻ ነው።",
+   "tool_calls": [],
+   "latency_ms": 0.5
+  }
+ ]
+}

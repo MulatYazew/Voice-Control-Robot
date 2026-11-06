@@ -1,0 +1,523 @@
+{
+ "generated_at": "2026-11-05 17:48",
+ "n_cases": 240,
+ "engines_run": [
+  "rules"
+ ],
+ "label": "In-process simulator. A language block is present only for an engine that was run in this stamp or kept from the previous multilingual file.",
+ "by_engine": {
+  "rules": {
+   "overall": {
+    "selezione_skill": {
+     "ok": 55,
+     "n": 85,
+     "rate": 0.647
+    },
+    "estrazione_parametri": {
+     "ok": 52,
+     "n": 85,
+     "rate": 0.612
+    },
+    "chiarimento_corretto": {
+     "ok": 30,
+     "n": 31,
+     "rate": 0.968
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 42,
+     "n": 47,
+     "rate": 0.894
+    },
+    "conferme_non_autorizzate_bloccate": {
+     "ok": 28,
+     "n": 28,
+     "rate": 1.0
+    },
+    "conferme_valide_eseguite": {
+     "ok": 11,
+     "n": 12,
+     "rate": 0.917
+    },
+    "annullamento": {
+     "ok": 4,
+     "n": 8,
+     "rate": 0.5
+    },
+    "riconoscimento_stop": {
+     "ok": 16,
+     "n": 29,
+     "rate": 0.552
+    },
+    "latenza_turno_ms": {
+     "median": 1,
+     "max": 226,
+     "n": 240
+    },
+    "complessivo": {
+     "ok": 183,
+     "n": 240,
+     "rate": 0.762
+    }
+   },
+   "external": {
+    "selezione_skill": {
+     "ok": 55,
+     "n": 85,
+     "rate": 0.647
+    },
+    "estrazione_parametri": {
+     "ok": 52,
+     "n": 85,
+     "rate": 0.612
+    },
+    "chiarimento_corretto": {
+     "ok": 30,
+     "n": 31,
+     "rate": 0.968
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 42,
+     "n": 47,
+     "rate": 0.894
+    },
+    "conferme_non_autorizzate_bloccate": {
+     "ok": 28,
+     "n": 28,
+     "rate": 1.0
+    },
+    "conferme_valide_eseguite": {
+     "ok": 11,
+     "n": 12,
+     "rate": 0.917
+    },
+    "annullamento": {
+     "ok": 4,
+     "n": 8,
+     "rate": 0.5
+    },
+    "riconoscimento_stop": {
+     "ok": 16,
+     "n": 29,
+     "rate": 0.552
+    },
+    "latenza_turno_ms": {
+     "median": 1,
+     "max": 226,
+     "n": 240
+    },
+    "complessivo": {
+     "ok": 183,
+     "n": 240,
+     "rate": 0.762
+    }
+   },
+   "by_language": {
+    "en": {
+     "selezione_skill": {
+      "ok": 55,
+      "n": 85,
+      "rate": 0.647
+     },
+     "estrazione_parametri": {
+      "ok": 52,
+      "n": 85,
+      "rate": 0.612
+     },
+     "chiarimento_corretto": {
+      "ok": 30,
+      "n": 31,
+      "rate": 0.968
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 42,
+      "n": 47,
+      "rate": 0.894
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 28,
+      "n": 28,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 11,
+      "n": 12,
+      "rate": 0.917
+     },
+     "annullamento": {
+      "ok": 4,
+      "n": 8,
+      "rate": 0.5
+     },
+     "riconoscimento_stop": {
+      "ok": 16,
+      "n": 29,
+      "rate": 0.552
+     },
+     "latenza_turno_ms": {
+      "median": 1,
+      "max": 226,
+      "n": 240
+     },
+     "complessivo": {
+      "ok": 183,
+      "n": 240,
+      "rate": 0.762
+     }
+    }
+   }
+  },
+  "grok": {
+   "overall": {
+    "selezione_skill": {
+     "ok": 47,
+     "n": 47,
+     "rate": 1.0
+    },
+    "estrazione_parametri": {
+     "ok": 47,
+     "n": 47,
+     "rate": 1.0
+    },
+    "chiarimento_corretto": {
+     "ok": 19,
+     "n": 23,
+     "rate": 0.826
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 17,
+     "n": 17,
+     "rate": 1.0
+    },
+    "conferme_non_autorizzate_bloccate": {
+     "ok": 11,
+     "n": 11,
+     "rate": 1.0
+    },
+    "conferme_valide_eseguite": {
+     "ok": 10,
+     "n": 10,
+     "rate": 1.0
+    },
+    "annullamento": {
+     "ok": 8,
+     "n": 8,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 13,
+     "n": 13,
+     "rate": 1.0
+    },
+    "latenza_turno_ms": {
+     "median": 2430,
+     "max": 4819,
+     "n": 153
+    },
+    "complessivo": {
+     "ok": 149,
+     "n": 153,
+     "rate": 0.974
+    }
+   },
+   "external": {
+    "selezione_skill": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "estrazione_parametri": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "chiarimento_corretto": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "latenza_turno_ms": {
+     "median": 2384,
+     "max": 2739,
+     "n": 5
+    },
+    "complessivo": {
+     "ok": 5,
+     "n": 5,
+     "rate": 1.0
+    }
+   },
+   "by_language": {
+    "am": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 2,
+      "n": 3,
+      "rate": 0.667
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 2737,
+      "max": 4819,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 17,
+      "n": 18,
+      "rate": 0.944
+     }
+    },
+    "en": {
+     "selezione_skill": {
+      "ok": 4,
+      "n": 4,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 4,
+      "n": 4,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 2571,
+      "max": 4056,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 18,
+      "n": 18,
+      "rate": 1.0
+     }
+    },
+    "it": {
+     "selezione_skill": {
+      "ok": 34,
+      "n": 34,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 34,
+      "n": 34,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 11,
+      "n": 12,
+      "rate": 0.917
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 9,
+      "n": 9,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 7,
+      "n": 7,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 6,
+      "n": 6,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 4,
+      "n": 4,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 9,
+      "n": 9,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 2384,
+      "max": 3864,
+      "n": 81
+     },
+     "complessivo": {
+      "ok": 80,
+      "n": 81,
+      "rate": 0.988
+     }
+    },
+    "ja": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 2,
+      "n": 3,
+      "rate": 0.667
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 2578,
+      "max": 3785,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 17,
+      "n": 18,
+      "rate": 0.944
+     }
+    },
+    "zh": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 2,
+      "n": 3,
+      "rate": 0.667
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 2449,
+      "max": 3785,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 17,
+      "n": 18,
+      "rate": 0.944
+     }
+    }
+   }
+  }
+ }
+}

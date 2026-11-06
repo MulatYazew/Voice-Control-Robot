@@ -111,6 +111,15 @@ class _Dedup:
             self.seen[key] = (time.time(), value)
 
 
+class ZonesBody(BaseModel):
+    zones: dict[str, list[list[float]]]
+
+
+class CalCornerBody(BaseModel):
+    index: int = Field(ge=0, le=3)
+
+
+
 def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
     s = settings or load_settings()
     setup_logging()
@@ -319,8 +328,6 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
         station.camera.push_background(await _jpeg(request))
         return {"ok": True}
 
-    class ZonesBody(BaseModel):
-        zones: dict[str, list[list[float]]]
 
     @app.post("/api/camera/zones")
     async def api_camera_zones(body: ZonesBody) -> dict[str, Any]:
@@ -414,11 +421,25 @@ def create_app(settings: Settings | None = None, adapter=None) -> FastAPI:
         r = await gate.calibration_add(body.u, body.v)
         return JSONResponse(r, status_code=200 if r.get("ok") else 409)
 
+
+    @app.post("/api/calibration/goto")
+    async def api_calibration_goto(body: CalCornerBody) -> JSONResponse:
+        """Propose moving to a taught calibration corner (needs the operator's confirmation like any motion)."""
+        r = await gate.go_calib_corner(body.index)
+        return JSONResponse(r, status_code=200 if r.get("ok") else 409)
+
     @app.post("/api/calibration/{action}")
     async def api_calibration_edit(action: str) -> JSONResponse:
         if action not in ("undo", "clear"):
             raise HTTPException(404, "unknown calibration action")
         return JSONResponse(gate.calibration_edit(action))
+
+    @app.get("/api/calibration.jpg")
+    async def api_calibration_jpg() -> Response:
+        jpg = gate.calibration_image()
+        if jpg is None:
+            raise HTTPException(404, "no camera frame yet")
+        return Response(jpg, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
 
     @app.post("/api/vision/cups/background")
     async def api_cups_background(clear: bool = False) -> JSONResponse:

@@ -194,3 +194,53 @@ button.danger { border-color: var(--stop); color: var(--stop); }
 .insp-list li { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 8px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 13.5px; }
 .insp-list li:hover, .insp-list li.on { border-color: var(--accent); }
 details summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+
+/* Camera & vision tab: CameraPanel / InspectionPanel (from grokarm-ur3e, Apache-2.0) */
+.cam-actions select { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; font: inherit; font-size: 13px; }
+.cam-view { position: relative; aspect-ratio: 8 / 3; background: #0b0e11; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: grid; place-items: center; }
+.cam-view video, .cam-view img { width: 100%; height: 100%; object-fit: contain; }
+.cam-view .hidden { display: none; }
+.cam-empty { color: var(--muted); font-size: 14px; padding: 16px; text-align: center; }
+.cam-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.flow { font-family: var(--mono); font-size: 13px; color: var(--info); margin-bottom: 10px; }
+.rule-form { display: grid; gap: 6px; }
+.rule-form label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.rule-form input { width: 100%; background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; font: inherit; }
+.rule-form input:focus { outline: none; border-color: var(--accent); }
+.rule-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.analysing { display: flex; align-items: center; gap: 8px; color: var(--accent); margin-top: 10px; }
+.spinner { width: 14px; height: 14px; border: 2px solid var(--accent); border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+.verdict { display: grid; grid-template-columns: minmax(120px, 42%) 1fr; gap: 12px; align-items: start; }
+.verdict img { width: 100%; border-radius: 8px; border: 1px solid var(--line); }
+.verdict-badge { display: inline-block; font-weight: 800; letter-spacing: .08em; padding: 4px 10px; border-radius: 6px; font-size: 13px; }
+.verdict-badge.v-PASS { background: var(--ok); color: #07140e; }
+.verdict-badge.v-FAIL { background: var(--warn); color: #1a1204; }
+.verdict-badge.v-UNSURE, .verdict-badge.v-NO_FRAME { background: var(--panel-2); color: var(--muted); border: 1px solid var(--line); }
+.verdict-reason { margin: 8px 0 4px; font-size: 15px; }
+.counts { display: flex; gap: 14px; margin-top: 12px; font-size: 13px; font-family: var(--mono); }
+.counts .v-PASS { color: var(--ok); }
+.counts .v-FAIL { color: var(--warn); }
+.counts .v-UNSURE { color: var(--muted); }
+.cups-switch { margin-top: 10px; display: inline-flex; }
+.cup-live { position: absolute; pointer-events: none; }
+.cup-live i { position: absolute; border: 2px solid #fff; border-radius: 4px; box-shadow: 0 0 0 1px #000; }
+.cup-live i.c-red { border-color: #e5322d; }
+.cup-live i.c-orange { border-color: #ff8c1a; }
+.cup-live i.c-yellow { border-color: #f2d43d; }
+.cup-live i.c-green { border-color: #3ccf8e; }
+.cup-live i.c-blue { border-color: #3f7bff; }
+.cup-live i.c-purple { border-color: #b35cff; }
+.cup-live i.c-pink { border-color: #ff6fb5; }
+.cup-live i.c-white { border-color: #f4f4f4; }
+.cup-live i.c-grey { border-color: #9a9a9a; }
+.cup-live i.c-black { border-color: #111; }
+.cup-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+.cup-list li { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; }
+.cup-list li button { padding: 4px 12px; }
+.cup-actions { margin-left: auto; display: flex; gap: 6px; }
+.cup-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--muted); }
+.cup-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.marker-sheet { width: 168px; height: auto; background: #fff; border-radius: 6px; }
+.cup-tools .sub { margin: 0 auto 0 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 600px) { .verdict { grid-template-columns: 1fr; } }

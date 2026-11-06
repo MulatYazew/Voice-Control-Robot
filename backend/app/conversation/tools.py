@@ -70,6 +70,17 @@ def tool_schemas(s: Settings, poses: list[str], *, stretch: bool = True) -> list
             {"type": "function", "name": "save_pose",
              "description": "Salva la posizione attuale del robot con un nome, per vai_a_posa. Non muove il robot.",
              "parameters": {"type": "object", "properties": {"nome": {"type": "string"}}, "required": ["nome"]}},
+            {"type": "function", "name": "save_instruction",
+             "description": "Ricorda un comando con un nome: una sequenza di 1-5 abilità ('ricorda X come A poi B'). "
+                            "Solo dopo la conferma dell'operatore. Salva soltanto, non muove il robot.",
+             "parameters": {"type": "object", "properties": {
+                 "nome": {"type": "string"},
+                 "passi": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"type": "object", "properties": {
+                     "skill": {"type": "string", "enum": SKILL_IDS}, "parametri": p}, "required": ["skill"]}}},
+                 "required": ["nome", "passi"]}},
+            {"type": "function", "name": "execute_instruction",
+             "description": "Proponi un comando salvato con save_instruction. Ogni movimento chiede comunque conferma.",
+             "parameters": {"type": "object", "properties": {"nome": {"type": "string"}}, "required": ["nome"]}},
             {"type": "function", "name": "point_at_cup",
              "description": "Indica un bicchiere colorato visto dalla telecamera. Non muove finché l'operatore non conferma.",
              "parameters": {"type": "object", "properties": {"colore": {"type": "string"}}, "required": ["colore"]}},
@@ -333,6 +344,10 @@ async def dispatch(gate: Gate, name: str, args: dict[str, Any], *, source: str =
             return gate.propose_sequence(steps, source=source)
         if name == "save_pose":
             return await gate.save_pose(str(args.get("nome") or ""))
+        if name == "save_instruction":
+            return await gate.save_instruction(str(args.get("nome") or ""), args.get("passi") or [])
+        if name == "execute_instruction":
+            return await gate.execute_instruction(str(args.get("nome") or ""), source=source)
         if name == "propose_batch":
             return await gate.propose_batch(args.get("passi") or [], source=source)
         if name == "point_at_cup":

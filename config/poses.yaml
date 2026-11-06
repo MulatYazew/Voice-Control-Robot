@@ -9,13 +9,13 @@ poses:
   home:
     joints: [0.0, -1.5708, 0.0, -1.5708, 0.0, 0.0]
     selezionabile: true
-    alias: [casa, riposo, posizione iniziale, iniziale]
+    alias: [casa, riposo, posizione iniziale, iniziale, 初始位置, 回原位, 原位, 回家]
     fonte: placeholder_ursim
     verificata_reale: false
   attesa:
     joints: [-1.5708, -1.6, 1.6, -1.5708, -1.5708, 0.0]
     selezionabile: true
-    alias: [sicura, posizione di attesa, parcheggio]
+    alias: [sicura, posizione di attesa, parcheggio, 等待位置]
     fonte: placeholder_ursim
     verificata_reale: false
   sinistra_sopra:

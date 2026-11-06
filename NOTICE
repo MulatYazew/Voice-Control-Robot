@@ -1,0 +1,6 @@
+VOCE includes code and assets from grokarm-ur3e (https://github.com/13032585789-spec/grokarm-ur3e),
+licensed under the Apache License 2.0: backend/app/skills/mesh_model.py, tools/collision_viewer*, tools/build_collision_viewer.py,
+scripts/beam_axis.py, docs/GRIPPER.md, eval/testset_{de,en,es,fr,it,ja,zh}.csv, frontend/src/components/{CameraPanel,InspectionPanel}.tsx,
+tests/{test_mesh_model,test_named_commands,test_voice_fast}.py, and parts of safety/gate.py, safety/phrases.py, skills/motion_guard.py,
+voice/grok_session.py, config/robot.yaml, app/config.py (adapted).
+config/meshes/ur3e/*.stl: Universal Robots ROS2 Description, see config/meshes/ur3e/LICENSE_Universal_Robots_ROS2_Description.txt.

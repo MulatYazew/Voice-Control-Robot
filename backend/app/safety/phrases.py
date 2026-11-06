@@ -332,6 +332,41 @@ def confirmation_verdict(text: str | None) -> str:
     return ABSENT
 
 
+
+# Panic words that halt the arm WHILE IT IS MOVING (from grokarm-ur3e). When the arm is idle, "no" just means no.
+MOTION_STOP_TOKENS = {"no", "wait", "aspetta", "help", "aiuto", "attenzione", "attento", "nein", "non",
+                      "warte", "espera", "attends", "attendez"}
+CJK_MOTION_STOP = ["待って", "だめ", "ダメ", "不要", "等等", "等一下", "等下"]
+
+
+def is_motion_stop(text: str | None) -> bool:
+    """STOP check used while the arm is moving: is_stop, plus panic words like "no!" or "wait!"."""
+    if is_stop(text):
+        return True
+    n = normalize(text)
+    if not n:
+        return False
+    return bool(set(tokens(text)) & MOTION_STOP_TOKENS) or _substring_hit(n, CJK_MOTION_STOP)
+
+
+def _hesitant(text: str | None) -> bool:
+    """A trailing pause ("yes…", "na ja…") is not a clean yes."""
+    return bool(text) and ("…" in text or "..." in text)
+
+
+def is_bare_yes(text: str | None) -> bool:
+    """A finished short yes ('sì', 'yes', '是的', 'አዎ') with no other words and no hesitation."""
+    if _hesitant(text) or confirmation_verdict(text) != VALID:
+        return False
+    c = _compiled()
+    toks = tokens(text)
+    if toks:
+        return set(toks) <= c.affirm_tokens and 1 <= len(toks) <= 3
+    compact = re.sub(r"\s+", "", normalize(text))
+    if not compact or len(compact) > 6:
+        return False
+    return any(compact == w or (compact.startswith(w) and len(compact) - len(w) <= 1) for w in c.affirm_cjk)
+
 # Words the recogniser should expect in the language the operator selected.
 KEYTERMS = {
     "it": ["sinistra", "destra", "avanti", "indietro", "su", "giù", "centimetri", "gradi", "base", "spalla",

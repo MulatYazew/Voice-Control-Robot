@@ -42,10 +42,14 @@ METRICS = {  # metric -> expected kind it is computed on
 
 def load_cases(path: Path = EVAL_DIR / "testset.csv") -> list[dict[str, Any]]:
     rows = list(csv.DictReader(path.open(encoding="utf-8")))
+    suffix = path.stem.rsplit("_", 1)[-1] if "_" in path.stem else ""
+    default_lang = suffix if suffix in ("it", "en", "zh", "ja", "es", "fr", "de", "am") else "it"
     for r in rows:
+        r.setdefault("lingua", "")
+        r["lingua"] = r["lingua"] or default_lang      # testset_en.csv has no 'lingua' column: take it from the name
         r["contesto"] = [c for c in (r["contesto"] or "").split("|") if c.strip()]
         r["parametri_attesi"] = json.loads(r["parametri_attesi"]) if r["parametri_attesi"] else {}
-        r["lingua"] = (r.get("lingua") or "it").strip() or "it"
+        r["lingua"] = r["lingua"].strip() or default_lang
     return rows
 
 
@@ -164,11 +168,13 @@ async def run_engine(engine: str, cases: list[dict[str, Any]], concurrency: int)
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--engines", default="rules,grok")
+    ap.add_argument("--testset", default="testset.csv",
+                    help="csv inside eval/: testset.csv, or testset_{it,en,zh,es,fr,de,ja}.csv (multilingual sets)")
     ap.add_argument("--only", default="", help="comma-separated case ids")
     ap.add_argument("--concurrency", type=int, default=4)
     a = ap.parse_args()
     s = load_settings("sim")
-    cases = load_cases()
+    cases = load_cases(EVAL_DIR / a.testset)
     if a.only:
         cases = [c for c in cases if c["id"] in a.only.split(",")]
     RESULTS.mkdir(parents=True, exist_ok=True)

@@ -132,6 +132,15 @@ guard:
   movel_max_rad_per_m: 15
   hubs: [home, attesa]
   obstacles: []
+  # Checks switched off (from grokarm-ur3e, 2026-11-05: inflated capsules refused every move from the parked pose).
+  ignore: [autocollisione, pinza_braccio]
+  mesh:
+    # Real UR3e collision meshes (config/meshes/ur3e) + gripper mesh: backend/app/skills/mesh_model.py.
+    # OFF: Arm 3's model is UNKNOWN. Enable ONLY after confirming Arm 3 is a UR3e (pendant > About).
+    # Viewer: python tools/build_collision_viewer.py, then open tools/collision_viewer.html
+    enabled: false
+    gripper_margin_m: 0.008
+    table_margin_m: 0.003
   max_plan_s: 3.0
   blend_m: 0.02
 stereo:

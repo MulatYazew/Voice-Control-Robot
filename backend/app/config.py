@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import re
 from dataclasses import dataclass, field
@@ -23,6 +24,8 @@ LANGUAGES = {"it": "italiano", "en": "English", "zh": "中文", "ja": "日本語
 # Codes the voice API accepts. Amharic is not in the official hint list, so it is omitted.
 VOICE_HINTS = {"it": "it", "en": "en", "zh": "zh", "es": "es-ES", "fr": "fr", "de": "de", "ja": "ja"}
 CAMERA_SOURCES = ("browser", "url", "sim")
+# Second, deliberate opt-in for real hardware (from grokarm-ur3e): ROBOT_MODE=real also needs this env value.
+REAL_MOTION_PHRASE = "STAFF_APPROVED"
 
 
 class ConfigError(Exception):
@@ -53,6 +56,7 @@ class Settings:
     data_dir: Path = DATA_DIR
     warnings: list[str] = field(default_factory=list)
     camera: dict[str, Any] = field(default_factory=dict)
+    user_instructions: dict[str, Any] = field(default_factory=dict)   # learnt commands, data/user_instructions.yaml
 
     # ------------------------------------------------------------ helpers ---
     @property
@@ -103,6 +107,8 @@ class Settings:
                 "ttl_s": self.ttl_s, "grok_model": self.xai_model, "grok_configured": bool(self.xai_api_key),
                 "warnings": self.warnings, "camera_available": bool(self.camera.get("available")),
                 "camera_source": self.camera.get("source"),
+                "cell_camera_source": self.camera_source,   # browser webcam / phone (url) feed for the Camera tab
+                "phone_urls": _phone_urls(),
                 "camera_calibrated": _zones_calibrated(self.camera),
                 "delivery_zone": self.robot.get("workspace", {}).get("delivery_zone", "destra"),
                 "station": "ARM 1 · CAMERA 1" if self.camera.get("available") else "ARM 3 · senza telecamera",
@@ -138,6 +144,7 @@ def load_settings(mode: str | None = None, *, config_dir: Path = CONFIG_DIR, dat
 
     mode = (mode or os.getenv("ROBOT_MODE") or robot.get("default_mode") or "ursim").strip().lower()
     s = Settings(
+        user_instructions=_user_instructions(data_dir),
         mode=mode, robot=robot, skills=skills, poses=poses,
         xai_api_key=os.getenv("XAI_API_KEY") or None,
         xai_model=os.getenv("XAI_MODEL", "grok-voice-latest"),
@@ -220,6 +227,9 @@ def validate(s: Settings) -> None:
                     raise ConfigError(f"skill {sid}: sequence references missing pose {pose!r}")
 
     if s.mode == "real":
+        if os.getenv("ALLOW_REAL_MOTION", "") != REAL_MOTION_PHRASE:
+            raise ConfigError(f"ROBOT_MODE=real requires ALLOW_REAL_MOTION={REAL_MOTION_PHRASE}, set only with lab staff "
+                              "present and a hand near the E-stop")
         real = s.robot["connections"]["real"]
         if not real.get("enabled") or not real.get("host"):
             raise ConfigError("ROBOT_MODE=real requires connections.real.enabled: true and connections.real.host "
@@ -232,3 +242,20 @@ def validate(s: Settings) -> None:
     for k in ("model", "polyscope_version"):
         if str(s.robot["robot"].get(k, "UNKNOWN")).upper() == "UNKNOWN":
             s.warnings.append(f"robot {k} UNKNOWN (verify on hardware)")
+
+
+def _phone_urls() -> list[str]:
+    """Phone camera page URLs, when the launcher started the grokarm_vision service (logs/vision_server.json)."""
+    try:
+        return list(json.loads((LOG_DIR / "vision_server.json").read_text()).get("phone_urls") or [])
+    except (OSError, ValueError):
+        return []
+
+
+def _user_instructions(data_dir: Path) -> dict[str, Any]:
+    """Learnt commands saved by voice (save_instruction). Missing or unreadable file = none."""
+    ui = Path(data_dir) / "user_instructions.yaml"
+    try:
+        return (yaml.safe_load(ui.read_text(encoding="utf-8")) or {}).get("instructions", {}) if ui.exists() else {}
+    except (OSError, yaml.YAMLError):
+        return {}

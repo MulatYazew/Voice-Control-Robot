@@ -208,8 +208,11 @@ class GrokSession:
                     await self.to_client(base64.b64decode(ev["delta"]))
             elif t == "input_audio_buffer.speech_started":
                 await self.to_client({"type": "flush"})       # barge-in
+                self._turn_closed = False
+                self.gate.cancel_voice_yes()                  # new speech: a pending quick "yes" no longer applies
                 self.bus.publish("vad", speaking=True)
             elif t == "input_audio_buffer.speech_stopped":
+                self._turn_closed = True
                 self.t_speech_end = time.monotonic()
                 self._intent_measured = False
                 self.bus.publish("vad", speaking=False)
@@ -325,7 +328,7 @@ class GrokSession:
         """Partials heard while the speaker is playing are the assistant, not the operator."""
         if time.monotonic() < self._audio_until:
             return False
-        return self.gate.note_partial(txt)
+        return self.gate.note_partial(txt, turn_closed=getattr(self, "_turn_closed", False), auto_act=self.mode == "voice")
 
     def _is_echo(self, txt: str) -> bool:
         spoken = self.assistant_text[-1] if self.assistant_text else ""
@@ -363,7 +366,7 @@ class GrokSession:
     async def on_final_transcript(self, txt: str) -> None:
         """STOP wins, unless the mic is hearing the assistant. A close phrase is final-only."""
         self._last_user = txt or ""
-        if phrases.is_stop(txt) and self.t_speech_end:
+        if (phrases.is_motion_stop(txt) if self.gate.state == GateState.EXECUTING else phrases.is_stop(txt)) and self.t_speech_end:
             self.metrics.record("transcript_stop_detect_ms", (time.monotonic() - self.t_speech_end) * 1000)
         if phrases.is_stop(txt) and self._is_echo(txt):
             log_event(log, "echo ignored", source="transcript:voice", reason="echo", transcript=txt)

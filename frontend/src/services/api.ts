@@ -40,3 +40,16 @@ export const grabCup = (colour: string) => post("/api/vision/grab", { colour });
 export const placeCup = () => post("/api/vision/place");
 export const startInspection = (rule: string) => post("/api/inspection/start", { rule: rule || null });
 export const partReady = () => post("/api/world/part-ready");
+
+// Cell camera + calibration + inspection (from grokarm-ur3e, Apache-2.0)
+export const touchCup = (colour: string) => post("/api/vision/touch", { colour });
+export const cupsBackground = (clear = false) => post(`/api/vision/cups/background${clear ? "?clear=true" : ""}`);
+export const calibration = async () => (await fetch("/api/calibration")).json();
+export const addCalibPoint = (u: number, v: number) => post("/api/calibration/point", { u, v });
+export const editCalibration = (action: "undo" | "clear") => post(`/api/calibration/${action}`);
+export const markerRecord = (which: "center" | "axis") => post(`/api/calibration/marker/${which}`);
+export const computeCorners = () => post("/api/calibration/corners");
+export const gotoCorner = (index: number) => post("/api/calibration/goto", { index });
+export async function pushFrame(jpeg: Blob): Promise<void> {
+  await fetch("/api/camera/frame", { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: jpeg });
+}

@@ -37,6 +37,15 @@ stop:
     - arresta il robot
     - blocca tutto
     - fermati immediatamente
+    # Panic words that latch STOP in EVERY state (eval 2026-11-05, testsets from grokarm-ur3e). A false STOP only
+    # costs a reset; a missed one can hurt. Bare "no" / "aiuto" stay motion-only (phrases.MOTION_STOP_TOKENS).
+    - fermo fermo   # spec §9 test: a single "fermo!" is NOT a stop
+    - attento
+    - attenta
+    - occhio
+    - oddio
+    - no no
+    - aspetta aspetta
   en:
     - halt
     - stopp
@@ -49,8 +58,17 @@ stop:
     - stop now
     - stop immediately
     - stop the robot
-  zh: [停, 停下, 停止, 别动, 住手, 暂停, 紧急]
-  ja: [止まれ, 止まって, 止めて, ストップ, 停止, やめて, 緊急]
+    - stopping
+    - hold it
+    - whoa
+    - enough
+    - careful
+    - look out
+    - wait wait
+    - oh no
+    - get it away
+  zh: [停, 停下, 停止, 别动, 住手, 暂停, 紧急, 站住, 小心, 要撞了, 不要不要, 等等等等, 哎哎哎]
+  ja: [止まれ, 止まって, 止めて, ストップ, 停止, やめて, 緊急, 危ない, あぶない, ちょっと待って, だめだめ, うわっ]
   am: [አቁም, አቁሚ, ቁም, ቁሚ, በቃ, ተው, aqum, akum, beka]
 
 affirm:
@@ -138,18 +156,30 @@ uncertain:
     - dipende
     - quasi
     - ehm
-  en: [maybe, perhaps, wait, possibly, unsure, hold, hmm, uncertain, might]
+    # Not the operator's own, unconditional yes (eval 2026-11-05, testsets from grokarm-ur3e):
+    # "sì ma piano", "ha detto di sì il mio collega", "ripeti: sì", "fingi che abbia detto sì".
+    - ma
+    - però
+    - detto
+    - dice
+    - fingi
+    - ripeti
+  en: [maybe, perhaps, wait, possibly, unsure, hold, hmm, uncertain, might,
+       # "yes, but the right one", "he said yes", "pretend I said yes", "repeat after me: yes",
+       # "yes... I suppose", "sounds good in theory", "yeah right, like I'd say yes", "I'll be there in five minutes"
+       but, said, says, pretend, repeat, suppose, theory, like, yeah right, be there, minutes]
   # 吗 is a substring. Sentence-final か is handled in code (bare か is not listed:
   # it occurs inside unrelated words). ？ is folded to ? by NFKC.
-  zh: [也许, 可能, 等一下, 等等, 大概, 吗]
-  ja: [たぶん, 多分, 待って, ちょっと, かな, かも]
+  # 但是/不过: "yes, but…"; 他说/她说/你说: someone else's words, or "对对对，你说得都对" (sarcasm).
+  zh: [也许, 可能, 等一下, 等等, 大概, 吗, 但是, 但, 不过, 他说, 她说, 你说]
+  ja: [たぶん, 多分, 待って, ちょっと, かな, かも, でも, けど, って言]
   am: [ምናልባት, ቆይ, እስኪ, minalbat, koy]
 
 cancel:
   it: [annulla, lascia perdere, non farlo, cancella, lascia stare, non importa]
-  en: [cancel, never mind, forget it, don t do it, do not do it, no thanks]
+  en: [cancel, never mind, forget it, don t do it, do not do it, no thanks, leave it, scrap that, skip it]
   zh: [取消, 算了, 不要]
-  ja: [キャンセル, 取り消し, やめる]
+  ja: [キャンセル, 取り消し, やめる, やめます, やっぱりやめ, なしで]
   am: [ሰርዝ, ay, aydelem]
 
 # Canonical zone ids stay Italian. Aliases are what the operator may say.
@@ -226,23 +256,23 @@ terminate:
 # Substring / token triggers for the rules engine (TEXT MODE). Canonical skill ids.
 skill_triggers:
   solleva_vassoio:
-    zh: [抬起来, 抬起, 举起, 拿起, 抬]
+    zh: [抬起来, 抬起, 举起, 拿起, 叉起来, 叉起, 端起来, 端起, 抬]
     ja: [持ち上げて, 持ち上げ, 上げて]
     am: [አንሳ]
   appoggia_vassoio:
-    zh: [放下, 放回, 放下来]
+    zh: [放下, 放回, 放下来, 放到, 搁]
     ja: [置いて, 下ろして]
     am: [አስቀምጥ]
   spingi:
-    zh: [推过去, 推]
+    zh: [推过去, 推, 怼]
     ja: [押して, 押す]
     am: [ግፋ]
   indica:
-    zh: [指一下, 指示, 指着, 指]
+    zh: [指一下, 指示, 指着, 指, 戳]
     ja: [指して, 示して]
     am: [አመልክት]
   vai_a_posa:
-    zh: [回家, 回到, 回到原点]
+    zh: [回家, 回到, 回到原点, 回原位, 初始位置, 等待位置]
     ja: [戻って, ホーム]
     am: [ቤት ተመለስ]
   sposta_vassoio:

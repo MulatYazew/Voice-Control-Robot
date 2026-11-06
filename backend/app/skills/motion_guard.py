@@ -110,7 +110,8 @@ def _box_dist(p: np.ndarray, lo: np.ndarray, hi: np.ndarray) -> float:
 
 class MotionGuard:
     def __init__(self, kin: Kinematics, cfg: dict[str, Any] | None, *, table_z: float, joint_speed: float,
-                 hubs: dict[str, Sequence[float]] | None = None, gripper: dict[str, Any] | None = None) -> None:
+                 hubs: dict[str, Sequence[float]] | None = None, gripper: dict[str, Any] | None = None,
+                 mesh: Any = None) -> None:
         # Printed semicircle gripper (semicircle_gripper.step): a beam PERPENDICULAR to the flange axis and a
         # level half ring at its end, mouth along the flange axis. Modelled as capsules that join the table and
         # self-collision checks. The beam direction in the flange frame comes from robot.yaml or is learned once
@@ -128,6 +129,11 @@ class MotionGuard:
         self.hubs = {k: np.array(v, dtype=float) for k, v in (hubs or {}).items() if k in c["hubs"]}
         self.obstacles = [(o.get("name", "box"), np.array(o["min"], float), np.array(o["max"], float))
                           for o in c["obstacles"]]
+        # Real UR3e meshes + gripper mesh (mesh_model.py). When present it replaces the gripper capsules, whose
+        # arm capsules sit up to 120 mm away from the real upper-arm tube.
+        self.mesh = mesh
+        if self.mesh is not None and self.beam_axis is not None:
+            self.mesh.set_beam_axis(self.beam_axis)
 
     # ============================================================ geometry ===
     def _links(self, q: Sequence[float]) -> dict[str, tuple[np.ndarray, np.ndarray, float]]:
@@ -162,6 +168,8 @@ class MotionGuard:
         for e in ((1.0, 0, 0), (-1.0, 0, 0), (0, 1.0, 0), (0, -1.0, 0)):
             if -float((R @ np.array(e))[2]) > math.cos(math.radians(20)):
                 self.beam_axis = np.array(e, dtype=float)
+                if self.mesh is not None:
+                    self.mesh.set_beam_axis(self.beam_axis)
                 return
 
     SELF_PAIRS = [("tool", "base"), ("tool", "upper"), ("tool", "fore"), ("tool", "w1"),
@@ -190,7 +198,12 @@ class MotionGuard:
         m["punta_nel_tavolo"] = float(L["tool"][1][2]) - (self.table_z - float(self.c["tip_below_table_m"]))
         sm = float(self.c["self_margin_m"])
         m["autocollisione"] = min(_seg_dist(*L[a][:2], *L[b][:2]) - L[a][2] - L[b][2] - sm for a, b in self.SELF_PAIRS)
-        if "beam" in L:
+        if self.mesh is not None:
+            mm = self.mesh.margins(q)
+            if self.grip and self.beam_axis is None:   # gripper direction still unknown: arm meshes only
+                mm = {k: v for k, v in mm.items() if not k.startswith("pinza")}
+            m.update(mm)
+        elif "beam" in L:
             gl = float(self.grip.get("table_clearance_m", 0.003))
             m["pinza_tavolo"] = min(min(L[k][0][2], L[k][1][2]) - L[k][2]
                                     for k in ("beam", "ring_l", "ring_r")) - (self.table_z + gl)
@@ -208,10 +221,15 @@ class MotionGuard:
                     for _n, lo, hi in self.obstacles:
                         worst = min(worst, _box_dist(p, lo, hi) - r - sm)
             m["ostacolo"] = worst
-        return m
+        return self._apply_ignore(m)
 
     def config_ok(self, q: Sequence[float]) -> bool:
         return min(self.margins(q).values()) >= 0
+
+    def _apply_ignore(self, m: dict[str, float]) -> dict[str, float]:
+        for k in self.c.get("ignore") or ():
+            m.pop(k, None)
+        return m
 
     # ============================================================ segments ===
     def _walk(self, samples: list[np.ndarray], singular: bool = False) -> str | None:
@@ -300,8 +318,12 @@ class MotionGuard:
     def plan(self, qa: Sequence[float], qb: Sequence[float]) -> list[np.ndarray]:
         """Via points (ending with qb) for a movej from qa to qb. Raises GuardRejected."""
         a, b = np.asarray(qa, float), np.asarray(qb, float)
-        if not self.config_ok(b):
-            bad = min(self.margins(b).items(), key=lambda kv: kv[1])[0]
+        ma, mb = self.margins(a), self.margins(b)
+        # A check already violated at the start (model too conservative, or the arm parked there) does not block
+        # a target that is no worse on it. Anything that newly fails still blocks.
+        bad_b = {k: v for k, v in mb.items() if v < 0 and not (ma.get(k, 0.0) < 0 and v >= ma[k] - 1e-4)}
+        if bad_b:
+            bad = min(bad_b.items(), key=lambda kv: kv[1])[0]
             raise GuardRejected(bad, f"Il punto di arrivo non è sicuro ({bad}).")
         if self.check_movej(a, b) is None:
             return [b]
@@ -475,8 +497,10 @@ def guard_from_settings(settings: Any, kin: Kinematics | None = None, table_z: f
     tz = float(rel.get("table_z_m", 0.0)) if table_z is None else float(table_z)
     hubs = {name: p["joints"] for name, p in (settings.poses or {}).items()
             if isinstance(p, dict) and p.get("joints") and (settings.mode != "real" or p.get("verificata_reale"))}
+    from .mesh_model import model_from_settings
+    mesh = model_from_settings(settings, table_z=tz)   # None when disabled (guard.mesh.enabled) or fcl missing
     return MotionGuard(kin, r.get("guard"), table_z=tz, joint_speed=float(settings.motion["joint_speed"]), hubs=hubs,
-                       gripper=r.get("gripper"))
+                       gripper=r.get("gripper"), mesh=mesh)
 
 
 def tool_down(yaw: float) -> np.ndarray:

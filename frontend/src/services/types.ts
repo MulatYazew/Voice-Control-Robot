@@ -29,12 +29,28 @@ export interface Status {
   gate: Gate; pending: Pending | null; world: World; robot: RobotStatus; robot_adapter: string; mode: string;
   fault: string | null; last_stop: Record<string, any> | null; last_result: Record<string, any> | null;
   metrics: Record<string, MetricSummary>; history: HistoryItem[];
+  inspection?: InspectionState; camera?: CameraStatus | null;
+}
+
+export interface InspectionResult {
+  status: "PASS" | "FAIL" | "UNSURE" | "NO_FRAME"; reason: string; source: string; rule: string; at: number;
+  latency_ms?: number; error?: string; frame_id?: number | null;
+}
+
+export interface InspectionState {
+  rule: string; running: boolean; last: InspectionResult | null; counts: Record<string, number>; has_image: boolean;
+}
+
+export interface CameraStatus {
+  source: "browser" | "url"; frame: { id: number; age_s: number; size: [number, number] } | null; error: string;
 }
 
 export interface Config {
   mode: "sim" | "ursim" | "real"; robot_name: string; robot_model: string; polyscope: string; zones: string[];
   directions: string[]; ttl_s: number; grok_model: string; grok_configured: boolean; warnings: string[];
   camera_available?: boolean; camera_source?: string; camera_calibrated?: boolean; station?: string; delivery_zone?: string;
+  cell_camera_source?: "browser" | "url"; inspector?: "grok" | "mock"; phone_urls?: string[];
+  inspection?: { input_zone: string; pass_zone: string; fail_zone: string; labels: Record<string, string> } | null;
 }
 
 export interface Layout { zones: Record<string, number>; poses: Record<string, number[]> }

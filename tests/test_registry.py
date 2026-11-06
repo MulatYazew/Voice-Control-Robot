@@ -86,12 +86,20 @@ def test_config_rejects_missing_pose(cfg_dir, tmp_path):
         load_settings("sim", config_dir=cfg_dir, data_dir=tmp_path, env_file=None)
 
 
-def test_real_mode_requires_explicit_config(cfg_dir, tmp_path):
-    with pytest.raises(ConfigError, match="explicit"):
+def test_real_mode_requires_explicit_config(cfg_dir, tmp_path, monkeypatch):
+    monkeypatch.delenv("ALLOW_REAL_MOTION", raising=False)
+    with pytest.raises(ConfigError, match="ALLOW_REAL_MOTION"):      # interlock (from grokarm-ur3e) comes first
+        load_settings("real", config_dir=cfg_dir, data_dir=tmp_path, env_file=None)
+    monkeypatch.setenv("ALLOW_REAL_MOTION", "yes")
+    with pytest.raises(ConfigError, match="ALLOW_REAL_MOTION"):      # only the exact phrase unlocks it
+        load_settings("real", config_dir=cfg_dir, data_dir=tmp_path, env_file=None)
+    monkeypatch.setenv("ALLOW_REAL_MOTION", "STAFF_APPROVED")
+    with pytest.raises(ConfigError, match="explicit"):                # robot.yaml opt-in still required
         load_settings("real", config_dir=cfg_dir, data_dir=tmp_path, env_file=None)
 
 
-def test_real_mode_refuses_unverified_poses(cfg_dir, tmp_path):
+def test_real_mode_refuses_unverified_poses(cfg_dir, tmp_path, monkeypatch):
+    monkeypatch.setenv("ALLOW_REAL_MOTION", "STAFF_APPROVED")
     p = cfg_dir / "robot.yaml"
     d = yaml.safe_load(p.read_text())
     d["connections"]["real"].update(enabled=True, host="10.0.0.3")

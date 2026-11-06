@@ -1,0 +1,276 @@
+<title>UR3e Gripper Clearance</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one-screen tool. 3D cell on the left, a pendant-style joint panel on the right; stacked on phones. */
+:root {
+  --bg: #eef1f2; --panel: #f8fafa; --fg: #1d2629; --muted: #5d6b70; --line: #d3dadc;
+  --accent: #3e8aa3;          /* UR joint-cap blue, deepened for text */
+  --ok: #2f7d4f; --bad: #c4362b; --warn: #b07a12;
+  --scene: #e3e8ea;
+  --display: "Barlow Semi Condensed", "Arial Narrow", sans-serif;
+  --body: "Barlow", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #151b1d; --panel: #1c2427; --fg: #e3eaec; --muted: #94a3a8; --line: #2e3a3e;
+  --accent: #7cc0d6; --ok: #5cc185; --bad: #ff6b5e; --warn: #e3ae45; --scene: #20292c; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #151b1d; --panel: #1c2427; --fg: #e3eaec; --muted: #94a3a8; --line: #2e3a3e;
+  --accent: #7cc0d6; --ok: #5cc185; --bad: #ff6b5e; --warn: #e3ae45; --scene: #20292c; color-scheme: dark }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 14px; }
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: 100%; }
+.stage { position: relative; min-width: 0; background: var(--scene); }
+#cv { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.verdict { position: absolute; top: 14px; left: max(16px, env(safe-area-inset-left, 0px)); display: flex; gap: 10px; align-items: center;
+  padding: 8px 14px; border-radius: 4px; background: var(--panel); border: 1px solid var(--line);
+  font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: .02em; }
+.verdict .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--ok); }
+.verdict.bad .dot { background: var(--bad); }
+.verdict.bad { color: var(--bad); border-color: var(--bad); }
+.hint { position: absolute; bottom: 12px; left: max(16px, env(safe-area-inset-left, 0px)); color: var(--muted); font-size: 12px; }
+aside { background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto;
+  padding-block: 16px 24px; padding-left: 18px; padding-right: max(18px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+h1 { font-family: var(--display); font-weight: 700; font-size: 22px; margin: 0; letter-spacing: .01em; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 8px; }
+.sub { color: var(--muted); margin: 4px 0 0; line-height: 1.4; }
+.joint { display: grid; grid-template-columns: 70px minmax(0,1fr) 62px; align-items: center; gap: 8px; height: 30px; }
+.joint label { font-family: var(--display); font-weight: 600; font-size: 14px; }
+.joint output { font-family: var(--mono); font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+select, button { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 4px; padding: 7px 10px; }
+button { cursor: pointer; font-family: var(--display); font-weight: 600; letter-spacing: .02em; }
+button.primary { background: var(--accent); color: var(--panel); border-color: var(--accent); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row > select { flex: 1 1 160px; min-width: 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+td { padding: 5px 0; border-bottom: 1px solid var(--line); }
+td.v { text-align: right; font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+td.s { width: 54px; text-align: right; }
+.pill { display: inline-block; min-width: 44px; text-align: center; font-family: var(--display); font-weight: 700;
+  font-size: 11px; letter-spacing: .08em; padding: 2px 6px; border-radius: 3px; color: var(--panel); background: var(--ok); }
+.pill.bad { background: var(--bad); } .pill.warn { background: var(--warn); }
+.code { font-family: var(--mono); font-size: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 4px;
+  padding: 8px 10px; overflow-x: auto; white-space: nowrap; }
+#pathlog { color: var(--muted); font-size: 13px; line-height: 1.45; margin: 8px 0 0; min-height: 1.4em; }
+#pathlog.bad { color: var(--bad); } #pathlog.ok { color: var(--ok); }
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 55vh auto; height: auto; }
+  aside { border-left: 0; border-top: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="app">
+  <div class="stage">
+    <canvas id="cv" aria-label="3D view of the UR3e with the gripper"></canvas>
+    <div class="verdict" id="verdict" role="status"><span class="dot"></span><span id="verdictText">Loading…</span></div>
+    <div class="hint">Drag to orbit · wheel or pinch to zoom · red = touching</div>
+  </div>
+  <aside>
+    <div>
+      <h1>UR3e gripper clearance</h1>
+      <p class="sub">Official UR3e collision meshes and the printed gripper in one model. Move the joints; any part the gripper touches turns red.</p>
+    </div>
+
+    <section>
+      <h2>Pose</h2>
+      <div class="row">
+        <select id="pose" aria-label="Named pose"></select>
+        <button id="testPath" class="primary">Test move to here</button>
+      </div>
+      <p id="pathlog">Checks the joint-space move from the selected pose to the slider pose, every 1°.</p>
+    </section>
+
+    <section>
+      <h2>Joints (deg)</h2>
+      <div id="joints"></div>
+    </section>
+
+    <section>
+      <h2>Gripper on the flange</h2>
+      <div class="joint"><label for="beam">Beam dir.</label><input type="range" id="beam" min="-180" max="180" step="5" value="0"><output id="beamOut">0°</output></div>
+      <p class="sub">Turn until the model's beam matches the real part in a known pose. Paste into robot.yaml:</p>
+      <div class="code" id="axisYaml"></div>
+    </section>
+
+    <section>
+      <h2>Gripper vs arm</h2>
+      <table id="checks"></table>
+    </section>
+  </aside>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.151.3/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.6.8/build/index.umd.cjs"></script>
+<script>
+const SCENE = /*__SCENE__*/null;
+const { MeshBVH } = window.MeshBVH;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const RAD = Math.PI / 180;
+const NAMES = ["Base", "Shoulder", "Elbow", "Wrist 1", "Wrist 2", "Wrist 3"];
+const LIMITS = [[-360, 360], [-180, 0], [-160, 160], [-360, 360], [-360, 360], [-360, 360]];
+const LINK_FRAME = { base: 0, shoulder: 1, upperarm: 2, forearm: 3, wrist1: 4, wrist2: 5, wrist3: 6 };
+const GRIP_VS = ["base", "shoulder", "upperarm", "forearm", "wrist1", "wrist2"];
+const LABEL = { base: "Base", shoulder: "Shoulder", upperarm: "Upper arm", forearm: "Forearm", wrist1: "Wrist 1", wrist2: "Wrist 2", table: "Table" };
+const MARGIN = SCENE.margin_m;
+
+// ---------- kinematics (same chain as mesh_model.py) ----------
+const rpy = (r, p, y) => new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(r, p, y, "ZYX"));
+const T = (xyz, r) => rpy(...r).setPosition(xyz[0], xyz[1], xyz[2]);
+const JT = SCENE.joints.map(([x, r]) => T(x, r));
+const TOOL0 = rpy(0, -Math.PI / 2, -Math.PI / 2).multiply(rpy(Math.PI / 2, 0, Math.PI / 2));
+function chain(q) {
+  const out = [new THREE.Matrix4()]; let M = new THREE.Matrix4();
+  for (let i = 0; i < 6; i++) { M = M.clone().multiply(JT[i]).multiply(new THREE.Matrix4().makeRotationZ(q[i])); out.push(M); }
+  out.push(M.clone().multiply(TOOL0));
+  return out;
+}
+
+// ---------- scene ----------
+const cv = document.getElementById("cv");
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 10);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445055, 1.1));
+const sun = new THREE.DirectionalLight(0xffffff, 0.9); sun.position.set(1, 2, 1.5); scene.add(sun);
+const world = new THREE.Group(); world.rotation.x = -Math.PI / 2; scene.add(world);   // robot z-up -> three y-up
+const grid = new THREE.GridHelper(1, 20); grid.rotation.x = Math.PI / 2; grid.position.z = SCENE.table_z; world.add(grid);
+
+const matOf = c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.55, metalness: 0.1 });
+const COL = { body: 0xb9c0c3, cap: 0x9fc6d2, grip: 0xf4f2ec, hit: 0xd8392c };
+const geo = {}, bvh = {}, mesh = {};
+for (const [name, d] of Object.entries(SCENE.meshes)) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(d.v, 3));
+  g.setIndex(d.f); g.computeVertexNormals();
+  geo[name] = g; bvh[name] = new MeshBVH(g);
+  const base = name === "gripper" ? COL.grip : (["shoulder", "wrist1", "wrist2"].includes(name) ? COL.cap : COL.body);
+  const m = new THREE.Mesh(g, matOf(base)); m.userData.base = base; m.matrixAutoUpdate = false;
+  world.add(m); mesh[name] = m;
+}
+
+// ---------- state ----------
+const q = [0, -90, 0, -90, 0, 0].map(x => x * RAD);
+let beamDeg = 0;
+if (SCENE.beam_axis) beamDeg = Math.round(Math.atan2(SCENE.beam_axis[1], SCENE.beam_axis[0]) / RAD);
+
+const jointsEl = document.getElementById("joints");
+const sliders = NAMES.map((n, i) => {
+  const row = document.createElement("div"); row.className = "joint";
+  row.innerHTML = `<label for="j${i}">${n}</label><input type="range" id="j${i}" min="${LIMITS[i][0]}" max="${LIMITS[i][1]}" step="1"><output></output>`;
+  jointsEl.append(row);
+  const s = row.querySelector("input"), o = row.querySelector("output");
+  s.addEventListener("input", () => { q[i] = +s.value * RAD; update(); });
+  return { s, o };
+});
+const beam = document.getElementById("beam"); beam.value = beamDeg;
+beam.addEventListener("input", () => { beamDeg = +beam.value; update(); });
+const poseSel = document.getElementById("pose");
+for (const name of Object.keys(SCENE.poses)) poseSel.add(new Option(name, name));
+poseSel.addEventListener("change", () => { SCENE.poses[poseSel.value].forEach((v, i) => q[i] = v); update(); });
+
+// ---------- collision (gripper vs links: BVH distance; table: lowest vertex) ----------
+const tmpA = new THREE.Matrix4(), hitA = {}, hitB = {};
+function placed(qq) {
+  const fr = chain(qq), P = {};
+  for (const n in LINK_FRAME) P[n] = fr[LINK_FRAME[n]];
+  P.gripper = fr[7].clone().multiply(new THREE.Matrix4().makeRotationZ(beamDeg * RAD));
+  return P;
+}
+function lowest(name, M) {
+  const a = geo[name].attributes.position.array, e = M.elements; let z = Infinity;
+  for (let i = 0; i < a.length; i += 3) z = Math.min(z, e[2] * a[i] + e[6] * a[i + 1] + e[10] * a[i + 2] + e[14]);
+  return z;
+}
+function evaluate(qq) {
+  const P = placed(qq), res = {};
+  for (const n of GRIP_VS) {
+    tmpA.copy(P[n]).invert().multiply(P.gripper);           // gripper in the link's frame
+    const hit = bvh[n].intersectsGeometry(geo.gripper, tmpA);
+    const d = hit ? 0 : bvh[n].closestPointToGeometry(geo.gripper, tmpA, hitA, hitB).distance;
+    res[n] = { d, ok: !hit && d >= MARGIN };
+  }
+  const low = Math.min(lowest("gripper", P.gripper), ...["forearm", "wrist1", "wrist2", "wrist3"].map(n => lowest(n, P[n])));
+  res.table = { d: low - SCENE.table_z, ok: low - SCENE.table_z >= 0.003 };
+  return { P, res };
+}
+
+function update() {
+  sliders.forEach(({ s, o }, i) => { s.value = Math.round(q[i] / RAD); o.textContent = (q[i] / RAD).toFixed(1) + "°"; });
+  document.getElementById("beamOut").textContent = beamDeg + "°";
+  const ex = Math.cos(beamDeg * RAD), ey = Math.sin(beamDeg * RAD);
+  document.getElementById("axisYaml").textContent = `offset_axis_flange: [${ex.toFixed(3)}, ${ey.toFixed(3)}, 0.0]`;
+  const { P, res } = evaluate(q);
+  for (const n in mesh) { mesh[n].matrix.copy(P[n]); mesh[n].material.color.setHex(mesh[n].userData.base); }
+  let bad = [];
+  for (const n of GRIP_VS) if (!res[n].ok) { bad.push(n); if (res[n].d === 0) { mesh[n].material.color.setHex(COL.hit); mesh.gripper.material.color.setHex(COL.hit); } }
+  if (!res.table.ok) bad.push("table");
+  const rows = [...GRIP_VS, "table"].map(n => {
+    const r = res[n], mm = r.d * 1000;
+    const cls = r.ok ? "" : (r.d <= 0 ? "bad" : "warn"), txt = r.ok ? "CLEAR" : (r.d <= 0 ? "HIT" : "CLOSE");
+    return `<tr><td>${LABEL[n]}</td><td class="v">${r.d <= 0 && n !== "table" ? "touching" : mm.toFixed(1) + " mm"}</td><td class="s"><span class="pill ${cls}">${txt}</span></td></tr>`;
+  });
+  document.getElementById("checks").innerHTML = rows.join("");
+  const v = document.getElementById("verdict");
+  v.classList.toggle("bad", bad.length > 0);
+  document.getElementById("verdictText").textContent = bad.length ? "Blocked: " + bad.map(n => LABEL[n]).join(", ") : "Pose is clear";
+  draw();
+}
+
+// ---------- path test ----------
+document.getElementById("testPath").addEventListener("click", () => {
+  const a = SCENE.poses[poseSel.value] || [0, -Math.PI / 2, 0, -Math.PI / 2, 0, 0], b = q.slice();
+  const n = Math.max(2, Math.ceil(Math.max(...b.map((x, i) => Math.abs(x - a[i]))) / RAD) + 1);
+  const log = document.getElementById("pathlog");
+  let fail = null;
+  for (let k = 0; k < n && !fail; k++) {
+    const qk = a.map((x, i) => x + (b[i] - x) * k / (n - 1));
+    const { res } = evaluate(qk);
+    const bad = Object.entries(res).find(([, r]) => !r.ok);
+    if (bad) fail = { k, qk, what: bad[0], d: bad[1].d };
+  }
+  if (!fail) { log.className = "ok"; log.textContent = `Clear: ${n} steps from "${poseSel.value}" to here, nothing within ${MARGIN * 1000} mm.`; return; }
+  fail.qk.forEach((x, i) => q[i] = x); update();
+  log.className = "bad";
+  log.textContent = `Blocked at ${Math.round(100 * fail.k / (n - 1))}% of the move from "${poseSel.value}": gripper vs ${LABEL[fail.what]} (${(fail.d * 1000).toFixed(1)} mm). Shown above.`;
+});
+
+// ---------- camera orbit ----------
+let az = 0.9, el = 0.45, dist = 1.1; const tgt = new THREE.Vector3(0, 0.25, 0);
+function draw() {
+  camera.position.set(tgt.x + dist * Math.cos(el) * Math.sin(az), tgt.y + dist * Math.sin(el), tgt.z + dist * Math.cos(el) * Math.cos(az));
+  camera.lookAt(tgt);
+  scene.background = new THREE.Color(css("--scene"));
+  renderer.render(scene, camera);
+}
+function resize() {
+  const r = cv.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false); camera.aspect = r.width / Math.max(1, r.height); camera.updateProjectionMatrix(); draw();
+}
+const pts = new Map(); let pinch = 0;
+cv.addEventListener("pointerdown", e => { cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); });
+cv.addEventListener("pointerup", e => { pts.delete(e.pointerId); pinch = 0; });
+cv.addEventListener("pointermove", e => {
+  if (!pts.has(e.pointerId)) return;
+  const [x0, y0] = pts.get(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
+  if (pts.size === 2) {
+    const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    if (pinch) dist = Math.min(3, Math.max(0.25, dist * pinch / d)); pinch = d;
+  } else { az -= (e.clientX - x0) * 0.008; el = Math.min(1.5, Math.max(-0.2, el + (e.clientY - y0) * 0.006)); }
+  draw();
+});
+cv.addEventListener("wheel", e => { e.preventDefault(); dist = Math.min(3, Math.max(0.25, dist * Math.exp(e.deltaY * 0.001))); draw(); }, { passive: false });
+new ResizeObserver(resize).observe(cv);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+
+if (SCENE.poses.home) poseSel.value = "home";
+update(); resize();
+</script>

@@ -10,6 +10,7 @@ const S = {
   nav_hist: ["Storico ispezioni", "Inspection History"],
   nav_robot: ["Stato robot", "Robot Status"],
   nav_eval: ["Valutazione", "Evaluation"],
+  nav_camera: ["Telecamera e visione", "Camera & vision"],
   start_voice: ["AVVIA ASSISTENTE VOCALE", "START VOICE ASSISTANT"],
   starting: ["AVVIO…", "STARTING…"],
   mic_live: ["Microfono attivo · parla in italiano o inglese", "Microphone on · speak Italian or English"],

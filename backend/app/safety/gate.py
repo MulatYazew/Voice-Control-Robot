@@ -149,7 +149,8 @@ class Gate(MotionMixin):
                 "mode": self.s.mode, "fault": self.fault_reason, "last_stop": self.last_stop,
                 "last_result": self.last_result.to_dict() if self.last_result else None,
                 "metrics": self.metrics.summary(), "history": self.history.list()[:30],
-                "cycle": self.cycle, "inspection": self.inspection.public()}
+                "cycle": self.cycle, "inspection": self.inspection.public(),
+                "camera": self.camera.status() if self.camera is not None and hasattr(self.camera, "status") else None}
 
     def on_report(self, cb: Callable[[dict[str, Any]], Any]) -> Callable[[], None]:
         self._report_cbs.append(cb)
@@ -243,7 +244,7 @@ class Gate(MotionMixin):
     def note_transcript(self, text: str | None, *, final: bool = True, source: str = "voice",
                         stop_allowed: bool = True, auto_act: bool = False) -> bool:
         """Operator transcript. Returns True if it triggered STOP (handled independently of Grok)."""
-        stop = stop_allowed and phrases.is_stop(text)
+        stop = stop_allowed and self._is_stop_now(text)
         if final:
             u = self.utterance
             if u is None or u.text is not None or u.source != source:
@@ -254,11 +255,19 @@ class Gate(MotionMixin):
             self.history.add(kind="utterance", source=source, text=text)
             log_event(log, "operator said", text=text, source=source)   # traceability (local log only)
         if stop:
+            self._partial_gen += 1
             asyncio.ensure_future(self.stop(f"transcript:{source}", detail=text or ""))
             return True
         if final and auto_act:
+            self._partial_gen += 1
             self._bg.append(asyncio.ensure_future(self.act_on_voice(text or "")))
         return False
+
+    def _is_stop_now(self, text: str | None) -> bool:
+        """While the arm moves, panic words ("no!", "wait!") also stop it; otherwise the normal STOP words."""
+        if self.state == GateState.EXECUTING:
+            return phrases.is_motion_stop(text)
+        return phrases.is_stop(text)
 
     async def act_on_voice(self, text: str) -> None:
         """Rules may propose a finished sentence without waiting for another model turn."""
@@ -267,12 +276,48 @@ class Gate(MotionMixin):
         from ..conversation.fast_voice import propose_if_complete
         await propose_if_complete(self, text)
 
-    def note_partial(self, text: str | None, *, source: str = "voice") -> bool:
-        """Interim transcript: only used to catch STOP as early as possible."""
-        if phrases.is_stop(text) and self.state != GateState.STOPPED:
+    def note_partial(self, text: str | None, *, source: str = "voice", turn_closed: bool = False,
+                     auto_act: bool = False) -> bool:
+        """Interim transcript: STOP as early as possible; a bare yes once the turn has closed (not on the real robot)."""
+        if self._is_stop_now(text) and self.state != GateState.STOPPED:
+            self._partial_gen += 1
             asyncio.ensure_future(self.stop(f"transcript:{source}", detail=f"(parziale) {text}"))
             return True
+        if not auto_act or not turn_closed or self.s.mode == "real":
+            return False
+        self._partial_gen += 1
+        if phrases.is_bare_yes(text):
+            gen = self._partial_gen
+            self._bg.append(asyncio.ensure_future(self._debounced_yes(text or "", source, gen)))
         return False
+
+    def cancel_voice_yes(self) -> None:
+        """New speech started: a pending debounced yes no longer applies."""
+        self._partial_gen += 1
+
+    async def _debounced_yes(self, text: str, source: str, gen: int) -> None:
+        """Confirm on a short, finished yes without waiting for the final transcript. gate.confirm still applies every
+        rule (question asked, reply after the question, one-time authorisation, robot available)."""
+        try:
+            await asyncio.sleep(0.12)
+        except asyncio.CancelledError:
+            return
+        if gen != self._partial_gen or not phrases.is_bare_yes(text):
+            return
+        if self.state != GateState.PENDING_CONFIRMATION or self.pending is None:
+            return
+        pa = self.pending
+        if pa.question_asked_at is None:
+            return
+        u = self.utterance
+        if u is None or u.source != source or u.done.is_set() or u.id <= pa.question_after_utt:
+            u = self.note_turn_committed(source)
+        if u.id <= pa.question_after_utt:
+            return
+        if u.text is None:
+            u.text = text
+            u.done.set()
+        await self.confirm(pa.id, source="transcript")
 
     # ============================================================ proposal ===
     def _blocked(self) -> dict[str, Any] | None:
@@ -822,6 +867,54 @@ class Gate(MotionMixin):
         self.history.add(kind="posa_salvata", name=key, joints=pose["joints"])
         self.publish_state()
         return {"ok": True, "esito": "posa_salvata", "nome": key, "nota": "Salvata, non eseguita. Usare vai_a_posa."}
+
+    # =================================================== saved instructions ===
+    async def save_instruction(self, name: str, passi: list[dict[str, Any]]) -> dict[str, Any]:
+        """Record a named sequence of skills (from grokarm-ur3e). Saved to data/user_instructions.yaml, validated
+        against the current world, never moves the robot."""
+        import re
+
+        import yaml
+        b = self._blocked()
+        if b or self.state == GateState.PENDING_CONFIRMATION:
+            return b or _err("occupato", "C'è un'azione in attesa di conferma.")
+        key = re.sub(r"[^a-z0-9_]", "", str(name).strip().lower().replace(" ", "_"))
+        if not re.fullmatch(r"[a-z][a-z0-9_]{1,30}", key or ""):
+            return _err("nome_non_valido", "Nome non valido: usa una o due parole semplici.")
+        if key in (self.reg.skills or {}):
+            return _err("nome_riservato", f"'{key}' è un'abilità configurata: scegli un altro nome.")
+        if not passi or len(passi) > 5:
+            return _err("sequenza_non_valida", "La sequenza deve avere da 1 a 5 passi.")
+        sim = self.world.copy()
+        validated: list[dict[str, Any]] = []
+        for i, st in enumerate(passi):
+            try:
+                a = self.reg.validate(st.get("skill") or "", st.get("parametri") or st.get("params") or {}, sim)
+            except SkillError as e:
+                d = e.to_dict()
+                d["passo"] = i + 1
+                return d
+            sim.apply_effects(a.skill, a.params)
+            validated.append({"skill": a.skill, "params": a.params})
+        path = self.s.data_dir / "user_instructions.yaml"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        data = (yaml.safe_load(path.read_text()) or {}) if path.exists() else {}
+        data.setdefault("instructions", {})[key] = {"passi": validated, "alias": [key.replace("_", " ")], "fonte": "voce"}
+        path.write_text(yaml.safe_dump(data, allow_unicode=True, sort_keys=False))
+        self.s.user_instructions[key] = data["instructions"][key]
+        self.history.add(kind="istruzione_salvata", name=key, passi=validated)
+        self.publish_state()
+        return {"ok": True, "esito": "istruzione_salvata", "nome": key, "passi": validated,
+                "nota": "Salvata, non eseguita. Per usarla: execute_instruction(nome); ogni movimento chiede conferma."}
+
+    async def execute_instruction(self, name: str, *, source: str = "grok") -> dict[str, Any]:
+        """Propose a saved instruction as a sequence: EACH movement still needs its own explicit yes."""
+        import re
+        key = re.sub(r"[^a-z0-9_]", "", str(name).strip().lower().replace(" ", "_"))
+        instr = (self.s.user_instructions or {}).get(key)
+        if not instr or not instr.get("passi"):
+            return _err("istruzione_sconosciuta", f"Istruzione '{name}' non trovata. Prima salvala con save_instruction.")
+        return self.propose_sequence(instr["passi"], source=source)
 
     # ======================================================= voice session ===
     async def on_voice_disconnected(self, reason: str, *, stop_motion: bool | None = None) -> None:

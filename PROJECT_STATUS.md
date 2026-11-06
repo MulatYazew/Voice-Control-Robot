@@ -455,3 +455,40 @@ A probe program was accepted by URSim at the same time (Remote Control was fine)
 (4) prompt rule for `gia_in_posa`; (5) English rules "go above / move the arm above <zone>".
 **Verified on URSim:** same-pose execute → completed in 0.03 s; "Move the arm of the robot to the right." via Grok →
 "already at pose destra sopra… where would you like to move it?"; "Go home" → real move completed. Tests: 330 passed.
+
+## Merge 2026-11-05 — grokarm-ur3e (Apache-2.0, attribution in `NOTICE`) — DONE · TESTED (491 + new tests pass)
+
+Source: https://github.com/13032585789-spec/grokarm-ur3e. Vision / grokarm_vision / stereo depth / cartesian / grasp /
+kinematics code was already identical here; only the pieces below were missing and were added.
+
+| Added | Where | State |
+|---|---|---|
+| Mesh collision model (python-fcl + trimesh, macOS arm64 wheels) | `skills/mesh_model.py`, `config/meshes/ur3e/` | DONE · TESTED; **OFF** in `robot.yaml` (`guard.mesh.enabled: false`) because Arm 3's model is not confirmed as UR3e |
+| Motion guard with mesh + `ignore` list | `skills/motion_guard.py` | DONE · TESTED; guard still `enabled: false` |
+| Real-robot interlock `ALLOW_REAL_MOTION=STAFF_APPROVED` | `config.py` | DONE · TESTED |
+| Panic words stop while moving, debounced bare "yes" (sim/URSim only) | `safety/phrases.py`, `safety/gate.py`, `voice/grok_session.py` | DONE · TESTED |
+| Learned (named) instructions; each movement still confirmed | `save_instruction` / `execute_instruction` tools | DONE · TESTED |
+| Chinese colloquial commands, corrections (不对/不是), "the other one" from the previous command, "what can you do" | `conversation/rules.py`, `config/lexicon.yaml`, `config/poses.yaml` | DONE · TESTED |
+| Multilingual testsets it/en/zh/ja/es/fr/de (631 cases), `--testset` | `eval/` | DONE · run with rules |
+| Camera & vision tab (webcam / phone feed, cups, table calibration, inspection) | `frontend/src/components/CameraPanel.tsx`, `InspectionPanel.tsx`, `i18n/vision.ts` | DONE · builds; NOT TESTED with a real phone |
+| Phone camera service started by the launcher | `start(mode, phone_camera=True)`, notebook `PHONE_CAMERA` | DONE · TESTED start/stop + VOCE polling it; NOT TESTED with a phone |
+| Collision viewer, beam-axis script, gripper doc | `tools/`, `scripts/beam_axis.py`, `docs/GRIPPER.md` | copied (macOS paths) |
+
+**Deliberately NOT imported (safety / platform):** real-robot auto-execute without a confirmation; serving the whole app on
+0.0.0.0 (only the phone page listens on the LAN; VOCE and the vision operator API stay on 127.0.0.1); Windows scripts;
+the committed `frontend/dist`; VAD `silence_duration_ms=280` / `prefix_padding_ms=200` (not in the xAI Voice docs,
+checked 2026-11-05: only `type` and `idle_timeout_ms` are documented). The fast-path proposal still waits for the
+question to be spoken before a "yes" counts (theirs marked it immediately) — their tests were adapted, with the reason
+written in the test.
+
+**Safety bugs found by the imported testsets and FIXED:**
+- Reported / conditional / sarcastic "yes" was accepted as a confirmation ("He said yes", "Pretend I said yes",
+  "Yes, but the right one", "Sì ma piano", "他说可以", "はい…でも右の方で"). Now uncertain → no motion.
+  `conferme_non_autorizzate_bloccate` = 100 % on every set (was 71–89 % on en/zh/it/ja).
+- Cancel phrases were ignored while a question was open ("Forget it", "やっぱりやめます"). Fixed.
+- Panic words now latch STOP in every state ("Hold it!", "Attento!", "Occhio!", "小心！", "危ない！"). Bare "no" /
+  "help" stay motion-only, and a single "fermo!" is still not a STOP (spec test).
+
+Rules engine after the merge (offline, `--engines rules`): testset 144/153 · it 56/69 · en 197/240 · zh 77/84 ·
+ja 50/61. es/fr/de are low (~45 %) because the offline rules engine does not cover those languages; live Grok does.
+Grok-engine and URSim runs of the new testsets: NOT RUN.

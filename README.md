@@ -124,6 +124,18 @@ All logic lives in `backend/app/preflight.py` and `backend/app/launcher.py`.
 
 VOCE runs in its **own process**. *Run All*, restarting the kernel or closing the notebook do not stop it, and a new kernel reconnects to it. It stops only when you set `STOP_VOCE = True` in the last cell, or by Ctrl+C when started with `./start.sh`. The server log is in `logs/server.log`, and every shutdown records who asked for it.
 
+### 8b. Phone camera (optional, from grokarm-ur3e)
+
+```python
+handle = start(mode="ursim", phone_camera=True)   # or PHONE_CAMERA = True in the notebook
+```
+
+This starts `python -m grokarm_vision` as a second process. Open the printed `https://<mac-ip>:8711/` on a phone on the
+same Wi-Fi, accept the self-signed certificate (stored in `.certs/`, git-ignored) and allow the camera. VOCE reads the
+frames from `http://127.0.0.1:8710/api/frame.jpg`; open the **Camera & vision** tab. Only the phone page listens on the
+LAN; VOCE stays on 127.0.0.1. macOS may ask once to allow incoming connections for Python. `handle.stop()` stops both.
+Without a phone, the tab can use the Mac's webcam in the browser.
+
 ## 9. Grok configuration
 Realtime WebSocket `wss://api.x.ai/v1/realtime?model=grok-voice-latest`, Bearer auth from the backend. Session settings:
 - `server_vad`

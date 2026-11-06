@@ -231,3 +231,4 @@ frontend/dist/
 *.egg-info/
 
 recordings/
+.certs/

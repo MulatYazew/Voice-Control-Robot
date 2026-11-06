@@ -1,16 +1,369 @@
 {
- "generated_at": "2026-11-05 11:45",
+ "generated_at": "2026-11-05 17:53",
  "n_cases": 153,
  "config": {
   "grok_model": "grok-voice-latest",
   "voice": "eve",
   "lang_hint": "it",
   "prompt_file": "backend/app/voice/prompt_it.md",
-  "prompt_sha256": "1842ed12cf6227e07388ab727b0ce45c46c8d7fe30ccf6f696f8d3c314431987",
+  "prompt_sha256": "da77f8357c1d9d0f97b8897a636094136fdec80e94b12f790767a1da34b892fb",
   "robot": "SimAdapter (fast) — conversation/gate evaluation, not robot timing",
   "n_cases": 153
  },
  "summary": {
+  "rules": {
+   "overall": {
+    "selezione_skill": {
+     "ok": 39,
+     "n": 47,
+     "rate": 0.83
+    },
+    "estrazione_parametri": {
+     "ok": 38,
+     "n": 47,
+     "rate": 0.809
+    },
+    "chiarimento_corretto": {
+     "ok": 23,
+     "n": 23,
+     "rate": 1.0
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 17,
+     "n": 17,
+     "rate": 1.0
+    },
+    "conferme_non_autorizzate_bloccate": {
+     "ok": 11,
+     "n": 11,
+     "rate": 1.0
+    },
+    "conferme_valide_eseguite": {
+     "ok": 10,
+     "n": 10,
+     "rate": 1.0
+    },
+    "annullamento": {
+     "ok": 8,
+     "n": 8,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 13,
+     "n": 13,
+     "rate": 1.0
+    },
+    "latenza_turno_ms": {
+     "median": 1,
+     "max": 9,
+     "n": 153
+    },
+    "complessivo": {
+     "ok": 144,
+     "n": 153,
+     "rate": 0.941
+    }
+   },
+   "external": {
+    "selezione_skill": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "estrazione_parametri": {
+     "ok": 2,
+     "n": 2,
+     "rate": 1.0
+    },
+    "chiarimento_corretto": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "rifiuto_fuori_ambito": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "riconoscimento_stop": {
+     "ok": 1,
+     "n": 1,
+     "rate": 1.0
+    },
+    "latenza_turno_ms": {
+     "median": 1,
+     "max": 9,
+     "n": 5
+    },
+    "complessivo": {
+     "ok": 5,
+     "n": 5,
+     "rate": 1.0
+    }
+   },
+   "by_language": {
+    "am": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 0,
+      "max": 1,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 18,
+      "n": 18,
+      "rate": 1.0
+     }
+    },
+    "en": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 4,
+      "rate": 0.75
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 4,
+      "rate": 0.75
+     },
+     "chiarimento_corretto": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 0,
+      "max": 1,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 17,
+      "n": 18,
+      "rate": 0.944
+     }
+    },
+    "it": {
+     "selezione_skill": {
+      "ok": 27,
+      "n": 34,
+      "rate": 0.794
+     },
+     "estrazione_parametri": {
+      "ok": 26,
+      "n": 34,
+      "rate": 0.765
+     },
+     "chiarimento_corretto": {
+      "ok": 12,
+      "n": 12,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 9,
+      "n": 9,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 7,
+      "n": 7,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 6,
+      "n": 6,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 4,
+      "n": 4,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 9,
+      "n": 9,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 1,
+      "max": 9,
+      "n": 81
+     },
+     "complessivo": {
+      "ok": 73,
+      "n": 81,
+      "rate": 0.901
+     }
+    },
+    "ja": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 0,
+      "max": 1,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 18,
+      "n": 18,
+      "rate": 1.0
+     }
+    },
+    "zh": {
+     "selezione_skill": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "estrazione_parametri": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "chiarimento_corretto": {
+      "ok": 3,
+      "n": 3,
+      "rate": 1.0
+     },
+     "rifiuto_fuori_ambito": {
+      "ok": 2,
+      "n": 2,
+      "rate": 1.0
+     },
+     "conferme_non_autorizzate_bloccate": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "conferme_valide_eseguite": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "annullamento": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "riconoscimento_stop": {
+      "ok": 1,
+      "n": 1,
+      "rate": 1.0
+     },
+     "latenza_turno_ms": {
+      "median": 0,
+      "max": 1,
+      "n": 18
+     },
+     "complessivo": {
+      "ok": 18,
+      "n": 18,
+      "rate": 1.0
+     }
+    }
+   }
+  },
   "grok": {
    "overall": {
     "selezione_skill": {
@@ -363,363 +716,10 @@
      }
     }
    }
-  },
-  "rules": {
-   "overall": {
-    "selezione_skill": {
-     "ok": 43,
-     "n": 47,
-     "rate": 0.915
-    },
-    "estrazione_parametri": {
-     "ok": 42,
-     "n": 47,
-     "rate": 0.894
-    },
-    "chiarimento_corretto": {
-     "ok": 23,
-     "n": 23,
-     "rate": 1.0
-    },
-    "rifiuto_fuori_ambito": {
-     "ok": 17,
-     "n": 17,
-     "rate": 1.0
-    },
-    "conferme_non_autorizzate_bloccate": {
-     "ok": 11,
-     "n": 11,
-     "rate": 1.0
-    },
-    "conferme_valide_eseguite": {
-     "ok": 10,
-     "n": 10,
-     "rate": 1.0
-    },
-    "annullamento": {
-     "ok": 8,
-     "n": 8,
-     "rate": 1.0
-    },
-    "riconoscimento_stop": {
-     "ok": 13,
-     "n": 13,
-     "rate": 1.0
-    },
-    "latenza_turno_ms": {
-     "median": 0,
-     "max": 4,
-     "n": 153
-    },
-    "complessivo": {
-     "ok": 148,
-     "n": 153,
-     "rate": 0.967
-    }
-   },
-   "external": {
-    "selezione_skill": {
-     "ok": 2,
-     "n": 2,
-     "rate": 1.0
-    },
-    "estrazione_parametri": {
-     "ok": 2,
-     "n": 2,
-     "rate": 1.0
-    },
-    "chiarimento_corretto": {
-     "ok": 1,
-     "n": 1,
-     "rate": 1.0
-    },
-    "rifiuto_fuori_ambito": {
-     "ok": 1,
-     "n": 1,
-     "rate": 1.0
-    },
-    "riconoscimento_stop": {
-     "ok": 1,
-     "n": 1,
-     "rate": 1.0
-    },
-    "latenza_turno_ms": {
-     "median": 0,
-     "max": 4,
-     "n": 5
-    },
-    "complessivo": {
-     "ok": 5,
-     "n": 5,
-     "rate": 1.0
-    }
-   },
-   "by_language": {
-    "am": {
-     "selezione_skill": {
-      "ok": 3,
-      "n": 3,
-      "rate": 1.0
-     },
-     "estrazione_parametri": {
-      "ok": 3,
-      "n": 3,
-      "rate": 1.0
-     },
-     "chiarimento_corretto": {
-      "ok": 3,
-      "n": 3,
-      "rate": 1.0
-     },
-     "rifiuto_fuori_ambito": {
-      "ok": 2,
-      "n": 2,
-      "rate": 1.0
-     },
-     "conferme_non_autorizzate_bloccate": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "conferme_valide_eseguite": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "annullamento": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "riconoscimento_stop": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "latenza_turno_ms": {
-      "median": 0,
-      "max": 0,
-      "n": 18
-     },
-     "complessivo": {
-      "ok": 18,
-      "n": 18,
-      "rate": 1.0
-     }
-    },
-    "en": {
-     "selezione_skill": {
-      "ok": 4,
-      "n": 4,
-      "rate": 1.0
-     },
-     "estrazione_parametri": {
-      "ok": 4,
-      "n": 4,
-      "rate": 1.0
-     },
-     "chiarimento_corretto": {
-      "ok": 2,
-      "n": 2,
-      "rate": 1.0
-     },
-     "rifiuto_fuori_ambito": {
-      "ok": 2,
-      "n": 2,
-      "rate": 1.0
-     },
-     "conferme_non_autorizzate_bloccate": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "conferme_valide_eseguite": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "annullamento": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "riconoscimento_stop": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "latenza_turno_ms": {
-      "median": 0,
-      "max": 0,
-      "n": 18
-     },
-     "complessivo": {
-      "ok": 18,
-      "n": 18,
-      "rate": 1.0
-     }
-    },
-    "it": {
-     "selezione_skill": {
-      "ok": 30,
-      "n": 34,
-      "rate": 0.882
-     },
-     "estrazione_parametri": {
-      "ok": 29,
-      "n": 34,
-      "rate": 0.853
-     },
-     "chiarimento_corretto": {
-      "ok": 12,
-      "n": 12,
-      "rate": 1.0
-     },
-     "rifiuto_fuori_ambito": {
-      "ok": 9,
-      "n": 9,
-      "rate": 1.0
-     },
-     "conferme_non_autorizzate_bloccate": {
-      "ok": 7,
-      "n": 7,
-      "rate": 1.0
-     },
-     "conferme_valide_eseguite": {
-      "ok": 6,
-      "n": 6,
-      "rate": 1.0
-     },
-     "annullamento": {
-      "ok": 4,
-      "n": 4,
-      "rate": 1.0
-     },
-     "riconoscimento_stop": {
-      "ok": 9,
-      "n": 9,
-      "rate": 1.0
-     },
-     "latenza_turno_ms": {
-      "median": 0,
-      "max": 4,
-      "n": 81
-     },
-     "complessivo": {
-      "ok": 76,
-      "n": 81,
-      "rate": 0.938
-     }
-    },
-    "ja": {
-     "selezione_skill": {
-      "ok": 3,
-      "n": 3,
-      "rate": 1.0
-     },
-     "estrazione_parametri": {
-      "ok": 3,
-      "n": 3,
-      "rate": 1.0
-     },
-     "chiarimento_corretto": {
-      "ok": 3,
-      "n": 3,
-      "rate": 1.0
-     },
-     "rifiuto_fuori_ambito": {
-      "ok": 2,
-      "n": 2,
-      "rate": 1.0
-     },
-     "conferme_non_autorizzate_bloccate": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "conferme_valide_eseguite": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "annullamento": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "riconoscimento_stop": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "latenza_turno_ms": {
-      "median": 0,
-      "max": 0,
-      "n": 18
-     },
-     "complessivo": {
-      "ok": 18,
-      "n": 18,
-      "rate": 1.0
-     }
-    },
-    "zh": {
-     "selezione_skill": {
-      "ok": 3,
-      "n": 3,
-      "rate": 1.0
-     },
-     "estrazione_parametri": {
-      "ok": 3,
-      "n": 3,
-      "rate": 1.0
-     },
-     "chiarimento_corretto": {
-      "ok": 3,
-      "n": 3,
-      "rate": 1.0
-     },
-     "rifiuto_fuori_ambito": {
-      "ok": 2,
-      "n": 2,
-      "rate": 1.0
-     },
-     "conferme_non_autorizzate_bloccate": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "conferme_valide_eseguite": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "annullamento": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "riconoscimento_stop": {
-      "ok": 1,
-      "n": 1,
-      "rate": 1.0
-     },
-     "latenza_turno_ms": {
-      "median": 0,
-      "max": 0,
-      "n": 18
-     },
-     "complessivo": {
-      "ok": 18,
-      "n": 18,
-      "rate": 1.0
-     }
-    }
-   }
   }
  },
  "files": [
-  "20261105-114128_grok.json"
+  "20261105-175259_rules.json"
  ],
  "latency": {
   "environment": "ursim (ursim@::1)",
